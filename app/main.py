@@ -40,7 +40,9 @@ async def start_session():
     """Начать новую сессию опросника"""
     session_id = session_manager.create_session()
     initial_node = questionnaire.get_initial_node()
-    
+
+    session_manager.update_current_node(session_id, initial_node)
+
     return JSONResponse(content={
         "session_id": session_id,
         "node": initial_node,
@@ -61,36 +63,47 @@ async def get_session_state(session_id: str):
         "history": session.get("history", [])
     }
 
+
 @app.post("/api/session/{session_id}/answer")
 async def submit_answer(session_id: str, answer_request: AnswerRequest):
     """Отправить ответ на текущий вопрос"""
     if not session_manager.session_exists(session_id):
         raise HTTPException(status_code=404, detail="Сессия не найдена")
-    
+
     session = session_manager.get_session(session_id)
-    current_node_id = session.get("current_node", {}).get("id", "Q0")
-    
-    # Получаем текущую ноду
+
+    # --- ИСПРАВЛЕННЫЙ БЛОК ПОЛУЧЕНИЯ ID ---
+    current_node_data = session.get("current_node")
+
+    # Если сервер "забыл" текущую ноду, считаем, что это Q0 (начало)
+    if current_node_data is None:
+        current_node_id = "Q0"
+    else:
+        current_node_id = current_node_data.get("id")
+    # ---------------------------------------
+
+    # Получаем текущую ноду из графа
     current_node = questionnaire.get_node(current_node_id)
     if not current_node:
         raise HTTPException(status_code=400, detail="Текущая нода не найдена")
-    
+
     # Сохраняем ответ
     session_manager.add_answer(session_id, current_node_id, answer_request.answer)
-    
+
     # Определяем следующую ноду на основе ответа
     next_node = questionnaire.get_next_node(
         current_node_id=current_node_id,
         answer=answer_request.answer,
         session_data=session_manager.get_session(session_id)
     )
-    
+
     if not next_node:
-        raise HTTPException(status_code=400, detail="Не удалось определить следующий вопрос")
-    
+        # Если следующего вопроса нет, возможно это конец ветки или ошибка логики
+        raise HTTPException(status_code=400, detail="Не удалось определить следующий шаг. Проверьте логику графа.")
+
     # Обновляем текущую ноду в сессии
     session_manager.update_current_node(session_id, next_node)
-    
+
     # Добавляем в историю
     history_entry = {
         "node_id": current_node_id,
@@ -99,7 +112,7 @@ async def submit_answer(session_id: str, answer_request: AnswerRequest):
         "timestamp": session_manager.get_timestamp()
     }
     session_manager.add_to_history(session_id, history_entry)
-    
+
     # Если это конечная нода - возвращаем рекомендацию
     if next_node.get("type") == "final":
         return RecommendationResponse(
@@ -109,7 +122,7 @@ async def submit_answer(session_id: str, answer_request: AnswerRequest):
             recommendation=next_node.get("recommendation", ""),
             parameters=next_node.get("parameters", {})
         )
-    
+
     # Иначе возвращаем следующий вопрос
     return SessionResponse(
         session_id=session_id,
