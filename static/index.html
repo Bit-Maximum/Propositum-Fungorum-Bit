@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Клинический опросник - Переломы бедренной кости</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-bone"></i> Клинический опросник</h1>
+            <p class="subtitle">Система поддержки принятия решений при переломах проксимального отдела бедренной кости</p>
+            <div class="session-info" id="sessionInfo">
+                <span id="sessionId">Сессия: не начата</span>
+                <button onclick="resetSession()" class="btn-secondary">
+                    <i class="fas fa-redo"></i> Начать заново
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <div class="questionnaire-container">
+                <!-- Область для вопроса -->
+                <div class="question-card" id="questionCard">
+                    <div class="question-header">
+                        <h2 id="questionTitle">Добро пожаловать в клинический опросник</h2>
+                        <p id="questionDescription">
+                            На основе Федеральных клинических рекомендаций по переломам проксимального отдела бедренной кости.
+                            Ответьте на вопросы для получения персонализированных рекомендаций по лечению.
+                        </p>
+                    </div>
+                    
+                    <div class="question-body" id="questionBody">
+                        <!-- Здесь будет динамически загружаться вопрос -->
+                        <div class="start-screen">
+                            <div class="welcome-message">
+                                <i class="fas fa-stethoscope welcome-icon"></i>
+                                <h3>Начните новую сессию</h3>
+                                <p>Опросник поможет определить оптимальную тактику хирургического лечения на основе возраста пациента, типа перелома и сопутствующих факторов.</p>
+                                <button onclick="startNewSession()" class="btn-primary">
+                                    <i class="fas fa-play"></i> Начать опросник
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="question-footer">
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="navigation-buttons">
+                            <button onclick="goBack()" class="btn-secondary" id="backButton" disabled>
+                                <i class="fas fa-arrow-left"></i> Назад
+                            </button>
+                            <button onclick="submitAnswer()" class="btn-primary" id="submitButton" disabled>
+                                Далее <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Область для истории ответов -->
+                <div class="history-container">
+                    <h3><i class="fas fa-history"></i> История ответов</h3>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-history">
+                            <i class="fas fa-clipboard-list"></i>
+                            <p>Здесь будет отображаться история ваших ответов</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Область для результатов -->
+            <div class="result-container" id="resultContainer" style="display: none;">
+                <div class="result-card">
+                    <div class="result-header">
+                        <h2><i class="fas fa-check-circle"></i> Рекомендация по лечению</h2>
+                        <p class="evidence-level" id="evidenceLevel"></p>
+                    </div>
+                    
+                    <div class="result-body">
+                        <div class="recommendation-section">
+                            <h3>Основная рекомендация:</h3>
+                            <div class="recommendation-text" id="recommendationText"></div>
+                        </div>
+                        
+                        <div class="parameters-section">
+                            <h3>Параметры лечения:</h3>
+                            <div class="parameters-grid" id="parametersGrid"></div>
+                        </div>
+                        
+                        <div class="actions-section">
+                            <button onclick="startNewSession()" class="btn-primary">
+                                <i class="fas fa-redo"></i> Новый пациент
+                            </button>
+                            <button onclick="printRecommendation()" class="btn-secondary">
+                                <i class="fas fa-print"></i> Распечатать
+                            </button>
+                            <button onclick="downloadRecommendation()" class="btn-secondary">
+                                <i class="fas fa-download"></i> Сохранить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Разработано на основе Федеральных клинических рекомендаций "Переломы проксимального отдела бедренной кости"</p>
+            <p class="version">Версия 1.0.0 | Доказательная медицина</p>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
