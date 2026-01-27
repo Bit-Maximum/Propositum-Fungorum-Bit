@@ -1,0 +1,13 @@
+[project]
+name = "gribova"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "aiofiles>=23.2.1",
+    "fastapi>=0.104.1",
+    "pydantic>=2.7.4",
+    "python-multipart>=0.0.6",
+    "uvicorn[standard]>=0.24.0",
+]
