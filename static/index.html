@@ -6,6 +6,8 @@
     <title>Клинический опросник - Переломы бедренной кости</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -18,6 +20,9 @@
                     <i class="fas fa-redo"></i> Начать заново
                 </button>
             </div>
+            <button onclick="showGraph()" class="btn-secondary">
+                <i class="fas fa-project-diagram"></i> Схема алгоритма
+            </button>
         </header>
 
         <main>
@@ -113,7 +118,24 @@
             <p class="version">Версия 1.0.0 | Доказательная медицина</p>
         </footer>
     </div>
+    <div id="graphModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeGraph()">&times;</span>
+            <h2>Алгоритм принятия решений</h2>
 
+            <!-- Контейнер для графа -->
+            <div id="graphContainerWrapper" style="position: relative;">
+                <div class="mermaid" id="graphContainer">
+                    Loading...
+                </div>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn()" title="Приблизить"><i class="fas fa-plus"></i></button>
+                    <button onclick="zoomOut()" title="Отдалить"><i class="fas fa-minus"></i></button>
+                    <button onclick="resetZoomGraph()" title="Сброс"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="/static/script.js"></script>
 </body>
 </html>

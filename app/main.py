@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import json
@@ -30,11 +30,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 session_manager = SessionManager()
 questionnaire = Questionnaire("data/questionnaire.json")
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=FileResponse)
 async def get_home():
     """Главная страница с интерфейсом опросника"""
-    index_path = Path("static/index.html")
-    return index_path.read_text()
+    return FileResponse("static/index.html")
 
 @app.post("/api/session/start")
 async def start_session():

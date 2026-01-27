@@ -18,7 +18,7 @@ body {
     padding: 20px;
 }
 
-/* Заголовок */
+
 header {
     background: white;
     padding: 25px;
@@ -49,7 +49,7 @@ header h1 {
     border-left: 4px solid #3498db;
 }
 
-/* Основной контейнер */
+
 .questionnaire-container {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -100,7 +100,7 @@ header h1 {
     margin-bottom: 20px;
 }
 
-/* Кнопки */
+
 .btn-primary, .btn-secondary {
     padding: 12px 24px;
     border: none;
@@ -138,7 +138,7 @@ header h1 {
     transform: none;
 }
 
-/* История */
+
 .history-container {
     background: white;
     padding: 20px;
@@ -170,7 +170,7 @@ header h1 {
     color: #bdc3c7;
 }
 
-/* Формы вопросов */
+
 .question-form {
     display: flex;
     flex-direction: column;
@@ -228,7 +228,7 @@ header h1 {
     transition: width 0.5s ease;
 }
 
-/* Результаты */
+
 .result-container {
     animation: slideIn 0.5s ease;
 }
@@ -300,6 +300,12 @@ header h1 {
     gap: 8px;
 }
 
+.param-desc {
+    margin-bottom: 10px;
+    font-style: italic;
+    color: #555;
+}
+
 /* Подвал */
 footer {
     text-align: center;
@@ -314,17 +320,188 @@ footer {
     font-style: italic;
 }
 
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 2vh auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 95%;
+    max-width: 1600px;
+    height: 96vh;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.close-modal, h2 {
+    flex-shrink: 0;
+}
+
+.close-modal {
+    color: #aaa;
+    align-self: flex-end;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+
+#graphContainerWrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-height: 0;
+}
+
+
+#graphContainer {
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    position: relative;
+    display: block;
+}
+
+#graphContainer svg {
+    height: 100% !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    max-height: none !important;
+}
+
+.zoom-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 999;
+}
+
+.zoom-controls button {
+    width: 45px;
+    height: 45px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.zoom-controls button:hover {
+    background: #f1f1f1;
+}
+
+
+#graphContainer {
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    background-color: #ffffff;
+
+    position: relative;
+    overflow: hidden;
+}
+
+/* растяг */
+#graphContainer svg {
+    height: 100% !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+}
+
+/* Стили кнопок зума */
+.zoom-controls {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    z-index: 999;
+}
+
+.zoom-controls button {
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+
+.zoom-controls button:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+    color: #3498db;
+}
+
+.zoom-controls button:active {
+    transform: translateY(0);
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
     .questionnaire-container {
         grid-template-columns: 1fr;
     }
-    
+
     .parameters-grid {
         grid-template-columns: 1fr;
     }
-    
+
     header h1 {
         font-size: 1.8rem;
+    }
+
+    /* На мобильных модалка на весь экран */
+    .modal-content {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        border-radius: 0;
     }
 }
