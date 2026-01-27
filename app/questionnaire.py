@@ -73,17 +73,31 @@ class Questionnaire:
         
         # Если ни одно условие не сработало, возвращаем None
         return None
-    
-    def _prepare_context(self, current_node_id: str, answer: Any, 
+
+    def _prepare_context(self, current_node_id: str, answer: Any,
                          session_data: Dict[str, Any]) -> Dict[str, Any]:
         """Подготовить контекст для оценки условий"""
+
+        # Получаем словарь всех ответов
+        answers = session_data.get("answers", {})
+
+
+        age_value = answers.get("Q0", 0)
+
+
+        try:
+            age_value = float(age_value)
+        except (ValueError, TypeError):
+            age_value = 0
+
+
         context = {
             "value": answer,
-            "age": session_data.get("answers", {}).get("age", 0),
+            "age": age_value,  # <-- Теперь здесь реальный возраст пациента
             "session_data": session_data,
-            "answers": session_data.get("answers", {})
+            "answers": answers
         }
-        
+
         # Для чекбоксов добавляем дополнительные переменные
         current_node = self.get_node(current_node_id)
         if current_node and current_node.get("question_type") == "checkbox":
@@ -93,13 +107,16 @@ class Questionnaire:
             else:
                 context["selected_values"] = []
                 context["selectedCount"] = 0
-            
+
             # Обработка условия includes
             if isinstance(answer, list):
                 context["includes"] = lambda x: x in answer
             else:
                 context["includes"] = lambda x: False
-        
+
+        # ВАЖНО: Добавим вывод в консоль для отладки, если снова будет ошибка
+        print(f"DEBUG: Проверка условия. Node={current_node_id}, Value={answer}, Age={age_value}")
+
         return context
     
     def _evaluate_condition(self, condition: str, context: Dict[str, Any]) -> bool:
@@ -143,6 +160,7 @@ class Questionnaire:
 
         except Exception as e:
             print(f"Ошибка оценки условия '{condition}': {e}")
+            print(f"Контекст: {context}")
             return False
 
     def _evaluate_includes_condition(self, condition: str, context: Dict[str, Any]) -> bool:
