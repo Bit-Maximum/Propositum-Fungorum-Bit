@@ -17,7 +17,10 @@ class QuestionnaireApp {
         try {
             const response = await fetch(`${this.baseUrl}/api/session/start`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    "clinReqType" : "QUESTIONNARIE"
+                  })
             });
 
             if (!response.ok) throw new Error('Не удалось начать сессию');
@@ -27,6 +30,7 @@ class QuestionnaireApp {
             this.currentNode = data.node;
             this.history = [];
 
+            this.hideResult();
             this.updateUI();
             this.loadQuestion(this.currentNode);
 
@@ -204,6 +208,23 @@ class QuestionnaireApp {
             if (node.validation.max !== undefined) input.max = node.validation.max;
         }
         input.placeholder = 'Введите значение';
+
+        input.addEventListener('input', () => {
+            if (!node.validation) return;
+
+            let value = input.value;
+            if (value === '') return;
+
+            value = Number(value);
+
+            if (node.validation.min !== undefined && value < node.validation.min) {
+                input.value = node.validation.min;
+            }
+
+            if (node.validation.max !== undefined && value > node.validation.max) {
+                input.value = node.validation.max;
+            }
+        });
 
         form.appendChild(input);
         container.appendChild(form);
