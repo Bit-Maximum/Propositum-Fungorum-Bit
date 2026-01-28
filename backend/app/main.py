@@ -183,6 +183,6 @@ async def get_all_nodes():
     """Получить все ноды опросника (для отладки)"""
     return questionnaire.get_all_nodes()
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get("api/healthcheck")
+async def get_healthcheck():
+    return {"status": "ok"}
