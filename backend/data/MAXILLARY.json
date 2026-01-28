@@ -1,1 +1,212 @@
-
+{
+  "questionnaire_graph": {
+    "nodes": [
+      {
+        "id": "Q0_Maxilla",
+        "type": "intermediate",
+        "title": "Начало диагностики переломов верхней челюсти",
+        "question": "Возраст пациента?",
+        "question_type": "number",
+        "validation": { "min": 0, "max": 120 },
+        "transitions": [
+          {
+            "condition": "value < 60",
+            "target_node_id": "Q_Maxilla_Entry_Young",
+            "description": "Пациент моложе 60 лет"
+          },
+          {
+            "condition": "value >= 60",
+            "target_node_id": "Q_Maxilla_Entry_Elderly",
+            "description": "Пациент 60 лет и старше"
+          }
+        ]
+      },
+      {
+        "id": "Q_Maxilla_Entry_Young",
+        "type": "intermediate",
+        "title": "Переломы верхней челюсти (молодые)",
+        "question": "Какой тип перелома верхней челюсти/средней зоны лица выявлен?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "lefort", "label": "Перелом по типу Le Fort I–III" },
+          { "id": "opt2", "value": "combined_midface", "label": "Комбинированные переломы средней зоны лица (ЗМК, NOE, орбита, лобная кость)" },
+          { "id": "opt3", "value": "alveolar", "label": "Перелом альвеолярного отростка верхней челюсти" }
+        ],
+        "transitions": [
+          { "condition": "value == 'lefort'", "target_node_id": "Q_LeFort_Type_Young", "description": "Уточнить тип Le Fort" },
+          { "condition": "value == 'combined_midface'", "target_node_id": "Q_Midface_Complex_Young", "description": "План поэтапной реконструкции" },
+          { "condition": "value == 'alveolar'", "target_node_id": "R_Alveolar_Maxilla_Young", "description": "Лечение перелома альвеолярного отростка" }
+        ]
+      },
+      {
+        "id": "Q_Maxilla_Entry_Elderly",
+        "type": "intermediate",
+        "title": "Переломы верхней челюсти (пожилые)",
+        "question": "Какой тип перелома верхней челюсти/средней зоны лица выявлен?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "lefort", "label": "Перелом по типу Le Fort I–III" },
+          { "id": "opt2", "value": "combined_midface", "label": "Комбинированные переломы средней зоны лица (ЗМК, NOE, орбита, лобная кость)" },
+          { "id": "opt3", "value": "alveolar", "label": "Перелом альвеолярного отростка верхней челюсти" }
+        ],
+        "transitions": [
+          { "condition": "value == 'lefort'", "target_node_id": "Q_LeFort_Type_Elderly", "description": "Уточнить тип Le Fort" },
+          { "condition": "value == 'combined_midface'", "target_node_id": "Q_Midface_Complex_Elderly", "description": "План поэтапной реконструкции" },
+          { "condition": "value == 'alveolar'", "target_node_id": "R_Alveolar_Maxilla_Elderly", "description": "Лечение перелома альвеолярного отростка" }
+        ]
+      },
+      {
+        "id": "Q_LeFort_Type_Young",
+        "type": "intermediate",
+        "title": "Тип Le Fort (молодые)",
+        "question": "Тип перелома по Le Fort?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "I", "label": "Le Fort I" },
+          { "id": "opt2", "value": "II", "label": "Le Fort II" },
+          { "id": "opt3", "value": "III", "label": "Le Fort III" }
+        ],
+        "transitions": [
+          { "condition": "value == 'I'", "target_node_id": "R_LeFort_I_Young", "description": "Лечение Le Fort I" },
+          { "condition": "value == 'II'", "target_node_id": "R_LeFort_II_Young", "description": "Лечение Le Fort II" },
+          { "condition": "value == 'III'", "target_node_id": "R_LeFort_III_Young", "description": "Лечение Le Fort III" }
+        ]
+      },
+      {
+        "id": "Q_LeFort_Type_Elderly",
+        "type": "intermediate",
+        "title": "Тип Le Fort (пожилые)",
+        "question": "Тип перелома по Le Fort?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "I", "label": "Le Fort I" },
+          { "id": "opt2", "value": "II", "label": "Le Fort II" },
+          { "id": "opt3", "value": "III", "label": "Le Fort III" }
+        ],
+        "transitions": [
+          { "condition": "value == 'I'", "target_node_id": "R_LeFort_I_Elderly", "description": "Лечение Le Fort I" },
+          { "condition": "value == 'II'", "target_node_id": "R_LeFort_II_Elderly", "description": "Лечение Le Fort II" },
+          { "condition": "value == 'III'", "target_node_id": "R_LeFort_III_Elderly", "description": "Лечение Le Fort III" }
+        ]
+      },
+      {
+        "id": "Q_Midface_Complex_Young",
+        "type": "intermediate",
+        "title": "Комбинированные переломы средней зоны (молодые)",
+        "question": "Отметьте компоненты повреждения средней зоны лица",
+        "question_type": "checkbox",
+        "options": [
+          { "id": "opt1", "value": "ZMC", "label": "Скуло‑верхнечелюстной комплекс (ЗМК)" },
+          { "id": "opt2", "value": "orbit", "label": "Перелом стенок орбиты/blow‑out" },
+          { "id": "opt3", "value": "NOE", "label": "Насоорбитоэтмоидальный (NOE) перелом" },
+          { "id": "opt4", "value": "frontal", "label": "Перелом лобной кости/лобной пазухи" },
+          { "id": "opt5", "value": "mandible", "label": "Сочетанный перелом нижней челюсти" }
+        ],
+        "transitions": [
+          {
+            "condition": "selectedCount > 0",
+            "target_node_id": "R_Midface_Complex_Young",
+            "description": "Поэтапная реконструкция по принципу «каркас‑сначала»"
+          }
+        ]
+      },
+      {
+        "id": "Q_Midface_Complex_Elderly",
+        "type": "intermediate",
+        "title": "Комбинированные переломы средней зоны (пожилые)",
+        "question": "Отметьте компоненты повреждения средней зоны лица",
+        "question_type": "checkbox",
+        "options": [
+          { "id": "opt1", "value": "ZMC", "label": "Скуло‑верхнечелюстной комплекс (ЗМК)" },
+          { "id": "opt2", "value": "orbit", "label": "Перелом стенок орбиты/blow‑out" },
+          { "id": "opt3", "value": "NOE", "label": "Насоорбитоэтмоидальный (NOE) перелом" },
+          { "id": "opt4", "value": "frontal", "label": "Перелом лобной кости/лобной пазухи" },
+          { "id": "opt5", "value": "mandible", "label": "Сочетанный перелом нижней челюсти" }
+        ],
+        "transitions": [
+          {
+            "condition": "selectedCount > 0",
+            "target_node_id": "R_Midface_Complex_Elderly",
+            "description": "Поэтапная реконструкция по принципу «каркас‑сначала»"
+          }
+        ]
+      },
+      {
+        "id": "R_LeFort_I_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Le Fort I (молодые)",
+        "recommendation": "При Le Fort I у молодых выполняют репозицию верхней челюсти по окклюзионным ориентирам и остеосинтез минипластинами с временной межчелюстной фиксацией.",
+        "parameters": {}
+      },
+      {
+        "id": "R_LeFort_II_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Le Fort II (молодые)",
+        "recommendation": "Лечение Le Fort II основано на принципе «top‑down, outside‑in»: сначала фронто‑носовой и скуло‑верхнечелюстные стыки, затем края орбит, с обязательным восстановлением окклюзии.",
+        "parameters": {}
+      },
+      {
+        "id": "R_LeFort_III_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Le Fort III (молодые)",
+        "recommendation": "При Le Fort III у молодых проводят краниофациальную реконструкцию с фиксацией фронто‑скуловых, фронто‑носовых и скуло‑верхнечелюстных стыков и коррекцией окклюзии.",
+        "parameters": {}
+      },
+      {
+        "id": "R_LeFort_I_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Le Fort I (пожилые)",
+        "recommendation": "У пожилых пациентов тактика при Le Fort I аналогична, но учитывает соматический статус и переносимость межчелюстной фиксации.",
+        "parameters": {}
+      },
+      {
+        "id": "R_LeFort_II_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Le Fort II (пожилые)",
+        "recommendation": "Принцип поэтапной реконструкции сохраняется, возможна адаптация объема фиксации и числа доступов с учетом рисков операции.",
+        "parameters": {}
+      },
+      {
+        "id": "R_LeFort_III_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Le Fort III (пожилые)",
+        "recommendation": "При Le Fort III у пожилых проводят краниофациальную фиксацию с упором на восстановление опорных стыков и дыхательных путей; при высоком операционном риске допускаются более ограниченные схемы.",
+        "parameters": {}
+      },
+      {
+        "id": "R_Midface_Complex_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Комплексные переломы средней зоны (молодые)",
+        "recommendation": "У молодых при комплексных переломах средней зоны лица применяют поэтапную реконструкцию: сначала опорный каркас (лобно‑скуловые, скуло‑верхнечелюстные, фронто‑носовые стыки), затем края орбит и альвеолярный сегмент.",
+        "parameters": {}
+      },
+      {
+        "id": "R_Midface_Complex_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Комплексные переломы средней зоны (пожилые)",
+        "recommendation": "У пожилых при комплексных переломах приоритетом является восстановление дыхательных путей, защиты глаза и функции жевания; допускается меньшее внимание к косметическим аспектам.",
+        "parameters": {}
+      },
+      {
+        "id": "R_Alveolar_Maxilla_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Альвеолярный отросток (молодые)",
+        "recommendation": "Переломы альвеолярного отростка у молодых требуют репозиции по окклюзии и фиксации минипластинами/шинами с при необходимости межчелюстной фиксацией.",
+        "parameters": {}
+      },
+      {
+        "id": "R_Alveolar_Maxilla_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Альвеолярный отросток (пожилые)",
+        "recommendation": "Тактика аналогична; у пациентов с протезами акцент делается на восстановление опорной поверхности для протезирования.",
+        "parameters": {}
+      }
+    ],
+    "metadata": {
+      "title": "Клинический опросник: Переломы верхней челюсти и средней зоны лица",
+      "version": "1.0",
+      "source": "Клинические рекомендации",
+      "description": "Граф принятия решений для выбора хирургического лечения переломов по Le Fort и комплексных переломов средней зоны лица."
+    }
+  }
+}
