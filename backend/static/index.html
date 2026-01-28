@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Клинический опросник - Переломы бедренной кости</title>
+    <title>Клинический опросник - {{display_name}}</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
@@ -12,8 +12,19 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-bone"></i> Клинический опросник</h1>
-            <p class="subtitle">Система поддержки принятия решений при переломах проксимального отдела бедренной кости</p>
+            <!-- Добавляем кнопку "На главную" рядом с заголовком -->
+            <div class="header-top-row">
+                <div class="title-container">
+                    <h1><i class="fas fa-bone"></i> Клинический опросник</h1>
+                    <a href="/" class="btn-secondary" style="text-decoration: none;">
+                        <i class="fas fa-home"></i> На главную
+                    </a>
+                </div>
+            </div>
+
+
+
+            <p class="subtitle">Система поддержки принятия решений при {{subtitle_name}}</p>
             <div class="session-info" id="sessionInfo">
                 <span id="sessionId">Сессия: не начата</span>
                 <button onclick="resetSession()" class="btn-secondary">
@@ -32,7 +43,7 @@
                     <div class="question-header">
                         <h2 id="questionTitle">Добро пожаловать в клинический опросник</h2>
                         <p id="questionDescription">
-                            На основе Федеральных клинических рекомендаций по переломам проксимального отдела бедренной кости.
+                            На основе Федеральных клинических рекомендаций при {{subtitle_name}}.
                             Ответьте на вопросы для получения персонализированных рекомендаций по лечению.
                         </p>
                     </div>
@@ -114,7 +125,7 @@
         </main>
 
         <footer>
-            <p>Разработано на основе Федеральных клинических рекомендаций "Переломы проксимального отдела бедренной кости"</p>
+            <p>Разработано на основе Федеральных клинических рекомендаций "{{display_name}}"</p>
             <p class="version">Версия 1.0.0 | Доказательная медицина</p>
         </footer>
     </div>

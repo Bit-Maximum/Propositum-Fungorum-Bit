@@ -527,3 +527,33 @@ footer {
         border-radius: 0;
     }
 }
+
+/* Минимальные дополнительные стили для расположения */
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .header-top-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .title-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

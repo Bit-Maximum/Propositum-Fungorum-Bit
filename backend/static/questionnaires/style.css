@@ -1,0 +1,66 @@
+/* Базовые стили для страницы */
+body, html {
+    margin: 0;
+    padding: 20px 0; /* добавляем паддинг сверху и снизу */
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* выравниваем сверху, а не по центру */
+}
+
+.container {
+    text-align: center;
+    width: 100%;
+    max-width: 500px; /* ограничиваем ширину */
+}
+
+h1 {
+    margin-bottom: 40px; /* чуть меньше отступ */
+    font-size: clamp(1.5em, 5vw, 2em); /* адаптивный размер: минимум 1.5em, максимум 2em */
+    color: #2c3e50;
+}
+
+/* Контейнер для кнопок - столбик */
+#loadQuestionaries {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* расстояние между кнопками */
+}
+
+/* Кнопки с обводкой */
+.btn-card {
+    width: 100%; /* растянуты по ширине контейнера */
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    border: 3px solid #27ae60; /* зеленая обводка */
+    background-color: transparent; /* прозрачная внутри */
+    color: #27ae60;
+    transition: all 0.3s;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Эффект наведения */
+.btn-card:hover {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.muted {
+    font-size: 0.9em;
+    color: #27ae60;
+    margin-top: 5px;
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+}
