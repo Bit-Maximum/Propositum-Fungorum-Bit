@@ -1,13 +1,4 @@
 services:
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - nginx_data:/data
 
   minio:
     image: minio/minio:latest
@@ -37,6 +28,38 @@ services:
       - ./minio/init-minio.sh:/init-minio.sh:ro
     entrypoint: ["/bin/sh", "/init-minio.sh"]
     restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: backend
+    depends_on:
+      minio:
+        condition: service_healthy
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/healthcheck" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: unless-stopped
+    depends_on:
+      minio:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - nginx_data:/data
+
 
 volumes:
   nginx_data:
