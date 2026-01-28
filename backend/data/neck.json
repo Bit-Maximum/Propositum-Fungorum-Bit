@@ -2,7 +2,7 @@
   "questionnaire_graph": {
     "nodes": [
       {
-        "id": "Q0_Cervical",
+        "id": "Q0",
         "type": "intermediate",
         "title": "Грыжа шейного межпозвонкового диска",
         "question": "Возраст пациента?",
