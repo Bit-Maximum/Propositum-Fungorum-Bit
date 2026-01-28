@@ -131,6 +131,32 @@ async def submit_answer(session_id: str, answer_request: AnswerRequest):
         message="Следующий вопрос"
     )
 
+@app.post("/api/session/{session_id}/back")
+async def go_back(session_id: str):
+    if not session_manager.session_exists(session_id):
+        raise HTTPException(status_code=404, detail="Сессия не найдена")
+
+    session = session_manager.get_session(session_id)
+    history = session.get("history", [])
+    answers = session.get("answers", {})
+
+    if not history:
+        raise HTTPException(status_code=400, detail="Нельзя вернуться назад: история пуста")
+
+    last_entry = history.pop()
+    last_node_id = last_entry.get("node_id")
+
+    prefill_answer = answers.pop(last_node_id, None) if last_node_id else None
+
+    prev_node = questionnaire.get_node(last_node_id) if last_node_id else None
+    if not prev_node:
+        prev_node = questionnaire.get_initial_node()
+
+    session_manager.update_current_node(session_id, prev_node)
+
+    return {"session_id": session_id, "node": prev_node, "prefill_answer": prefill_answer}
+
+
 @app.post("/api/session/{session_id}/reset")
 async def reset_session(session_id: str):
     """Сбросить сессию к началу"""

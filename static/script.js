@@ -244,6 +244,50 @@ class QuestionnaireApp {
         });
         container.appendChild(form);
     }
+    prefillAnswer(answer) {
+        if (answer === undefined || answer === null || !this.currentNode) return;
+
+        switch (this.currentNode.question_type) {
+            case 'radio': {
+                const inputs = document.querySelectorAll('input[name="questionOption"]');
+                const target = String(answer);
+                inputs.forEach(inp => {
+                    if (inp.value === target) {
+                        inp.checked = true;
+                        // чтобы подсветка сработала (у тебя она на change)
+                        inp.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                break;
+            }
+
+            case 'checkbox': {
+                if (!Array.isArray(answer)) return;
+                const set = new Set(answer.map(String));
+                const inputs = document.querySelectorAll('input[name="questionOption"]');
+                inputs.forEach(inp => inp.checked = set.has(inp.value));
+                break;
+            }
+
+            case 'number': {
+                const num = document.querySelector('.number-input');
+                if (num) num.value = String(answer);
+                break;
+            }
+
+            case 'yesno': {
+                const v = (answer === true || answer === "true") ? "true" : "false";
+                const inputs = document.querySelectorAll('input[name="yesNoOption"]');
+                inputs.forEach(inp => {
+                    if (inp.value === v) {
+                        inp.checked = true;
+                        inp.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                });
+                break;
+            }
+        }
+    }
 
     getCurrentAnswer() {
         if (!this.currentNode) return null;
@@ -396,14 +440,42 @@ class QuestionnaireApp {
         this.updateHistoryUI();
     }
 
-    goBack() {
-        if (this.history.length > 0) {
-            const lastItem = this.history.shift();
-            this.currentNode = lastItem.node;
+    async goBack() {
+        if (!this.sessionId) return;
+
+        try {
+            const response = await fetch(`${this.baseUrl}/api/session/${this.sessionId}/back`, {
+                method: 'POST'
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.detail || 'Не удалось вернуться назад');
+            }
+
+            const data = await response.json();
+
+            // Сервер откатился -> синхронизируем фронт
+            this.currentNode = data.node;
+
+            // Локальная история у тебя "новое сверху" (unshift), значит откатываем первый элемент
+            if (this.history.length > 0) this.history.shift();
+
+            // Если были результаты — вернёмся к вопросам
+            this.hideResult();
+
+            // Рендерим вопрос и (опционально) подставляем прошлый ответ
             this.loadQuestion(this.currentNode);
+            this.prefillAnswer(data.prefill_answer);
+
             this.updateUI();
+
+        } catch (error) {
+            console.error('Ошибка goBack:', error);
+            this.showError(error.message || 'Не удалось вернуться назад');
         }
     }
+
 
 
     async loadAndRenderGraph() {
