@@ -183,6 +183,6 @@ async def get_all_nodes():
     """Получить все ноды опросника (для отладки)"""
     return questionnaire.get_all_nodes()
 
-@app.get("api/healthcheck")
+@app.get("/api/healthcheck")
 async def get_healthcheck():
     return {"status": "ok"}

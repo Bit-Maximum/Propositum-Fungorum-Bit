@@ -2,6 +2,10 @@ FROM python:3.13.5-slim
 
 ARG APP_PATH=backend
 
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install --upgrade pip \
     && pip install uv
 
