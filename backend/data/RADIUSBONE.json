@@ -1,0 +1,261 @@
+{
+  "questionnaire_graph": {
+    "nodes": [
+      {
+        "id": "Q0",
+        "type": "intermediate",
+        "title": "Начало диагностики перелома дистального конца лучевой кости",
+        "question": "Возраст пациента?",
+        "question_type": "number",
+        "validation": { "min": 0, "max": 120 },
+        "transitions": [
+          {
+            "condition": "value < 60",
+            "target_node_id": "Q_DR_Entry_Young",
+            "description": "Пациент моложе 60 лет"
+          },
+          {
+            "condition": "value >= 60",
+            "target_node_id": "Q_DR_Entry_Elderly",
+            "description": "Пациент 60 лет и старше"
+          }
+        ]
+      },
+      {
+        "id": "Q_DR_Entry_Young",
+        "type": "intermediate",
+        "title": "Перелом дистального конца лучевой (молодые)",
+        "question": "Подтвердите наличие перелома дистального конца лучевой кости",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "confirmed_dr",
+            "label": "Перелом дистального конца лучевой кости подтвержден"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'confirmed_dr'",
+            "target_node_id": "Q_DR_SoftTissue_Young",
+            "description": "Перейти к оценке мягких тканей"
+          }
+        ]
+      },
+      {
+        "id": "Q_DR_Entry_Elderly",
+        "type": "intermediate",
+        "title": "Перелом дистального конца лучевой (пожилые)",
+        "question": "Подтвердите наличие перелома дистального конца лучевой кости",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "confirmed_dr",
+            "label": "Перелом дистального конца лучевой кости подтвержден"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'confirmed_dr'",
+            "target_node_id": "Q_DR_SoftTissue_Elderly",
+            "description": "Перейти к оценке мягких тканей"
+          }
+        ]
+      },
+      {
+        "id": "Q_DR_SoftTissue_Young",
+        "type": "intermediate",
+        "title": "Состояние мягких тканей (молодые)",
+        "question": "Состояние мягких тканей и открытость перелома",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "closed_good", "label": "Закрытый, мягкие ткани удовлетворительные" },
+          { "id": "opt2", "value": "closed_compromised", "label": "Закрытый, выраженный отек/буллы" },
+          { "id": "opt3", "value": "open_I_II", "label": "Открытый Gustilo I–II" },
+          { "id": "opt4", "value": "open_III", "label": "Открытый Gustilo III" }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'closed_good'",
+            "target_node_id": "Q_DR_AO_Young",
+            "description": "Возможен одномоментный ORIF – перейти к типу перелома"
+          },
+          {
+            "condition": "value == 'closed_compromised' || value == 'open_I_II' || value == 'open_III'",
+            "target_node_id": "R_DR_External_Stage_Young",
+            "description": "Этапное лечение с наружной фиксацией"
+          }
+        ]
+      },
+      {
+        "id": "Q_DR_SoftTissue_Elderly",
+        "type": "intermediate",
+        "title": "Состояние мягких тканей (пожилые)",
+        "question": "Состояние мягких тканей и открытость перелома",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "closed_good", "label": "Закрытый, мягкие ткани удовлетворительные" },
+          { "id": "opt2", "value": "closed_compromised", "label": "Закрытый, выраженный отек/буллы" },
+          { "id": "opt3", "value": "open_I_II", "label": "Открытый Gustilo I–II" },
+          { "id": "opt4", "value": "open_III", "label": "Открытый Gustilo III" }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'closed_good'",
+            "target_node_id": "Q_DR_AO_Elderly",
+            "description": "Возможен одномоментный ORIF – перейти к типу перелома"
+          },
+          {
+            "condition": "value == 'closed_compromised' || value == 'open_I_II' || value == 'open_III'",
+            "target_node_id": "R_DR_External_Stage_Elderly",
+            "description": "Этапное лечение с наружной фиксацией"
+          }
+        ]
+      },
+      {
+        "id": "Q_DR_AO_Young",
+        "type": "intermediate",
+        "title": "Тип по AO/OTA (молодые)",
+        "question": "Классификация перелома дистального конца лучевой кости по AO/OTA (23)?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "23A_unstable", "label": "23A – нестабильный внесуставной" },
+          { "id": "opt2", "value": "23B", "label": "23B – частично внутрисуставной" },
+          { "id": "opt3", "value": "23C_simple", "label": "23C1–C2 – полностью внутрисуставной, умеренная фрагментация" },
+          { "id": "opt4", "value": "23C3", "label": "23C3 – многооскольчатый внутрисуставной" }
+        ],
+        "transitions": [
+          { "condition": "value == '23A_unstable'", "target_node_id": "R_DR_23A_Volar_Young", "description": "Волярная блокируемая пластина" },
+          { "condition": "value == '23B'", "target_node_id": "R_DR_23B_Volar_Young", "description": "ORIF волярной пластиной" },
+          { "condition": "value == '23C_simple'", "target_node_id": "R_DR_23C_Simple_Volar_Young", "description": "Суставный блок + волярная пластина" },
+          { "condition": "value == '23C3'", "target_node_id": "R_DR_23C3_Bridge_Young", "description": "Мостовидная фиксация/наружная фиксация" }
+        ]
+      },
+      {
+        "id": "Q_DR_AO_Elderly",
+        "type": "intermediate",
+        "title": "Тип по AO/OTA (пожилые)",
+        "question": "Классификация перелома дистального конца лучевой кости по AO/OTA (23)?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "23A_unstable", "label": "23A – нестабильный внесуставной" },
+          { "id": "opt2", "value": "23B", "label": "23B – частично внутрисуставной" },
+          { "id": "opt3", "value": "23C_simple", "label": "23C1–C2 – полностью внутрисуставной, умеренная фрагментация" },
+          { "id": "opt4", "value": "23C3", "label": "23C3 – многооскольчатый внутрисуставной" }
+        ],
+        "transitions": [
+          { "condition": "value == '23A_unstable'", "target_node_id": "R_DR_23A_Volar_Elderly", "description": "Волярная блокируемая пластина" },
+          { "condition": "value == '23B'", "target_node_id": "R_DR_23B_Volar_Elderly", "description": "ORIF волярной пластиной" },
+          { "condition": "value == '23C_simple'", "target_node_id": "R_DR_23C_Simple_Volar_Elderly", "description": "Суставный блок + волярная пластина" },
+          { "condition": "value == '23C3'", "target_node_id": "R_DR_23C3_Bridge_Elderly", "description": "Мостовидная фиксация/наружная фиксация" }
+        ]
+      },
+      {
+        "id": "R_DR_External_Stage_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение (молодые)",
+        "recommendation": "При повреждении мягких тканей или открытых переломах дистального конца лучевой кости у молодых пациентов показана временная наружная фиксация с ограниченной внутренней фиксацией суставных фрагментов и последующим ORIF.",
+        "parameters": {
+          "stage_1": "Аппарат внешней фиксации + ПХО, возможная фиксация ключевых суставных фрагментов.",
+          "stage_2": "Отсроченный ORIF (волярная пластина или мостовидная фиксация) после стабилизации мягких тканей."
+        }
+      },
+      {
+        "id": "R_DR_External_Stage_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение (пожилые)",
+        "recommendation": "У пожилых пациентов с риском кожных осложнений этапное лечение с наружной фиксацией и щадящим ORIF снижает частоту инфекций и потерь фиксации.",
+        "parameters": {
+          "notes": [
+            "Возможна более длительная внешняя фиксация при плохом качестве кости.",
+            "Реабилитация ориентирована на сохранение функции кисти и профилактику контрактур."
+          ]
+        }
+      },
+      {
+        "id": "R_DR_23A_Volar_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23A нестабильный (молодые)",
+        "recommendation": "Нестабильные внесуставные переломы 23A у молодых пациентов лечат открытой репозицией и остеосинтезом волярной блокируемой пластиной.",
+        "parameters": {
+          "radiologic_targets": [
+            "Ладонный наклон 10–15°",
+            "Лучевой наклон 20–25°",
+            "Восстановление длины лучевой кости и радиоуlnарного индекса"
+          ]
+        }
+      },
+      {
+        "id": "R_DR_23A_Volar_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23A нестабильный (пожилые)",
+        "recommendation": "У пожилых пациентов волярная блокируемая пластина также является методом выбора; ранняя функциональная реабилитация важна для восстановления независимости.",
+        "parameters": {
+          "rehabilitation": [
+            "Ранняя мобилизация пальцев кисти",
+            "Иммобилизация запястья в съемном ортезе 4–6 недель"
+          ]
+        }
+      },
+      {
+        "id": "R_DR_23B_Volar_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23B (молодые)",
+        "recommendation": "Частично внутрисуставные переломы 23B у молодых требуют анатомической репозиции суставного фрагмента и фиксации волярной пластиной.",
+        "parameters": {
+          "targets": [
+            "Ступенька суставной поверхности не более 1–2 мм",
+            "Сохранение анатомического радиуса кривизны"
+          ]
+        }
+      },
+      {
+        "id": "R_DR_23B_Volar_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23B (пожилые)",
+        "recommendation": "Тактика аналогична; при выраженном остеопорозе рекомендуется максимально использовать блокируемые винты и избегать чрезмерной компрессии суставной поверхности.",
+        "parameters": {}
+      },
+      {
+        "id": "R_DR_23C_Simple_Volar_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23C1–C2 (молодые)",
+        "recommendation": "При 23C1–C2 у молодых выполняют формирование суставного блока с последующей фиксацией волярной блокируемой пластиной и дополнительными винтами.",
+        "parameters": {
+          "rehabilitation": [
+            "Ранняя мобилизация пальцев",
+            "Разработка лучезапястного сустава после 4–6 недель иммобилизации"
+          ]
+        }
+      },
+      {
+        "id": "R_DR_23C_Simple_Volar_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23C1–C2 (пожилые)",
+        "recommendation": "У пожилых цель – восстановление функции и опороспособности кисти, допускается менее агрессивное восстановление конгруэнтности при низких функциональных требованиях.",
+        "parameters": {}
+      },
+      {
+        "id": "R_DR_23C3_Bridge_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23C3 (молодые)",
+        "recommendation": "Многооскольчатые переломы 23C3 у молодых пациентов требуют мостовидной фиксации длинной волярной/тыльной пластиной или аппарата внешней фиксации для сохранения длины и оси при невозможности полной реконструкции.",
+        "parameters": {}
+      },
+      {
+        "id": "R_DR_23C3_Bridge_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 23C3 (пожилые)",
+        "recommendation": "У пожилых пациентов при 23C3 мостовидный остеосинтез и внешняя фиксация позволяют стабилизировать запястье и уменьшить боль; при выраженном артрозе в отдаленном периоде возможно частичное артродезирование.",
+        "parameters": {}
+      }
+    ],
+    "metadata": {
+      "title": "Клинический опросник: Перелом дистального конца лучевой кости",
+      "version": "1.0",
+      "source": "Клинические рекомендации",
+      "description": "Граф принятия решений для выбора хирургического лечения нестабильных переломов дистального конца лучевой кости."
+    }
+  }
+}
