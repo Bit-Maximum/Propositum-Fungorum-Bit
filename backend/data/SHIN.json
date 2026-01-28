@@ -1,0 +1,299 @@
+{
+  "questionnaire_graph": {
+    "nodes": [
+      {
+        "id": "Q0_Pilon",
+        "type": "intermediate",
+        "title": "Начало диагностики pilon",
+        "question": "Возраст пациента?",
+        "question_type": "number",
+        "description": "Введите возраст пациента в годах",
+        "validation": { "min": 0, "max": 120 },
+        "transitions": [
+          {
+            "condition": "value < 60",
+            "target_node_id": "Q_Pilon_Entry_Young",
+            "description": "Пациент моложе 60 лет"
+          },
+          {
+            "condition": "value >= 60",
+            "target_node_id": "Q_Pilon_Entry_Elderly",
+            "description": "Пациент 60 лет и старше"
+          }
+        ]
+      },
+      {
+        "id": "Q_Pilon_Entry_Young",
+        "type": "intermediate",
+        "title": "Перелом pilon (молодые)",
+        "question": "Подтвержден ли внутрисуставной перелом дистального отдела большеберцовой кости (pilon)?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "confirmed_pilon", "label": "Да, подтвержден перелом pilon (AO/OTA 43A–C)" }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'confirmed_pilon'",
+            "target_node_id": "Q_Pilon_SoftTissue_Young",
+            "description": "Перейти к оценке мягких тканей"
+          }
+        ]
+      },
+      {
+        "id": "Q_Pilon_Entry_Elderly",
+        "type": "intermediate",
+        "title": "Перелом pilon (пожилые)",
+        "question": "Подтвержден ли внутрисуставной перелом дистального отдела большеберцовой кости (pilon)?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "confirmed_pilon", "label": "Да, подтвержден перелом pilon (AO/OTA 43A–C)" }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'confirmed_pilon'",
+            "target_node_id": "Q_Pilon_SoftTissue_Elderly",
+            "description": "Перейти к оценке мягких тканей"
+          }
+        ]
+      },
+      {
+        "id": "Q_Pilon_SoftTissue_Young",
+        "type": "intermediate",
+        "title": "Состояние мягких тканей (молодые)",
+        "question": "Оцените состояние мягких тканей и открытость перелома",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "closed_low_risk",
+            "label": "Закрытый перелом, удовлетворительное состояние мягких тканей"
+          },
+          {
+            "id": "opt2",
+            "value": "closed_high_risk",
+            "label": "Закрытый перелом, выраженный отек/буллы"
+          },
+          {
+            "id": "opt3",
+            "value": "open_I_II",
+            "label": "Открытый перелом Gustilo I–II"
+          },
+          {
+            "id": "opt4",
+            "value": "open_III",
+            "label": "Открытый перелом Gustilo III"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'closed_low_risk'",
+            "target_node_id": "Q_Pilon_Fracture_Type_Young",
+            "description": "Возможна одномоментная окончательная фиксация"
+          },
+          {
+            "condition": "value == 'closed_high_risk' || value == 'open_I_II' || value == 'open_III'",
+            "target_node_id": "R_Pilon_StageFix_External_Young",
+            "description": "Показано этапное лечение с наружной фиксацией"
+          }
+        ]
+      },
+      {
+        "id": "Q_Pilon_SoftTissue_Elderly",
+        "type": "intermediate",
+        "title": "Состояние мягких тканей (пожилые)",
+        "question": "Оцените состояние мягких тканей и открытость перелома",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "closed_low_risk",
+            "label": "Закрытый перелом, удовлетворительное состояние мягких тканей"
+          },
+          {
+            "id": "opt2",
+            "value": "closed_high_risk",
+            "label": "Закрытый перелом, выраженный отек/буллы"
+          },
+          {
+            "id": "opt3",
+            "value": "open_I_II",
+            "label": "Открытый перелом Gustilo I–II"
+          },
+          {
+            "id": "opt4",
+            "value": "open_III",
+            "label": "Открытый перелом Gustilo III"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'closed_low_risk'",
+            "target_node_id": "Q_Pilon_Fracture_Type_Elderly",
+            "description": "Возможна одномоментная окончательная фиксация"
+          },
+          {
+            "condition": "value == 'closed_high_risk' || value == 'open_I_II' || value == 'open_III'",
+            "target_node_id": "R_Pilon_StageFix_External_Elderly",
+            "description": "Показано этапное лечение с наружной фиксацией"
+          }
+        ]
+      },
+      {
+        "id": "Q_Pilon_Fracture_Type_Young",
+        "type": "intermediate",
+        "title": "Тип перелома pilon (молодые)",
+        "question": "Тип перелома по AO/OTA?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "43A", "label": "43A – внесуставной" },
+          { "id": "opt2", "value": "43B", "label": "43B – частично внутрисуставной" },
+          { "id": "opt3", "value": "43C_simple", "label": "43C1–C2 – полностью внутрисуставной, относительно простой" },
+          { "id": "opt4", "value": "43C_complex", "label": "43C3 – многооскольчатый внутрисуставной" }
+        ],
+        "transitions": [
+          { "condition": "value == '43A'", "target_node_id": "R_Pilon_43A_ORIF_Plate_Young", "description": "ORIF пластиной" },
+          { "condition": "value == '43B'", "target_node_id": "R_Pilon_43B_ORIF_Young", "description": "ORIF с анатомической репозицией" },
+          { "condition": "value == '43C_simple'", "target_node_id": "R_Pilon_43C_Simple_ORIF_Young", "description": "ORIF суставного блока" },
+          { "condition": "value == '43C_complex'", "target_node_id": "R_Pilon_43C_Complex_Stage_ORIF_Young", "description": "Этапное лечение сложных pilon" }
+        ]
+      },
+      {
+        "id": "Q_Pilon_Fracture_Type_Elderly",
+        "type": "intermediate",
+        "title": "Тип перелома pilon (пожилые)",
+        "question": "Тип перелома по AO/OTA?",
+        "question_type": "radio",
+        "options": [
+          { "id": "opt1", "value": "43A", "label": "43A – внесуставной" },
+          { "id": "opt2", "value": "43B", "label": "43B – частично внутрисуставной" },
+          { "id": "opt3", "value": "43C_simple", "label": "43C1–C2 – полностью внутрисуставной, относительно простой" },
+          { "id": "opt4", "value": "43C_complex", "label": "43C3 – многооскольчатый внутрисуставной" }
+        ],
+        "transitions": [
+          { "condition": "value == '43A'", "target_node_id": "R_Pilon_43A_ORIF_Plate_Elderly", "description": "ORIF пластиной" },
+          { "condition": "value == '43B'", "target_node_id": "R_Pilon_43B_ORIF_Elderly", "description": "ORIF с анатомической репозицией" },
+          { "condition": "value == '43C_simple'", "target_node_id": "R_Pilon_43C_Simple_ORIF_Elderly", "description": "ORIF суставного блока" },
+          { "condition": "value == '43C_complex'", "target_node_id": "R_Pilon_43C_Complex_Stage_ORIF_Elderly", "description": "Этапное лечение сложных pilon" }
+        ]
+      },
+      {
+        "id": "R_Pilon_StageFix_External_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение pilon (молодые)",
+        "recommendation": "Двухэтапное лечение: первичная стабилизация аппаратом внешней фиксации с лигаментотаксисом, затем отсроченный ORIF после улучшения состояния мягких тканей.",
+        "parameters": {
+          "stage_1": "Установка АВФ, ПХО при открытых переломах, восстановление оси и длины голени.",
+          "stage_2": "Через 7–14 дней – ORIF суставной поверхности и метафиза блокируемыми пластинами.",
+          "weight_bearing": "Без опоры 6–12 недель, затем постепенная нагрузка."
+        }
+      },
+      {
+        "id": "R_Pilon_StageFix_External_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение pilon (пожилые)",
+        "recommendation": "Двухэтапное лечение с учетом высокого риска кожных осложнений: временная наружная фиксация, затем щадящий ORIF.",
+        "parameters": {
+          "stage_1": "АВФ в режиме восстановления длины и оси, ПХО ран.",
+          "stage_2": "Отсроченный ORIF; при сомнительном состоянии мягких тканей допускается длительная внешняя фиксация.",
+          "weight_bearing": "Разгрузка не менее 8–12 недель, ранняя мобилизация голеностопного сустава."
+        }
+      },
+      {
+        "id": "R_Pilon_43A_ORIF_Plate_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43A pilon (молодые)",
+        "recommendation": "Внесуставные переломы 43A у молодых пациентов лечат накостным остеосинтезом анатомической блокируемой пластиной с восстановлением оси и длины голени.",
+        "parameters": {
+          "approach": "Медиальный или переднемедиальный доступ к дистальной большеберцовой кости.",
+          "technique": [
+            "Малоинвазивная установка пластины (МИПО) при удовлетворительной репозиции.",
+            "Блокируемые винты в дистальном сегменте, кортикальные/блокируемые – проксимально."
+          ],
+          "weight_bearing": "Частичная нагрузка после появления признаков консолидации, полная – обычно после 10–12 недель."
+        }
+      },
+      {
+        "id": "R_Pilon_43A_ORIF_Plate_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43A pilon (пожилые)",
+        "recommendation": "У пожилых пациентов с 43A предпочтителен МИПО блокируемой пластиной с максимальным щажением мягких тканей.",
+        "parameters": {
+          "notes": [
+            "Особое внимание – профилактике раневых осложнений.",
+            "Разрешение нагрузки зависит от стабильности фиксации и качества кости."
+          ]
+        }
+      },
+      {
+        "id": "R_Pilon_43B_ORIF_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43B pilon (молодые)",
+        "recommendation": "Частично внутрисуставные переломы 43B требуют анатомической репозиции суставной поверхности и фиксации анатомической блокируемой пластиной.",
+        "parameters": {
+          "approach": "Передне‑ или переднемедиальный доступ с визуализацией суставной поверхности.",
+          "technique": [
+            "Прецизионная репозиция суставного фрагмента с временной фиксацией спицами.",
+            "Окончательная фиксация винтами и пластиной."
+          ]
+        }
+      },
+      {
+        "id": "R_Pilon_43B_ORIF_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43B pilon (пожилые)",
+        "recommendation": "Тактика аналогична молодой группе, но при выраженном остеопорозе упор на блокируемую фиксацию и осторожную раннюю мобилизацию.",
+        "parameters": {
+          "weight_bearing": "Без опоры 8–10 недель, затем постепенная нагрузка с опорой."
+        }
+      },
+      {
+        "id": "R_Pilon_43C_Simple_ORIF_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43C1–C2 pilon (молодые)",
+        "recommendation": "При 43C1–C2 у молодых выполняют анатомическую репозицию суставного блока и двуплоскостной накостный остеосинтез блокируемыми пластинами.",
+        "parameters": {
+          "steps": [
+            "Формирование суставного блока, фиксация субхондральными винтами.",
+            "Восстановление метафиза и оси голени, фиксация медиальной/передней пластиной."
+          ]
+        }
+      },
+      {
+        "id": "R_Pilon_43C_Simple_ORIF_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43C1–C2 pilon (пожилые)",
+        "recommendation": "У пожилых с 43C1–C2 предпочтительны малоинвазивные техники и стабильная блокируемая фиксация для ранней мобилизации, но без ранней полной нагрузки.",
+        "parameters": {
+          "weight_bearing": "Разгрузка 10–12 недель, затем постепенное увеличение нагрузки по рентген‑контролю."
+        }
+      },
+      {
+        "id": "R_Pilon_43C_Complex_Stage_ORIF_Young",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43C3 pilon (молодые)",
+        "recommendation": "Многооскольчатые переломы 43C3 у молодых пациентов лечат этапно: начальная наружная фиксация, затем сложная реконструкция суставной поверхности и метафиза с использованием нескольких блокируемых пластин.",
+        "parameters": {
+          "salvage": "При невозможности восстановления конгруэнтности у отдельных больных может рассматриваться вторичный артродез голеностопа."
+        }
+      },
+      {
+        "id": "R_Pilon_43C_Complex_Stage_ORIF_Elderly",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: 43C3 pilon (пожилые)",
+        "recommendation": "У пожилых при 43C3 чаще используют длительную внешнюю фиксацию и щадящий ORIF; при крайне разрушенных суставах возможен первичный или ранний артродез.",
+        "parameters": {
+          "notes": [
+            "Тактика зависит от функциональных запросов и соматического статуса пациента.",
+            "Ожидается длительная разгрузка и медленная реабилитация."
+          ]
+        }
+      }
+    ],
+    "metadata": {
+      "title": "Клинический опросник: Переломы дистального отдела костей голени (pilon)",
+      "version": "1.0",
+      "source": "Федеральные клинические рекомендации",
+      "description": "Граф принятия решений для выбора тактики хирургического лечения переломов типа pilon у взрослых пациентов."
+    }
+  }
+}
