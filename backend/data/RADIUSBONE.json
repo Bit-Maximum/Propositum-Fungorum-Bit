@@ -2,7 +2,7 @@
   "questionnaire_graph": {
     "nodes": [
       {
-        "id": "Q0_DR",
+        "id": "Q0",
         "type": "intermediate",
         "title": "Начало диагностики перелома дистального конца лучевой кости",
         "question": "Возраст пациента?",
