@@ -36,7 +36,7 @@ class Questionaries {
     }
 
     async startSession(systemName) {
-        console.log(systemName)
+        localStorage.setItem("clinReqType", systemName)
         window.location.href = `/main-page/${systemName}`
     }
 }

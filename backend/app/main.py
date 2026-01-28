@@ -53,7 +53,7 @@ async def get_home():
 async def get_main_page(clin_req_type: str):
     type = QuestionType[clin_req_type]
     template = env.get_template("index.html")
-    rendered_page = template.render(subtitle_name= type.subtitle_name)
+    rendered_page = template.render(subtitle_name= type.subtitle_name, display_name= type.display_name)
 
     return rendered_page
 
@@ -183,8 +183,8 @@ async def go_back(session_id: str):
 
     prefill_answer = answers.pop(last_node_id, None) if last_node_id else None
 
-    questionType = session['questionType']
-    questionnaire = get_by_type(questionType)
+    type = session_manager.get_questionary_type(session_id)
+    questionnaire = get_by_type(QuestionType[type])
     prev_node = questionnaire.get_node(last_node_id) if last_node_id else None
     if not prev_node:
         prev_node = questionnaire.get_initial_node()
@@ -214,15 +214,19 @@ async def reset_session(session_id: str):
         "message": "Сессия сброшена"
     }
 
-# @app.get("/api/questionnaire/metadata")
-# async def get_questionnaire_metadata():
-#     """Получить метаданные опросника"""
-#     return questionnaire.get_metadata()
-#
-# @app.get("/api/questionnaire/nodes")
-# async def get_all_nodes():
-#     """Получить все ноды опросника (для отладки)"""
-#     return questionnaire.get_all_nodes()
+@app.get("/api/questionnaire/metadata")
+async def get_questionnaire_metadata(clinReqType: str = "QUESTIONNARIE"):
+    """Получить метаданные опросника"""
+    type = QuestionType[clinReqType]
+    questionnaire = get_by_type(type)
+    return questionnaire.get_metadata()
+
+@app.get("/api/questionnaire/nodes")
+async def get_all_nodes(clinReqType: str = "QUESTIONNARIE"):
+    """Получить все ноды опросника (для отладки)"""
+    type = QuestionType[clinReqType]
+    questionnaire = get_by_type(type)
+    return questionnaire.get_all_nodes()
 
 @app.get("/api/healthcheck")
 async def get_healthcheck():

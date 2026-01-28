@@ -15,7 +15,9 @@ class QuestionnaireApp {
 
     async startNewSession() {
         try {
-            const response = await fetch(`${this.baseUrl}/api/session/start?clinReqType=MAXILLARY`, {
+            let type = localStorage.getItem("clinReqType")
+            console.log(type)
+            const response = await fetch(`${this.baseUrl}/api/session/start?clinReqType=${type}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -75,6 +77,10 @@ class QuestionnaireApp {
             console.error('Ошибка:', error);
             this.showError('Ошибка при отправке ответа. Попробуйте еще раз.');
         }
+    }
+
+    async returnToMainPage() {
+        window.location.href = '/';
     }
 
     async resetSession() {
@@ -498,7 +504,8 @@ class QuestionnaireApp {
 
     async loadAndRenderGraph() {
         try {
-            const response = await fetch(`${this.baseUrl}/api/questionnaire/nodes`);
+            let type = localStorage.getItem("clinReqType")
+            const response = await fetch(`${this.baseUrl}/api/questionnaire/nodes?clinReqType=${type}`);
             if (!response.ok) throw new Error('Ошибка загрузки графа');
             const nodes = await response.json();
 
@@ -657,6 +664,7 @@ ID Сессии: ${this.sessionId}
         window.startNewSession = () => this.startNewSession();
         window.submitAnswer = () => this.submitAnswer();
         window.resetSession = () => this.resetSession();
+        window.returnToMainPage = () => this.returnToMainPage();
         window.goBack = () => this.goBack();
         window.printRecommendation = () => window.print();
         window.downloadRecommendation = () => this.downloadRecommendation();
