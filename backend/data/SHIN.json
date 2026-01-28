@@ -2,7 +2,7 @@
   "questionnaire_graph": {
     "nodes": [
       {
-        "id": "Q0_Pilon",
+        "id": "Q0",
         "type": "intermediate",
         "title": "Начало диагностики pilon",
         "question": "Возраст пациента?",
@@ -297,3 +297,4 @@
     }
   }
 }
+
