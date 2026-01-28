@@ -5,18 +5,19 @@ from fastapi import HTTPException
 from .questionnaire import Questionnaire
 
 class QuestionType(Enum):
-    MAXILLARY = (0, 'MAXILLARY')
-    NECK = (1, 'NECK')
-    QUESTIONNARIE = (2, 'QUESTIONNARIE')
-    RADIUSBONE = (3, 'RADIUSBONE')
-    SHIN = (4, 'SHIN')
-    SPINE = (5, 'SPINE')
-    WRISTS = (6, 'WRISTS')
+    MAXILLARY = (0, 'Перелом верхней челюсти', 'переломе верхней челюсти')
+    NECK = (1, 'Грыжа шейного межпозвоночного диска', 'грыже шейного межпозвоночного диска')
+    QUESTIONNARIE = (2, 'Перелом проксимального отдела бедренной кости', 'переломе проксимального отдела бедренной кости')
+    RADIUSBONE = (3, 'Перелом дистального конца лучевой кости', 'переломе дистального конца лучевой кости')
+    SHIN = (4, 'Диагностика pilon', 'диагностике pilon')
+    SPINE = (5, 'Грыжа поясничного межпозвонкового диска', 'грыже поясничного межпозвонкового диска')
+    WRISTS = (6, 'Диагностика переломов костей запястья', 'диагностике переломов костей запястья')
 
-    def __new__(cls, value, display_name):
+    def __new__(cls, value, display_name, subtitle_name):
         obj = object.__new__(cls)
         obj._value_ = value
         obj.display_name = display_name
+        obj.subtitle_name = subtitle_name
         return obj
 
 _questionary_map: dict[QuestionType, Questionnaire] = {

@@ -15,7 +15,7 @@ class QuestionnaireApp {
 
     async startNewSession() {
         try {
-            const response = await fetch(`${this.baseUrl}/api/session/start?clinReqType=SHIN`, {
+            const response = await fetch(`${this.baseUrl}/api/session/start?clinReqType=MAXILLARY`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });

@@ -1,6 +1,8 @@
 import uuid
 import logging
-from typing import Optional
+from tempfile import template
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
@@ -33,6 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+env = Environment(loader= FileSystemLoader("static"), autoescape=select_autoescape(['html']))
+
 # Монтирование статических файлов
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -43,7 +47,15 @@ session_manager = SessionManager()
 @app.get("/", response_class=FileResponse)
 async def get_home():
     """Главная страница с интерфейсом опросника"""
-    return FileResponse("static/index.html")
+    return FileResponse("static/questionnaires/questionnaires.html")
+
+@app.get("/main-page/{clin_req_type}", response_class=HTMLResponse)
+async def get_main_page(clin_req_type: str):
+    type = QuestionType[clin_req_type]
+    template = env.get_template("index.html")
+    rendered_page = template.render(subtitle_name= type.subtitle_name)
+
+    return rendered_page
 
 @app.get("/api/questionaries/")
 async def get_questionaries():
