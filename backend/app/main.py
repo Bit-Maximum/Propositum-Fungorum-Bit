@@ -1,5 +1,6 @@
 import uuid
 import logging
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
@@ -37,7 +38,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Инициализация менеджеров
 session_manager = SessionManager()
-questionnaire = Questionnaire("data/questionnaire.json")
+# questionnaire = Questionnaire("data/questionnaire.json")
 
 @app.get("/", response_class=FileResponse)
 async def get_home():
@@ -53,12 +54,14 @@ async def get_questionaries():
     return JSONResponse(content={"questions": results})
 
 @app.post("/api/session/start")
-async def start_session():
+async def start_session(clinReqType: str = "QUESTIONNARIE"):
     """Начать новую сессию опросника"""
     session_id = session_manager.create_session()
+    questionnaire = get_by_type(QuestionType[clinReqType])
     initial_node = questionnaire.get_initial_node()
 
     session_manager.update_current_node(session_id, initial_node)
+    session_manager.set_questionary_type(session_id, clinReqType)
 
     return JSONResponse(content={
         "session_id": session_id,
@@ -100,6 +103,9 @@ async def submit_answer(session_id: str, answer_request: AnswerRequest):
     # ---------------------------------------
 
     # Получаем текущую ноду из графа
+    type = session_manager.get_questionary_type(session_id)
+    questionnaire = get_by_type(QuestionType[type])
+
     current_node = questionnaire.get_node(current_node_id)
     if not current_node:
         raise HTTPException(status_code=400, detail="Текущая нода не найдена")
@@ -165,6 +171,8 @@ async def go_back(session_id: str):
 
     prefill_answer = answers.pop(last_node_id, None) if last_node_id else None
 
+    questionType = session['questionType']
+    questionnaire = get_by_type(questionType)
     prev_node = questionnaire.get_node(last_node_id) if last_node_id else None
     if not prev_node:
         prev_node = questionnaire.get_initial_node()
@@ -179,26 +187,30 @@ async def reset_session(session_id: str):
     """Сбросить сессию к началу"""
     if not session_manager.session_exists(session_id):
         raise HTTPException(status_code=404, detail="Сессия не найдена")
-    
+
     session_manager.reset_session(session_id)
+
+    type = session_manager.get_questionary_type(session_id)
+    questionnaire = get_by_type(QuestionType[type])
     initial_node = questionnaire.get_initial_node()
+
     session_manager.update_current_node(session_id, initial_node)
-    
+
     return {
         "session_id": session_id,
         "node": initial_node,
         "message": "Сессия сброшена"
     }
 
-@app.get("/api/questionnaire/metadata")
-async def get_questionnaire_metadata():
-    """Получить метаданные опросника"""
-    return questionnaire.get_metadata()
-
-@app.get("/api/questionnaire/nodes")
-async def get_all_nodes():
-    """Получить все ноды опросника (для отладки)"""
-    return questionnaire.get_all_nodes()
+# @app.get("/api/questionnaire/metadata")
+# async def get_questionnaire_metadata():
+#     """Получить метаданные опросника"""
+#     return questionnaire.get_metadata()
+#
+# @app.get("/api/questionnaire/nodes")
+# async def get_all_nodes():
+#     """Получить все ноды опросника (для отладки)"""
+#     return questionnaire.get_all_nodes()
 
 @app.get("/api/healthcheck")
 async def get_healthcheck():

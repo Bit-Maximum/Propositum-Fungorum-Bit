@@ -15,12 +15,9 @@ class QuestionnaireApp {
 
     async startNewSession() {
         try {
-            const response = await fetch(`${this.baseUrl}/api/session/start`, {
+            const response = await fetch(`${this.baseUrl}/api/session/start?clinReqType=SHIN`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    "clinReqType" : "QUESTIONNARIE"
-                  })
+                headers: { 'Content-Type': 'application/json' }
             });
 
             if (!response.ok) throw new Error('Не удалось начать сессию');

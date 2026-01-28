@@ -29,7 +29,7 @@ _questionary_map: dict[QuestionType, Questionnaire] = {
     QuestionType.WRISTS: Questionnaire('data/WRISTS.json'),
 }
 
-def get_all_display_questionnaires() -> list[tuple[[QuestionType, str]]]:
+def get_all_display_questionnaires() -> list:
     values = []
     for questionnaire in _questionary_map.keys():
         value = {

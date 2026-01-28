@@ -51,7 +51,16 @@ class SessionManager:
             # Используем question_id как ключ для ответа
             self.sessions[session_id]["answers"][question_id] = answer
             self.sessions[session_id]["last_activity"] = self.get_timestamp()
-    
+
+    def set_questionary_type(self, session_id: str, questionary_type: str):
+        if session_id in self.sessions:
+            self.sessions[session_id]["questionary_type"] = questionary_type
+
+    def get_questionary_type(self, session_id: str) -> str:
+        if session_id in self.sessions:
+            return self.sessions[session_id]["questionary_type"]
+        return None
+
     def add_to_history(self, session_id: str, history_entry: Dict[str, Any]):
         """Добавить запись в историю сессии"""
         if session_id in self.sessions:
@@ -62,10 +71,12 @@ class SessionManager:
         """Сбросить сессию"""
         if session_id in self.sessions:
             now = self.get_timestamp()
+            prev_questionary_type = self.sessions[session_id]['questionary_type']
             self.sessions[session_id].update({
                 "current_node": None,
                 "answers": {},
                 "history": [],
+                "questionary_type": prev_questionary_type,
                 "last_activity": now
             })
     
