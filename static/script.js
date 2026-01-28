@@ -27,8 +27,9 @@ class QuestionnaireApp {
             this.currentNode = data.node;
             this.history = [];
 
-            this.updateUI();
+            this.hideResult();
             this.loadQuestion(this.currentNode);
+            this.updateUI();
 
         } catch (error) {
             console.error('Ошибка:', error);
@@ -39,7 +40,9 @@ class QuestionnaireApp {
     async submitAnswer() {
         if (!this.sessionId || !this.currentNode) return;
 
-        const answer = this.getCurrentAnswer();
+        const answer_cmp = this.getCurrentAnswer();
+        const answer = answer_cmp[0];
+        const answer_label = answer_cmp[1];
         if (answer === null) {
             this.showError('Пожалуйста, выберите ответ');
             return;
@@ -57,7 +60,7 @@ class QuestionnaireApp {
             const data = await response.json();
 
             // Добавляем в историю
-            this.addToHistory(this.currentNode, answer);
+            this.addToHistory(this.currentNode, answer_label);
 
             // Обновляем текущий узел
             this.currentNode = data.node;
@@ -108,7 +111,7 @@ class QuestionnaireApp {
         const questionDescription = document.getElementById('questionDescription');
 
         // Тексты
-        questionTitle.textContent = node.title || 'Вопрос';
+        questionTitle.textContent = node.question || 'Вопрос';
         questionDescription.textContent = node.description || 'Пожалуйста, выберите ответ';
 
         // Очистка
@@ -152,6 +155,7 @@ class QuestionnaireApp {
             input.type = 'radio';
             input.name = 'questionOption';
             input.value = option.value;
+            input.dataset.label = option.label;
 
             label.appendChild(input);
             label.appendChild(document.createTextNode(option.label));
@@ -184,6 +188,7 @@ class QuestionnaireApp {
             input.type = 'checkbox';
             input.name = 'questionOption';
             input.value = option.value;
+            input.dataset.label = option.label;
 
             label.appendChild(input);
             label.appendChild(document.createTextNode(option.label));
@@ -244,6 +249,7 @@ class QuestionnaireApp {
         });
         container.appendChild(form);
     }
+
     prefillAnswer(answer) {
         if (answer === undefined || answer === null || !this.currentNode) return;
 
@@ -295,18 +301,26 @@ class QuestionnaireApp {
         switch (this.currentNode.question_type) {
             case 'radio':
                 const radio = document.querySelector('input[name="questionOption"]:checked');
-                return radio ? radio.value : null;
+                const radio_value = radio ? radio.value : null;
+                const radio_label = radio ? radio.dataset.label : null;
+                return [radio_value, radio_label];
             case 'checkbox':
                 const checks = document.querySelectorAll('input[name="questionOption"]:checked');
-                return Array.from(checks).map(cb => cb.value);
+                const checks_value = Array.from(checks).map(cb => cb.value);
+                const checks_label = Array.from(checks).map(cb => cb.dataset.label);
+                return [checks_value, checks_label];
             case 'number':
                 const num = document.querySelector('.number-input');
-                return num && num.value !== '' ? parseFloat(num.value) : null;
+                const num_value = num && num.value !== '' ? parseFloat(num.value) : null;
+                const num_label = num_value;
+                return [num_value, num_label];
             case 'yesno':
                 const yesno = document.querySelector('input[name="yesNoOption"]:checked');
-                return yesno ? (yesno.value === 'true') : null;
+                const yesno_value = yesno ? (yesno.value === 'true') : null;
+                const yesno_label = yesno ? (yesno_value ? 'Да' : 'Нет') : 'Не выбрано';
+                return [yesno_value, yesno_label];
             default:
-                return null;
+                return [null, null];
         }
     }
 
