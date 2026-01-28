@@ -2,7 +2,7 @@
   "questionnaire_graph": {
     "nodes": [
       {
-        "id": "Q0_Carpal",
+        "id": "Q0",
         "type": "intermediate",
         "title": "Начало диагностики переломов костей запястья",
         "question": "Возраст пациента?",
