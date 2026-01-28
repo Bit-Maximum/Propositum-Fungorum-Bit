@@ -1,12 +1,16 @@
+import uuid
+import logging
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import json
-from pathlib import Path
+
 from .models import AnswerRequest, SessionResponse, RecommendationResponse
 from .sessions import SessionManager
 from .questionnaire import Questionnaire
+
+from .questionary_service import QuestionType, get_by_type, get_all_display_questionnaires
 
 app = FastAPI(
     title="Клинический опросник по переломам бедренной кости",
@@ -14,6 +18,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
+logger = logging.getLogger(__name__)
+
+app.add_middleware(
+    CORSMiddleware,
+)
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
@@ -34,6 +43,14 @@ questionnaire = Questionnaire("data/questionnaire.json")
 async def get_home():
     """Главная страница с интерфейсом опросника"""
     return FileResponse("static/index.html")
+
+@app.get("/api/questionaries/")
+async def get_questionaries():
+    request_id = uuid.uuid4()
+    logger.debug(f"START main::get_questionaries request_id={request_id}")
+    results = get_all_display_questionnaires()
+    logger.debug(f"END main::get_questionaries request_id={request_id}, results={results}")
+    return JSONResponse(content={"questions": results})
 
 @app.post("/api/session/start")
 async def start_session():
