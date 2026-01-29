@@ -212,20 +212,33 @@ class QuestionnaireApp {
         }
         input.placeholder = 'Введите значение';
 
-        input.addEventListener('input', () => {
+        input.addEventListener('blur', () => {
             if (!node.validation) return;
 
-            let value = input.value;
+            let value = input.value.trim();
             if (value === '') return;
+
+            const numValue = parseFloat(value);
+        
+            if (isNaN(numValue)) {
+                input.value = '';
+                return;
+            }
+
+            let correctedValue = numValue;
 
             value = Number(value);
 
             if (node.validation.min !== undefined && value < node.validation.min) {
-                input.value = node.validation.min;
+                correctedValue = node.validation.min;
             }
 
             if (node.validation.max !== undefined && value > node.validation.max) {
-                input.value = node.validation.max;
+                correctedValue = node.validation.max;
+            }
+
+            if (correctedValue !== numValue) {
+                input.value = correctedValue;
             }
         });
 
