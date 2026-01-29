@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import Optional
 
-from backend.app.config import config
+from app.config import config
 
 import boto3
 from botocore.exceptions import ClientError
