@@ -2,23 +2,36 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import re
-
+from app.s3_client import S3MemoryClient
+from app.config import config
 
 class Questionnaire:
     def __init__(self, json_path: str):
         """Инициализация опросника из JSON файла"""
+        self.json_name = json_path
         self.json_path = Path(json_path)
+        self.s3_config = config
+        self.s3_client = S3MemoryClient(
+            bucket_name=self.s3_config.bucket_name,
+            region_name="us-east-2",
+            aws_access_key_id=self.s3_config.minio_user,
+            aws_secret_access_key=self.s3_config.minio_password,
+            endpoint_url=self.s3_config.minio_endpoint
+        )
         self.graph = self._load_graph()
         self.nodes = {node["id"]: node for node in self.graph["nodes"]}
         self.metadata = self.graph.get("metadata", {})
+
     
     def _load_graph(self) -> Dict[str, Any]:
         """Загрузить граф из JSON файла"""
-        if not self.json_path.exists():
+
+        if not self.s3_client.object_exists(self.json_name):
             raise FileNotFoundError(f"Файл опросника не найден: {self.json_path}")
-        
-        with open(self.json_path, 'r', encoding='utf-8') as f:
-            return json.load(f)["questionnaire_graph"]
+
+        file = self.s3_client.download_bytes(self.json_name)
+        return json.loads(file)["questionnaire_graph"]
+
     
     def get_initial_node(self) -> Dict[str, Any]:
         """Получить начальную ноду"""
