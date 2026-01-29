@@ -8,10 +8,7 @@
         "question": "Возраст пациента?",
         "question_type": "number",
         "description": "Введите возраст пациента в годах",
-        "validation": {
-          "min": 0,
-          "max": 120
-        },
+        "validation": { "min": 18, "max": 120 },
         "transitions": [
           {
             "condition": "value < 60",
