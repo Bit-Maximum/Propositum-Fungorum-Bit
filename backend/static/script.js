@@ -17,70 +17,70 @@ class QuestionnaireApp {
 
     }
 
-        async getGraphNodes() {
-            const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+    async getGraphNodes() {
+        const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
 
-            // кешируем по типу опросника
-            if (this.graphNodes && this.progressModelType === type) {
-                return this.graphNodes;
-            }
-
-            const response = await fetch(`${this.baseUrl}/api/questionnaire/nodes?clinReqType=${type}`);
-            if (!response.ok) throw new Error("Не удалось загрузить граф опросника");
-
-            this.graphNodes = await response.json();
-            this.progressModelType = type;
+        // кешируем по типу опросника
+        if (this.graphNodes && this.progressModelType === type) {
             return this.graphNodes;
         }
 
-        buildProgressModel(nodes) {
-            const byId = {};
-            nodes.forEach(n => { byId[n.id] = n; });
+        const response = await fetch(`${this.baseUrl}/api/questionnaire/nodes?clinReqType=${type}`);
+        if (!response.ok) throw new Error("Не удалось загрузить граф опросника");
 
-            const memo = {}; // id -> {min, max}
+        this.graphNodes = await response.json();
+        this.progressModelType = type;
+        return this.graphNodes;
+    }
 
-            const dfs = (id, stack = new Set()) => {
-                if (memo[id]) return memo[id];
-                const node = byId[id];
+    buildProgressModel(nodes) {
+        const byId = {};
+        nodes.forEach(n => { byId[n.id] = n; });
 
-                if (!node) return (memo[id] = { min: 0, max: 0 });
-                if (node.type === "final") return (memo[id] = { min: 0, max: 0 });
+        const memo = {}; // id -> {min, max}
 
-                // защита от циклов (на всякий случай)
-                if (stack.has(id)) return { min: 1, max: 1 };
+        const dfs = (id, stack = new Set()) => {
+            if (memo[id]) return memo[id];
+            const node = byId[id];
 
-                stack.add(id);
-                const targets = (node.transitions || [])
-                    .map(t => t.target_node_id)
-                    .filter(Boolean);
+            if (!node) return (memo[id] = { min: 0, max: 0 });
+            if (node.type === "final") return (memo[id] = { min: 0, max: 0 });
 
-                if (targets.length === 0) {
-                    stack.delete(id);
-                    return (memo[id] = { min: 1, max: 1 });
-                }
+            // защита от циклов (на всякий случай)
+            if (stack.has(id)) return { min: 1, max: 1 };
 
-                const children = targets.map(tid => dfs(tid, new Set(stack)));
-                const min = 1 + Math.min(...children.map(c => c.min));
-                const max = 1 + Math.max(...children.map(c => c.max));
+            stack.add(id);
+            const targets = (node.transitions || [])
+                .map(t => t.target_node_id)
+                .filter(Boolean);
 
+            if (targets.length === 0) {
                 stack.delete(id);
-                return (memo[id] = { min, max });
-            };
+                return (memo[id] = { min: 1, max: 1 });
+            }
 
-            // прогреваем для всех нод
-            nodes.forEach(n => dfs(n.id));
+            const children = targets.map(tid => dfs(tid, new Set(stack)));
+            const min = 1 + Math.min(...children.map(c => c.min));
+            const max = 1 + Math.max(...children.map(c => c.max));
 
-            return { stepsToFinal: memo };
-        }
+            stack.delete(id);
+            return (memo[id] = { min, max });
+        };
 
-        async ensureProgressModel() {
-            const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+        // прогреваем для всех нод
+        nodes.forEach(n => dfs(n.id));
 
-            if (this.progressModel && this.progressModelType === type) return;
+        return { stepsToFinal: memo };
+    }
 
-            const nodes = await this.getGraphNodes();
-            this.progressModel = this.buildProgressModel(nodes);
-        }
+    async ensureProgressModel() {
+        const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+
+        if (this.progressModel && this.progressModelType === type) return;
+
+        const nodes = await this.getGraphNodes();
+        this.progressModel = this.buildProgressModel(nodes);
+    }
 
 
     async startNewSession() {
@@ -187,7 +187,7 @@ class QuestionnaireApp {
         const questionDescription = document.getElementById('questionDescription');
 
         // Тексты
-        questionTitle.textContent = node.title || 'Вопрос';
+        questionTitle.textContent = node.title || node.question || 'Вопрос';
         questionDescription.textContent = node.description || 'Пожалуйста, выберите ответ';
 
         // Очистка
