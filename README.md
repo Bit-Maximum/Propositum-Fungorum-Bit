@@ -17,12 +17,16 @@ Copyright © 2026
 - **Решетнев Никита — DevOps инженер, System Architect**  
 - **Шулятьев Артём — System Architect, Backend разработчик**
 
-### Frontend + Prompts
+### Frontend
+- Аникин Данил - Frontend разработчик  
 - Борщевский Иван — Frontend разработчик  
 - Жеревчук Данил — Frontend разработчик  
-- Курбанов Марат — Frontend разработчик, Prompt Engineer
-- Назаров Максим — Frontend разработчик, Prompt Engineer    
+
+### Prompt Engineers
 - Гардаш Владислав — Prompt Engineer  
+- Курбанов Марат — Prompt Engineer
+- Назаров Максим — Prompt Engineer
+- Пак Ксения - Prompt Engineer
 
 ### DevOps + BackEnd
 - Матвеев Глеб — DevOps инженер  
@@ -143,3 +147,4 @@ Copyright © 2026
 или всем авторам совместно.
 
 Дата вступления лицензии в силу: 29.01.2026 год
+
