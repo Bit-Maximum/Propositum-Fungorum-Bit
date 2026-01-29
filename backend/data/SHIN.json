@@ -4,297 +4,501 @@
       {
         "id": "Q0",
         "type": "intermediate",
-        "title": "Начало диагностики pilon",
+        "title": "Начало диагностики",
         "question": "Возраст пациента?",
         "question_type": "number",
         "description": "Введите возраст пациента в годах",
-        "validation": { "min": 0, "max": 120 },
+        "validation": {
+          "min": 0,
+          "max": 120
+        },
         "transitions": [
           {
             "condition": "value < 60",
-            "target_node_id": "Q_Pilon_Entry_Young",
+            "target_node_id": "Q1_Young",
             "description": "Пациент моложе 60 лет"
           },
           {
             "condition": "value >= 60",
-            "target_node_id": "Q_Pilon_Entry_Elderly",
+            "target_node_id": "Q1_Elderly",
             "description": "Пациент 60 лет и старше"
           }
         ]
       },
+
       {
-        "id": "Q_Pilon_Entry_Young",
+        "id": "Q1_Young",
         "type": "intermediate",
-        "title": "Перелом pilon (молодые)",
-        "question": "Подтвержден ли внутрисуставной перелом дистального отдела большеберцовой кости (pilon)?",
+        "title": "Локализация перелома (молодые)",
+        "question": "Локализация и тип перелома дистального отдела большеберцовой кости (pilon)?",
         "question_type": "radio",
+        "description": "Выберите тип перелома на основании рентгенологической/КТ диагностики",
         "options": [
-          { "id": "opt1", "value": "confirmed_pilon", "label": "Да, подтвержден перелом pilon (AO/OTA 43A–C)" }
+          {
+            "id": "opt1",
+            "value": "extraarticular",
+            "label": "Внесуставной перелом (43A1–A3 AO/OTA)"
+          },
+          {
+            "id": "opt2",
+            "value": "partial_articular",
+            "label": "Частично внутрисуставной перелом (43B1–B3 AO/OTA)"
+          },
+          {
+            "id": "opt3",
+            "value": "complete_articular_simple",
+            "label": "Полностью внутрисуставной простой (43C1–C2 AO/OTA)"
+          },
+          {
+            "id": "opt4",
+            "value": "complete_articular_complex",
+            "label": "Полностью внутрисуставной многооскольчатый (43C3 AO/OTA)"
+          }
         ],
         "transitions": [
           {
-            "condition": "value == 'confirmed_pilon'",
-            "target_node_id": "Q_Pilon_SoftTissue_Young",
-            "description": "Перейти к оценке мягких тканей"
+            "condition": "value == 'extraarticular'",
+            "target_node_id": "Q2_Young_Extraarticular",
+            "description": "Внесуставной перелом"
+          },
+          {
+            "condition": "value == 'partial_articular'",
+            "target_node_id": "Q2_Young_Partial_Art",
+            "description": "Частично внутрисуставной"
+          },
+          {
+            "condition": "value == 'complete_articular_simple'",
+            "target_node_id": "Q2_Young_Simple_Art",
+            "description": "Простой полностью внутрисуставной"
+          },
+          {
+            "condition": "value == 'complete_articular_complex'",
+            "target_node_id": "R_Young_Complex_Staged_ORIF",
+            "description": "Многооскольчатый – этапное лечение"
           }
         ]
       },
+
       {
-        "id": "Q_Pilon_Entry_Elderly",
+        "id": "Q1_Elderly",
         "type": "intermediate",
-        "title": "Перелом pilon (пожилые)",
-        "question": "Подтвержден ли внутрисуставной перелом дистального отдела большеберцовой кости (pilon)?",
+        "title": "Локализация перелома (пожилые)",
+        "question": "Локализация и тип перелома дистального отдела большеберцовой кости (pilon)?",
         "question_type": "radio",
+        "description": "Выберите тип перелома на основании рентгенологической/КТ диагностики",
         "options": [
-          { "id": "opt1", "value": "confirmed_pilon", "label": "Да, подтвержден перелом pilon (AO/OTA 43A–C)" }
+          {
+            "id": "opt1",
+            "value": "extraarticular",
+            "label": "Внесуставной перелом (43A1–A3 AO/OTA)"
+          },
+          {
+            "id": "opt2",
+            "value": "partial_articular",
+            "label": "Частично внутрисуставной перелом (43B1–B3 AO/OTA)"
+          },
+          {
+            "id": "opt3",
+            "value": "complete_articular_simple",
+            "label": "Полностью внутрисуставной простой (43C1–C2 AO/OTA)"
+          },
+          {
+            "id": "opt4",
+            "value": "complete_articular_complex",
+            "label": "Полностью внутрисуставной многооскольчатый (43C3 AO/OTA)"
+          }
         ],
         "transitions": [
           {
-            "condition": "value == 'confirmed_pilon'",
-            "target_node_id": "Q_Pilon_SoftTissue_Elderly",
-            "description": "Перейти к оценке мягких тканей"
+            "condition": "value == 'extraarticular'",
+            "target_node_id": "Q2_Elderly_Extraarticular",
+            "description": "Внесуставной перелом"
+          },
+          {
+            "condition": "value == 'partial_articular'",
+            "target_node_id": "Q2_Elderly_Partial_Art",
+            "description": "Частично внутрисуставной"
+          },
+          {
+            "condition": "value == 'complete_articular_simple'",
+            "target_node_id": "Q2_Elderly_Simple_Art",
+            "description": "Простой полностью внутрисуставной"
+          },
+          {
+            "condition": "value == 'complete_articular_complex'",
+            "target_node_id": "R_Elderly_Complex_External_Fix",
+            "description": "Многооскольчатый – наружная фиксация"
           }
         ]
       },
+
       {
-        "id": "Q_Pilon_SoftTissue_Young",
+        "id": "Q2_Young_Extraarticular",
         "type": "intermediate",
-        "title": "Состояние мягких тканей (молодые)",
-        "question": "Оцените состояние мягких тканей и открытость перелома",
+        "title": "Внесуставной перелом (молодые)",
+        "question": "Характеристика внесуставного перелома и состояние мягких тканей?",
         "question_type": "radio",
         "options": [
           {
             "id": "opt1",
-            "value": "closed_low_risk",
-            "label": "Закрытый перелом, удовлетворительное состояние мягких тканей"
+            "value": "simple_good_soft",
+            "label": "Простой перелом, удовлетворительные мягкие ткани"
           },
           {
             "id": "opt2",
-            "value": "closed_high_risk",
-            "label": "Закрытый перелом, выраженный отек/буллы"
+            "value": "comminuted_good_soft",
+            "label": "Оскольчатый перелом, удовлетворительные мягкие ткани"
           },
           {
             "id": "opt3",
-            "value": "open_I_II",
-            "label": "Открытый перелом Gustilo I–II"
-          },
-          {
-            "id": "opt4",
-            "value": "open_III",
-            "label": "Открытый перелом Gustilo III"
+            "value": "compromised_soft",
+            "label": "Любой тип + повреждение мягких тканей/открытый перелом"
           }
         ],
         "transitions": [
           {
-            "condition": "value == 'closed_low_risk'",
-            "target_node_id": "Q_Pilon_Fracture_Type_Young",
-            "description": "Возможна одномоментная окончательная фиксация"
+            "condition": "value == 'simple_good_soft'",
+            "target_node_id": "R_Young_Extra_Simple_MIPO",
+            "description": "Малоинвазивный остеосинтез пластиной"
           },
           {
-            "condition": "value == 'closed_high_risk' || value == 'open_I_II' || value == 'open_III'",
-            "target_node_id": "R_Pilon_StageFix_External_Young",
-            "description": "Показано этапное лечение с наружной фиксацией"
+            "condition": "value == 'comminuted_good_soft'",
+            "target_node_id": "R_Young_Extra_Comminuted_IMN",
+            "description": "Интрамедуллярный остеосинтез"
+          },
+          {
+            "condition": "value == 'compromised_soft'",
+            "target_node_id": "R_Young_External_Fixation",
+            "description": "Наружная фиксация"
           }
         ]
       },
+
       {
-        "id": "Q_Pilon_SoftTissue_Elderly",
+        "id": "Q2_Young_Partial_Art",
         "type": "intermediate",
-        "title": "Состояние мягких тканей (пожилые)",
-        "question": "Оцените состояние мягких тканей и открытость перелома",
+        "title": "Частично внутрисуставной (молодые)",
+        "question": "Состояние суставной поверхности и мягких тканей?",
         "question_type": "radio",
         "options": [
           {
             "id": "opt1",
-            "value": "closed_low_risk",
-            "label": "Закрытый перелом, удовлетворительное состояние мягких тканей"
+            "value": "minimal_displacement",
+            "label": "Минимальное смещение суставной поверхности, хорошие мягкие ткани"
           },
           {
             "id": "opt2",
-            "value": "closed_high_risk",
-            "label": "Закрытый перелом, выраженный отек/буллы"
+            "value": "significant_displacement",
+            "label": "Значимое смещение суставной поверхности"
           },
           {
             "id": "opt3",
-            "value": "open_I_II",
-            "label": "Открытый перелом Gustilo I–II"
-          },
-          {
-            "id": "opt4",
-            "value": "open_III",
-            "label": "Открытый перелом Gustilo III"
+            "value": "compromised_soft",
+            "label": "Любое смещение + повреждение мягких тканей"
           }
         ],
         "transitions": [
           {
-            "condition": "value == 'closed_low_risk'",
-            "target_node_id": "Q_Pilon_Fracture_Type_Elderly",
-            "description": "Возможна одномоментная окончательная фиксация"
+            "condition": "value == 'minimal_displacement'",
+            "target_node_id": "R_Young_Partial_MIPO",
+            "description": "Малоинвазивная фиксация пластиной"
           },
           {
-            "condition": "value == 'closed_high_risk' || value == 'open_I_II' || value == 'open_III'",
-            "target_node_id": "R_Pilon_StageFix_External_Elderly",
-            "description": "Показано этапное лечение с наружной фиксацией"
+            "condition": "value == 'significant_displacement'",
+            "target_node_id": "R_Young_Partial_ORIF",
+            "description": "Открытая репозиция + ORIF"
+          },
+          {
+            "condition": "value == 'compromised_soft'",
+            "target_node_id": "R_Young_External_Fixation",
+            "description": "Этапное лечение"
           }
         ]
       },
+
       {
-        "id": "Q_Pilon_Fracture_Type_Young",
+        "id": "Q2_Young_Simple_Art",
         "type": "intermediate",
-        "title": "Тип перелома pilon (молодые)",
-        "question": "Тип перелома по AO/OTA?",
+        "title": "Простой внутрисуставной (молодые)",
+        "question": "Сложность суставного блока и состояние мягких тканей?",
         "question_type": "radio",
         "options": [
-          { "id": "opt1", "value": "43A", "label": "43A – внесуставной" },
-          { "id": "opt2", "value": "43B", "label": "43B – частично внутрисуставной" },
-          { "id": "opt3", "value": "43C_simple", "label": "43C1–C2 – полностью внутрисуставной, относительно простой" },
-          { "id": "opt4", "value": "43C_complex", "label": "43C3 – многооскольчатый внутрисуставной" }
+          {
+            "id": "opt1",
+            "value": "simple_good_soft",
+            "label": "Относительно простой суставной блок, хорошие мягкие ткани"
+          },
+          {
+            "id": "opt2",
+            "value": "complex_good_soft",
+            "label": "Сложный суставной блок, но удовлетворительные мягкие ткани"
+          },
+          {
+            "id": "opt3",
+            "value": "compromised_soft",
+            "label": "Любая конфигурация + повреждение мягких тканей"
+          }
         ],
         "transitions": [
-          { "condition": "value == '43A'", "target_node_id": "R_Pilon_43A_ORIF_Plate_Young", "description": "ORIF пластиной" },
-          { "condition": "value == '43B'", "target_node_id": "R_Pilon_43B_ORIF_Young", "description": "ORIF с анатомической репозицией" },
-          { "condition": "value == '43C_simple'", "target_node_id": "R_Pilon_43C_Simple_ORIF_Young", "description": "ORIF суставного блока" },
-          { "condition": "value == '43C_complex'", "target_node_id": "R_Pilon_43C_Complex_Stage_ORIF_Young", "description": "Этапное лечение сложных pilon" }
+          {
+            "condition": "value == 'simple_good_soft'",
+            "target_node_id": "R_Young_Simple_ORIF_Plate",
+            "description": "ORIF анатомической пластиной"
+          },
+          {
+            "condition": "value == 'complex_good_soft'",
+            "target_node_id": "R_Young_Simple_Biplanar_ORIF",
+            "description": "Двухплоскостная фиксация"
+          },
+          {
+            "condition": "value == 'compromised_soft'",
+            "target_node_id": "R_Young_Staged_ORIF",
+            "description": "Этапное лечение"
+          }
         ]
       },
+
       {
-        "id": "Q_Pilon_Fracture_Type_Elderly",
+        "id": "Q2_Elderly_Extraarticular",
         "type": "intermediate",
-        "title": "Тип перелома pilon (пожилые)",
-        "question": "Тип перелома по AO/OTA?",
+        "title": "Внесуставной перелом (пожилые)",
+        "question": "Характеристика перелома и состояние мягких тканей?",
         "question_type": "radio",
         "options": [
-          { "id": "opt1", "value": "43A", "label": "43A – внесуставной" },
-          { "id": "opt2", "value": "43B", "label": "43B – частично внутрисуставной" },
-          { "id": "opt3", "value": "43C_simple", "label": "43C1–C2 – полностью внутрисуставной, относительно простой" },
-          { "id": "opt4", "value": "43C_complex", "label": "43C3 – многооскольчатый внутрисуставной" }
+          {
+            "id": "opt1",
+            "value": "simple_good_soft",
+            "label": "Простой перелом, удовлетворительные мягкие ткани"
+          },
+          {
+            "id": "opt2",
+            "value": "comminuted_good_soft",
+            "label": "Оскольчатый перелом, удовлетворительные мягкие ткани"
+          },
+          {
+            "id": "opt3",
+            "value": "compromised_soft",
+            "label": "Любой тип + повреждение мягких тканей"
+          }
         ],
         "transitions": [
-          { "condition": "value == '43A'", "target_node_id": "R_Pilon_43A_ORIF_Plate_Elderly", "description": "ORIF пластиной" },
-          { "condition": "value == '43B'", "target_node_id": "R_Pilon_43B_ORIF_Elderly", "description": "ORIF с анатомической репозицией" },
-          { "condition": "value == '43C_simple'", "target_node_id": "R_Pilon_43C_Simple_ORIF_Elderly", "description": "ORIF суставного блока" },
-          { "condition": "value == '43C_complex'", "target_node_id": "R_Pilon_43C_Complex_Stage_ORIF_Elderly", "description": "Этапное лечение сложных pilon" }
+          {
+            "condition": "value == 'simple_good_soft'",
+            "target_node_id": "R_Elderly_Extra_Simple_MIPO",
+            "description": "Малоинвазивный остеосинтез"
+          },
+          {
+            "condition": "value == 'comminuted_good_soft'",
+            "target_node_id": "R_Elderly_Extra_Comminuted_IMN",
+            "description": "Интрамедуллярный остеосинтез"
+          },
+          {
+            "condition": "value == 'compromised_soft'",
+            "target_node_id": "R_Elderly_External_Fixation",
+            "description": "Наружная фиксация"
+          }
         ]
       },
+
       {
-        "id": "R_Pilon_StageFix_External_Young",
+        "id": "Q2_Elderly_Partial_Art",
+        "type": "intermediate",
+        "title": "Частично внутрисуставной (пожилые)",
+        "question": "Состояние суставной поверхности и мягких тканей?",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "minimal_displacement",
+            "label": "Минимальное смещение, хорошие мягкие ткани"
+          },
+          {
+            "id": "opt2",
+            "value": "significant_displacement",
+            "label": "Значимое смещение суставной поверхности"
+          },
+          {
+            "id": "opt3",
+            "value": "compromised_soft",
+            "label": "Любое смещение + повреждение мягких тканей"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'minimal_displacement'",
+            "target_node_id": "R_Elderly_Partial_MIPO",
+            "description": "Малоинвазивная фиксация"
+          },
+          {
+            "condition": "value == 'significant_displacement'",
+            "target_node_id": "R_Elderly_Partial_ORIF",
+            "description": "Открытая репозиция + ORIF"
+          },
+          {
+            "condition": "value == 'compromised_soft'",
+            "target_node_id": "R_Elderly_External_Fixation",
+            "description": "Этапное лечение"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Simple_Art",
+        "type": "intermediate",
+        "title": "Простой внутрисуставной (пожилые)",
+        "question": "Сложность суставного блока и состояние мягких тканей?",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "simple_good_soft",
+            "label": "Простой суставной блок, хорошие мягкие ткани"
+          },
+          {
+            "id": "opt2",
+            "value": "complex_good_soft",
+            "label": "Сложный суставной блок, удовлетворительные мягкие ткани"
+          },
+          {
+            "id": "opt3",
+            "value": "compromised_soft",
+            "label": "Любая конфигурация + повреждение мягких тканей"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'simple_good_soft'",
+            "target_node_id": "R_Elderly_Simple_ORIF_Plate",
+            "description": "ORIF анатомической пластиной"
+          },
+          {
+            "condition": "value == 'complex_good_soft'",
+            "target_node_id": "R_Elderly_Simple_Biplanar_ORIF",
+            "description": "Двухплоскостная фиксация"
+          },
+          {
+            "condition": "value == 'compromised_soft'",
+            "target_node_id": "R_Elderly_Staged_ORIF",
+            "description": "Этапное лечение"
+          }
+        ]
+      },
+
+      {
+        "id": "R_Young_Extra_Simple_MIPO",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение pilon (молодые)",
-        "recommendation": "Двухэтапное лечение: первичная стабилизация аппаратом внешней фиксации с лигаментотаксисом, затем отсроченный ORIF после улучшения состояния мягких тканей.",
-        "parameters": {
-          "stage_1": "Установка АВФ, ПХО при открытых переломах, восстановление оси и длины голени.",
-          "stage_2": "Через 7–14 дней – ORIF суставной поверхности и метафиза блокируемыми пластинами.",
-          "weight_bearing": "Без опоры 6–12 недель, затем постепенная нагрузка."
-        }
+        "title": "РЕКОМЕНДАЦИЯ: МIPO простого внесуставного (молодые)",
+        "recommendation": "Простые внесуставные переломы у молодых лечат малоинвазивным остеосинтезом анатомической блокируемой пластиной (MIPO) с восстановлением длины и оси."
       },
       {
-        "id": "R_Pilon_StageFix_External_Elderly",
+        "id": "R_Young_Extra_Comminuted_IMN",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение pilon (пожилые)",
-        "recommendation": "Двухэтапное лечение с учетом высокого риска кожных осложнений: временная наружная фиксация, затем щадящий ORIF.",
-        "parameters": {
-          "stage_1": "АВФ в режиме восстановления длины и оси, ПХО ран.",
-          "stage_2": "Отсроченный ORIF; при сомнительном состоянии мягких тканей допускается длительная внешняя фиксация.",
-          "weight_bearing": "Разгрузка не менее 8–12 недель, ранняя мобилизация голеностопного сустава."
-        }
+        "title": "РЕКОМЕНДАЦИЯ: IMN оскольчатого внесуставного (молодые)",
+        "recommendation": "Оскольчатые внесуставные переломы оптимально стабилизируют интрамедуллярным остеосинтезом супракондилярным стержнем."
       },
       {
-        "id": "R_Pilon_43A_ORIF_Plate_Young",
+        "id": "R_Young_Partial_MIPO",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43A pilon (молодые)",
-        "recommendation": "Внесуставные переломы 43A у молодых пациентов лечат накостным остеосинтезом анатомической блокируемой пластиной с восстановлением оси и длины голени.",
-        "parameters": {
-          "approach": "Медиальный или переднемедиальный доступ к дистальной большеберцовой кости.",
-          "technique": [
-            "Малоинвазивная установка пластины (МИПО) при удовлетворительной репозиции.",
-            "Блокируемые винты в дистальном сегменте, кортикальные/блокируемые – проксимально."
-          ],
-          "weight_bearing": "Частичная нагрузка после появления признаков консолидации, полная – обычно после 10–12 недель."
-        }
+        "title": "РЕКОМЕНДАЦИЯ: MIPO частично внутрисуставного (молодые)",
+        "recommendation": "С минимальным смещением частично внутрисуставные переломы фиксируют малоинвазивно анатомической пластиной."
       },
       {
-        "id": "R_Pilon_43A_ORIF_Plate_Elderly",
+        "id": "R_Young_Partial_ORIF",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43A pilon (пожилые)",
-        "recommendation": "У пожилых пациентов с 43A предпочтителен МИПО блокируемой пластиной с максимальным щажением мягких тканей.",
-        "parameters": {
-          "notes": [
-            "Особое внимание – профилактике раневых осложнений.",
-            "Разрешение нагрузки зависит от стабильности фиксации и качества кости."
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: ORIF частично внутрисуставного (молодые)",
+        "recommendation": "Значимо призведенные частично внутрисуставные переломы требуют открытой репозиции суставной поверхности и фиксации."
       },
       {
-        "id": "R_Pilon_43B_ORIF_Young",
+        "id": "R_Young_Simple_ORIF_Plate",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43B pilon (молодые)",
-        "recommendation": "Частично внутрисуставные переломы 43B требуют анатомической репозиции суставной поверхности и фиксации анатомической блокируемой пластиной.",
-        "parameters": {
-          "approach": "Передне‑ или переднемедиальный доступ с визуализацией суставной поверхности.",
-          "technique": [
-            "Прецизионная репозиция суставного фрагмента с временной фиксацией спицами.",
-            "Окончательная фиксация винтами и пластиной."
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: ORIF простого внутрисуставного (молодые)",
+        "recommendation": "Простые внутрисуставные переломы лечат анатомической репозицией суставного блока и фиксацией анатомической пластиной."
       },
       {
-        "id": "R_Pilon_43B_ORIF_Elderly",
+        "id": "R_Young_Simple_Biplanar_ORIF",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43B pilon (пожилые)",
-        "recommendation": "Тактика аналогична молодой группе, но при выраженном остеопорозе упор на блокируемую фиксацию и осторожную раннюю мобилизацию.",
-        "parameters": {
-          "weight_bearing": "Без опоры 8–10 недель, затем постепенная нагрузка с опорой."
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Двухплоскостная фиксация (молодые)",
+        "recommendation": "Сложные простые внутрисуставные переломы стабилизируют двухплоскостной фиксацией (медиальная + передняя пластины)."
       },
       {
-        "id": "R_Pilon_43C_Simple_ORIF_Young",
+        "id": "R_Young_Complex_Staged_ORIF",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43C1–C2 pilon (молодые)",
-        "recommendation": "При 43C1–C2 у молодых выполняют анатомическую репозицию суставного блока и двуплоскостной накостный остеосинтез блокируемыми пластинами.",
-        "parameters": {
-          "steps": [
-            "Формирование суставного блока, фиксация субхондральными винтами.",
-            "Восстановление метафиза и оси голени, фиксация медиальной/передней пластиной."
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение многооскольчатого (молодые)",
+        "recommendation": "Многооскольчатые pilon у молодых требуют двухэтапного лечения: первичная внешняя фиксация, затем сложная реконструкция."
       },
       {
-        "id": "R_Pilon_43C_Simple_ORIF_Elderly",
+        "id": "R_Young_External_Fixation",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43C1–C2 pilon (пожилые)",
-        "recommendation": "У пожилых с 43C1–C2 предпочтительны малоинвазивные техники и стабильная блокируемая фиксация для ранней мобилизации, но без ранней полной нагрузки.",
-        "parameters": {
-          "weight_bearing": "Разгрузка 10–12 недель, затем постепенное увеличение нагрузки по рентген‑контролю."
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Наружная фиксация (молодые)",
+        "recommendation": "При повреждении мягких тканей показана первичная стабилизация аппаратом внешней фиксации."
       },
       {
-        "id": "R_Pilon_43C_Complex_Stage_ORIF_Young",
+        "id": "R_Young_Staged_ORIF",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43C3 pilon (молодые)",
-        "recommendation": "Многооскольчатые переломы 43C3 у молодых пациентов лечат этапно: начальная наружная фиксация, затем сложная реконструкция суставной поверхности и метафиза с использованием нескольких блокируемых пластин.",
-        "parameters": {
-          "salvage": "При невозможности восстановления конгруэнтности у отдельных больных может рассматриваться вторичный артродез голеностопа."
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Этапное ORIF (молодые)",
+        "recommendation": "При повреждении мягких тканей – этапное лечение с временной фиксацией и отсроченным ORIF."
+      },
+
+      {
+        "id": "R_Elderly_Extra_Simple_MIPO",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: MIPO простого внесуставного (пожилые)",
+        "recommendation": "Простые внесуставные переломы у пожилых стабилизируют малоинвазивным остеосинтезом с ранней нагрузкой."
       },
       {
-        "id": "R_Pilon_43C_Complex_Stage_ORIF_Elderly",
+        "id": "R_Elderly_Extra_Comminuted_IMN",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: 43C3 pilon (пожилые)",
-        "recommendation": "У пожилых при 43C3 чаще используют длительную внешнюю фиксацию и щадящий ORIF; при крайне разрушенных суставах возможен первичный или ранний артродез.",
-        "parameters": {
-          "notes": [
-            "Тактика зависит от функциональных запросов и соматического статуса пациента.",
-            "Ожидается длительная разгрузка и медленная реабилитация."
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: IMN оскольчатого внесуставного (пожилые)",
+        "recommendation": "Оскольчатые внесуставные переломы оптимально лечат интрамедуллярным стержнем."
+      },
+      {
+        "id": "R_Elderly_Partial_MIPO",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: MIPO частично внутрисуставного (пожилые)",
+        "recommendation": "Минимально смещенные частично внутрисуставные переломы фиксируют малоинвазивно."
+      },
+      {
+        "id": "R_Elderly_Partial_ORIF",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: ORIF частично внутрисуставного (пожилые)",
+        "recommendation": "Призведенные частично внутрисуставные переломы требуют репозиции и фиксации."
+      },
+      {
+        "id": "R_Elderly_Simple_ORIF_Plate",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: ORIF простого внутрисуставного (пожилые)",
+        "recommendation": "Простые внутрисуставные переломы стабилизируют анатомической фиксацией."
+      },
+      {
+        "id": "R_Elderly_Simple_Biplanar_ORIF",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Двухплоскостная фиксация (пожилые)",
+        "recommendation": "Сложные простые внутрисуставные переломы фиксируют двухплоскостно."
+      },
+      {
+        "id": "R_Elderly_Complex_External_Fix",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Наружная фиксация многооскольчатого (пожилые)",
+        "recommendation": "Многооскольчатые pilon у пожилых часто лечат длительной наружной фиксацией."
+      },
+      {
+        "id": "R_Elderly_External_Fixation",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Наружная фиксация (пожилые)",
+        "recommendation": "При повреждении мягких тканей – первичная наружная фиксация."
+      },
+      {
+        "id": "R_Elderly_Staged_ORIF",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Этапное ORIF (пожилые)",
+        "recommendation": "Этапное лечение с временной фиксацией при повреждении мягких тканей."
       }
     ],
     "metadata": {
       "title": "Клинический опросник: Переломы дистального отдела костей голени (pilon)",
-      "version": "1.0",
+      "version": "2.0",
       "source": "Федеральные клинические рекомендации",
-      "description": "Граф принятия решений для выбора тактики хирургического лечения переломов типа pilon у взрослых пациентов."
+      "description": "Граф принятия решений для выбора тактики хирургического лечения переломов типа pilon у взрослых пациентов моложе и старше 60 лет."
     }
   }
 }
-
