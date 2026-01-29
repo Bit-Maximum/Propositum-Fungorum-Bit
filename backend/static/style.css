@@ -243,6 +243,16 @@ header h1 {
     margin: 20px 0;
 }
 
+.progress-meta {
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #7f8c8d;
+    display: flex;
+    justify-content: flex-end;
+    justify-content: center;
+}
+
 .progress-bar {
     height: 100%;
     background: linear-gradient(90deg, #3498db 0%, #2ecc71 100%);

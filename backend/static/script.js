@@ -6,11 +6,81 @@ class QuestionnaireApp {
         this.baseUrl = window.location.origin;
         this.panZoomInstance = null;
 
+        this.graphNodes = null;
+        this.progressModel = null;
+        this.progressModelType = null;
+
 
         this.initEventListeners();
         this.updateUI();
+
+
     }
 
+    async getGraphNodes() {
+        const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+
+        // кешируем по типу опросника
+        if (this.graphNodes && this.progressModelType === type) {
+            return this.graphNodes;
+        }
+
+        const response = await fetch(`${this.baseUrl}/api/questionnaire/nodes?clinReqType=${type}`);
+        if (!response.ok) throw new Error("Не удалось загрузить граф опросника");
+
+        this.graphNodes = await response.json();
+        this.progressModelType = type;
+        return this.graphNodes;
+    }
+
+    buildProgressModel(nodes) {
+        const byId = {};
+        nodes.forEach(n => { byId[n.id] = n; });
+
+        const memo = {}; // id -> {min, max}
+
+        const dfs = (id, stack = new Set()) => {
+            if (memo[id]) return memo[id];
+            const node = byId[id];
+
+            if (!node) return (memo[id] = { min: 0, max: 0 });
+            if (node.type === "final") return (memo[id] = { min: 0, max: 0 });
+
+            // защита от циклов (на всякий случай)
+            if (stack.has(id)) return { min: 1, max: 1 };
+
+            stack.add(id);
+            const targets = (node.transitions || [])
+                .map(t => t.target_node_id)
+                .filter(Boolean);
+
+            if (targets.length === 0) {
+                stack.delete(id);
+                return (memo[id] = { min: 1, max: 1 });
+            }
+
+            const children = targets.map(tid => dfs(tid, new Set(stack)));
+            const min = 1 + Math.min(...children.map(c => c.min));
+            const max = 1 + Math.max(...children.map(c => c.max));
+
+            stack.delete(id);
+            return (memo[id] = { min, max });
+        };
+
+        // прогреваем для всех нод
+        nodes.forEach(n => dfs(n.id));
+
+        return { stepsToFinal: memo };
+    }
+
+    async ensureProgressModel() {
+        const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+
+        if (this.progressModel && this.progressModelType === type) return;
+
+        const nodes = await this.getGraphNodes();
+        this.progressModel = this.buildProgressModel(nodes);
+    }
 
 
     async startNewSession() {
@@ -31,6 +101,7 @@ class QuestionnaireApp {
 
             this.hideResult();
             this.updateUI();
+            await this.ensureProgressModel();
             this.loadQuestion(this.currentNode);
 
         } catch (error) {
@@ -98,6 +169,7 @@ class QuestionnaireApp {
             this.history = [];
 
             this.hideResult();
+            await this.ensureProgressModel();
             this.loadQuestion(this.currentNode);
             this.updateUI();
 
@@ -115,7 +187,7 @@ class QuestionnaireApp {
         const questionDescription = document.getElementById('questionDescription');
 
         // Тексты
-        questionTitle.textContent = node.title || 'Вопрос';
+        questionTitle.textContent = node.title || node.question || 'Вопрос';
         questionDescription.textContent = node.description || 'Пожалуйста, выберите ответ';
 
         // Очистка
@@ -454,8 +526,51 @@ class QuestionnaireApp {
 
     updateProgressBar() {
         const progressBar = document.getElementById('progressBar');
-        const progress = this.history.length * 10;
-        progressBar.style.width = `${Math.min(progress, 100)}%`;
+        const progressText = document.getElementById('progressText');
+        if (!progressBar) return;
+
+        // нет сессии/ноды
+        if (!this.currentNode) {
+            progressBar.style.width = `0%`;
+            if (progressText) progressText.textContent = '';
+            return;
+        }
+
+        // если модель ещё не успела прогрузиться — старое поведение как fallback
+        if (!this.progressModel || !this.progressModel.stepsToFinal) {
+            const progress = this.history.length * 10;
+            progressBar.style.width = `${Math.min(progress, 100)}%`;
+            if (progressText) progressText.textContent = '';
+            return;
+        }
+
+        // финал
+        if (this.currentNode.type === 'final') {
+            progressBar.style.width = `100%`;
+            if (progressText) progressText.textContent = 'Готово';
+            return;
+        }
+
+        const answered = this.history.length;
+        const currentIndex = answered + 1;
+
+        const dist = this.progressModel.stepsToFinal[this.currentNode.id] || { min: 1, max: 1 };
+
+        const totalMin = answered + dist.min;
+        const totalMax = answered + dist.max;
+        const totalEst = Math.max(currentIndex, Math.round((totalMin + totalMax) / 2));
+
+        const percent = Math.max(0, Math.min(100, Math.round((currentIndex / totalEst) * 100)));
+        progressBar.style.width = `${percent}%`;
+
+        const totalText = (totalMin === totalMax) ? `${totalMin}` : `${totalMin}–${totalMax}`;
+        const remMin = Math.max(0, totalMin - currentIndex);
+        const remMax = Math.max(0, totalMax - currentIndex);
+        const remText = (remMin === remMax) ? `${remMin}` : `${remMin}–${remMax}`;
+
+        if (progressText) {
+            progressText.textContent = `Вопрос ${currentIndex} из ${totalText} (осталось ${remText})`;
+        }
     }
 
     updateUI() {
