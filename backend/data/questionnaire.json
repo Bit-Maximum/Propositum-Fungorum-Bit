@@ -5,7 +5,7 @@
         "id": "Q0",
         "type": "intermediate",
         "title": "Начало диагностики",
-        "question": "Возраст пациента?",
+        "question": "Возраст пациента",
         "question_type": "number",
         "description": "Введите возраст пациента в годах",
         "validation": {
