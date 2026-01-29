@@ -4,176 +4,413 @@
       {
         "id": "Q0",
         "type": "intermediate",
-        "title": "Грыжа шейного межпозвонкового диска",
+        "title": "Начало диагностики",
         "question": "Возраст пациента?",
         "question_type": "number",
-        "validation": { "min": 18, "max": 120 },
+        "description": "Введите возраст пациента в годах",
+        "validation": {
+          "min": 0,
+          "max": 120
+        },
         "transitions": [
           {
-            "condition": "value >= 18",
-            "target_node_id": "Q_Cervical_Entry_Adult",
-            "description": "Взрослый пациент"
+            "condition": "value < 60",
+            "target_node_id": "Q1_Young",
+            "description": "Пациент моложе 60 лет"
+          },
+          {
+            "condition": "value >= 60",
+            "target_node_id": "Q1_Elderly",
+            "description": "Пациент 60 лет и старше"
           }
         ]
       },
+
       {
-        "id": "Q_Cervical_Entry_Adult",
+        "id": "Q1_Young",
         "type": "intermediate",
-        "title": "Подтверждение шейной грыжи",
-        "question": "Подтверждена ли грыжа диска шейного отдела по данным МРТ?",
+        "title": "Начало оценки (молодые)",
+        "question": "Какие симптомы преобладают при подозрении на шейную грыжу диска?",
         "question_type": "radio",
+        "description": "Выберите наиболее значимый синдром",
         "options": [
           {
             "id": "opt1",
-            "value": "yes",
-            "label": "Да, подтверждена клинически значимая грыжа C3–C7"
-          }
-        ],
-        "transitions": [
-          {
-            "condition": "value == 'yes'",
-            "target_node_id": "Q_Cervical_Emergency",
-            "description": "Оценка миелопатии и тяжелого дефицита"
-          }
-        ]
-      },
-      {
-        "id": "Q_Cervical_Emergency",
-        "type": "intermediate",
-        "title": "Миелопатия и тяжелый дефицит",
-        "question": "Отметьте наличие миелопатии или тяжелой радикулопатии",
-        "question_type": "checkbox",
-        "options": [
-          {
-            "id": "opt1",
-            "value": "myelopathy",
-            "label": "Клиническая шейная миелопатия (нарушение походки, спастический парез, нарушения тазовых функций)"
+            "value": "cervical_pain_only",
+            "label": "Преимущественно боль в шее без выраженной радикулопатии/миелопатии"
           },
           {
             "id": "opt2",
-            "value": "severe_radiculopathy",
-            "label": "Тяжелая радикулопатия с выраженным моторным дефицитом в руке"
+            "value": "radiculopathy",
+            "label": "Шейная радикулопатия (боль/парестезии в руке, слабость)"
           },
           {
             "id": "opt3",
-            "value": "refractory_pain",
-            "label": "Рефрактерная шейно‑плечевая боль/радикулопатия без выраженного дефицита"
-          },
-          {
-            "id": "opt4",
-            "value": "none",
-            "label": "Выраженных неврологических проявлений нет"
+            "value": "myelopathy",
+            "label": "Признаки шейной миелопатии (нарушение походки, спастический парез)"
           }
         ],
         "transitions": [
           {
-            "condition": "includes('myelopathy') || includes('severe_radiculopathy')",
-            "target_node_id": "R_Cervical_Early_Decompression",
-            "description": "Раннее декомпрессионное вмешательство"
+            "condition": "value == 'cervical_pain_only'",
+            "target_node_id": "Q2_Young_Conservative_Trial",
+            "description": "Рассмотреть консервативную терапию"
           },
           {
-            "condition": "!includes('myelopathy') && !includes('severe_radiculopathy') && includes('refractory_pain')",
-            "target_node_id": "R_Cervical_Elective_ACDF_Pain",
-            "description": "ACDF при рефрактерной радикулопатии"
+            "condition": "value == 'radiculopathy'",
+            "target_node_id": "Q2_Young_Radicular_Severity",
+            "description": "Оценить выраженность радикулопатии"
           },
           {
-            "condition": "includes('none')",
-            "target_node_id": "Q_Cervical_Conservative_Failure",
-            "description": "Оценить длительность и эффективность консервативной терапии"
+            "condition": "value == 'myelopathy'",
+            "target_node_id": "Q2_Young_Myelopathy_Severity",
+            "description": "Оценить выраженность миелопатии"
           }
         ]
       },
+
       {
-        "id": "Q_Cervical_Conservative_Failure",
+        "id": "Q1_Elderly",
         "type": "intermediate",
-        "title": "Эффективность консервативного лечения",
-        "question": "Как долго проводится консервативная терапия и есть ли улучшение?",
+        "title": "Начало оценки (пожилые)",
+        "question": "Какие симптомы преобладают при подозрении на шейную грыжу диска?",
+        "question_type": "radio",
+        "description": "Выберите наиболее значимый синдром",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "cervical_pain_only",
+            "label": "Преимущественно боль в шее без выраженной радикулопатии/миелопатии"
+          },
+          {
+            "id": "opt2",
+            "value": "radiculopathy",
+            "label": "Шейная радикулопатия (боль/парестезии в руке, слабость)"
+          },
+          {
+            "id": "opt3",
+            "value": "myelopathy",
+            "label": "Признаки шейной миелопатии (нарушение походки, спастический парез)"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'cervical_pain_only'",
+            "target_node_id": "Q2_Elderly_Conservative_Trial",
+            "description": "Рассмотреть консервативную терапию"
+          },
+          {
+            "condition": "value == 'radiculopathy'",
+            "target_node_id": "Q2_Elderly_Radicular_Severity",
+            "description": "Оценить выраженность радикулопатии"
+          },
+          {
+            "condition": "value == 'myelopathy'",
+            "target_node_id": "Q2_Elderly_Myelopathy_Severity",
+            "description": "Оценить выраженность миелопатии"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Young_Radicular_Severity",
+        "type": "intermediate",
+        "title": "Выраженность радикулопатии (молодые)",
+        "question": "Оцените выраженность радикулопатии и длительность консервативного лечения",
         "question_type": "radio",
         "options": [
           {
             "id": "opt1",
-            "value": "less_6_weeks",
-            "label": "Менее 6 недель, положительная динамика"
+            "value": "mild_short",
+            "label": "Умеренная радикулопатия, консервативная терапия < 6 недель"
           },
           {
             "id": "opt2",
-            "value": "more_6_weeks_no_effect",
-            "label": "Более 6–12 недель без достаточного эффекта"
+            "value": "severe_short",
+            "label": "Выраженная радикулопатия, но < 6 недель лечения"
+          },
+          {
+            "id": "opt3",
+            "value": "severe_long",
+            "label": "Выраженная радикулопатия ≥ 6–8 недель без эффекта"
           }
         ],
         "transitions": [
           {
-            "condition": "value == 'less_6_weeks'",
-            "target_node_id": "R_Cervical_Continue_Conservative",
-            "description": "Продолжить консервативную терапию"
+            "condition": "value == 'mild_short'",
+            "target_node_id": "R_Young_Continue_Conservative",
+            "description": "Продолжить консервативное лечение"
           },
           {
-            "condition": "value == 'more_6_weeks_no_effect'",
-            "target_node_id": "R_Cervical_Elective_ACDF",
-            "description": "Плановая операция (ACDF/протезирование диска)"
+            "condition": "value == 'severe_short'",
+            "target_node_id": "R_Young_Intensive_Conservative",
+            "description": "Интенсифицировать консервативную терапию"
+          },
+          {
+            "condition": "value == 'severe_long'",
+            "target_node_id": "R_Young_Elective_ACDF",
+            "description": "Плановая ACDF"
           }
         ]
       },
+
       {
-        "id": "R_Cervical_Early_Decompression",
+        "id": "Q2_Young_Myelopathy_Severity",
+        "type": "intermediate",
+        "title": "Миелопатия (молодые)",
+        "question": "Оцените выраженность и динамику миелопатии",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "mild_stable",
+            "label": "Легкая миелопатия, стабильная без прогрессирования"
+          },
+          {
+            "id": "opt2",
+            "value": "progressive",
+            "label": "Прогрессирующая миелопатия (усиление симптомов за недели/месяцы)"
+          },
+          {
+            "id": "opt3",
+            "value": "severe_acute",
+            "label": "Острая тяжелая миелопатия с быстрым ухудшением"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'mild_stable'",
+            "target_node_id": "R_Young_Elective_ACDF",
+            "description": "Плановая декомпрессия"
+          },
+          {
+            "condition": "value == 'progressive'",
+            "target_node_id": "R_Young_Urgent_ACDF",
+            "description": "Срочная декомпрессия"
+          },
+          {
+            "condition": "value == 'severe_acute'",
+            "target_node_id": "R_Young_Emergency_Decompression",
+            "description": "Экстренная декомпрессия"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Young_Conservative_Trial",
+        "type": "intermediate",
+        "title": "Консервативная терапия (молодые)",
+        "question": "Результат консервативного лечения при шейном болевом синдроме",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "effective",
+            "label": "Консервативная терапия < 6 недель, значимое улучшение"
+          },
+          {
+            "id": "opt2",
+            "value": "ineffective",
+            "label": "Консервативная терапия ≥ 6–8 недель, улучшения нет"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'effective'",
+            "target_node_id": "R_Young_Continue_Conservative",
+            "description": "Продолжить консервативное лечение"
+          },
+          {
+            "condition": "value == 'ineffective'",
+            "target_node_id": "R_Young_Elective_ACDF",
+            "description": "Рассмотреть плановую операцию"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Radicular_Severity",
+        "type": "intermediate",
+        "title": "Выраженность радикулопатии (пожилые)",
+        "question": "Оцените выраженность радикулопатии и переносимость лечения",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "mild_short",
+            "label": "Умеренная радикулопатия, < 6 недель лечения"
+          },
+          {
+            "id": "opt2",
+            "value": "severe_short",
+            "label": "Выраженная радикулопатия, < 6 недель лечения"
+          },
+          {
+            "id": "opt3",
+            "value": "severe_long",
+            "label": "Выраженная радикулопатия ≥ 6–8 недель без эффекта"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'mild_short'",
+            "target_node_id": "R_Elderly_Continue_Conservative",
+            "description": "Продолжить консервативное лечение"
+          },
+          {
+            "condition": "value == 'severe_short'",
+            "target_node_id": "R_Elderly_Intensive_Conservative",
+            "description": "Интенсифицировать консервативную терапию"
+          },
+          {
+            "condition": "value == 'severe_long'",
+            "target_node_id": "R_Elderly_Elective_ACDF",
+            "description": "Плановая ACDF при приемлемом риске"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Myelopathy_Severity",
+        "type": "intermediate",
+        "title": "Миелопатия (пожилые)",
+        "question": "Оцените выраженность и динамику миелопатии",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "mild_stable",
+            "label": "Легкая миелопатия, стабильная"
+          },
+          {
+            "id": "opt2",
+            "value": "progressive",
+            "label": "Прогрессирующая миелопатия"
+          },
+          {
+            "id": "opt3",
+            "value": "severe_acute",
+            "label": "Острая тяжелая миелопатия"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'mild_stable'",
+            "target_node_id": "R_Elderly_Elective_ACDF",
+            "description": "Плановая декомпрессия при приемлемом риске"
+          },
+          {
+            "condition": "value == 'progressive'",
+            "target_node_id": "R_Elderly_Urgent_ACDF",
+            "description": "Срочная декомпрессия"
+          },
+          {
+            "condition": "value == 'severe_acute'",
+            "target_node_id": "R_Elderly_Emergency_Decompression",
+            "description": "Экстренная декомпрессия"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Conservative_Trial",
+        "type": "intermediate",
+        "title": "Консервативная терапия (пожилые)",
+        "question": "Результат консервативного лечения при шейном болевом синдроме",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "effective",
+            "label": "Консервативная терапия < 6 недель, улучшение"
+          },
+          {
+            "id": "opt2",
+            "value": "ineffective",
+            "label": "Консервативная терапия ≥ 6–8 недель, улучшения нет"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'effective'",
+            "target_node_id": "R_Elderly_Continue_Conservative",
+            "description": "Продолжить консервативное лечение"
+          },
+          {
+            "condition": "value == 'ineffective'",
+            "target_node_id": "R_Elderly_Elective_ACDF",
+            "description": "Рассмотреть плановую операцию при приемлемом риске"
+          }
+        ]
+      },
+
+      {
+        "id": "R_Young_Continue_Conservative",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Раннее хирургическое вмешательство при миелопатии",
-        "recommendation": "При шейной миелопатии или тяжелой радикулопатии на фоне грыжи диска показано раннее хирургическое вмешательство (чаще передняя дискэктомия и спондилодез – ACDF) для предотвращения прогрессирования дефицита.",
-        "parameters": {
-          "surgical_options": [
-            "ACDF при локальной вентральной компрессии 1–2 уровней",
-            "Многоуровневая ламинопластика/ламинэктомия при задней компрессии и стенозе"
-          ],
-          "postop": [
-            "Наблюдение за неврологическим статусом",
-            "Шейный ортез по показаниям",
-            "Ранняя мобилизация"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Продолжить консервативное лечение (молодые)",
+        "recommendation": "При умеренной симптоматике и положительной динамике рекомендовано продолжение консервативной терапии (анальгезия, шейный ортез кратковременно, ЛФК) с контролем через 4–6 недель."
       },
       {
-        "id": "R_Cervical_Elective_ACDF_Pain",
+        "id": "R_Young_Intensive_Conservative",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: ACDF при рефрактерной радикулопатии",
-        "recommendation": "При шейной радикулопатии, не поддающейся консервативной терапии более 6–12 недель, выполняют переднюю шейную дискэктомию и спондилодез (ACDF) на уровне поражения.",
-        "parameters": {
-          "goals": [
-            "Купирование боли и корешковой симптоматики",
-            "Стабилизация пораженного сегмента"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Интенсификация консервативного лечения (молодые)",
+        "recommendation": "Показана интенсификация терапии (блокады, оптимизация анальгезии, активная реабилитация) с пересмотром вопроса об операции при отсутствии эффекта через 4–6 недель."
       },
       {
-        "id": "R_Cervical_Elective_ACDF",
+        "id": "R_Young_Elective_ACDF",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Плановое хирургическое лечение шейной грыжи",
-        "recommendation": "При симптоматической шейной грыже диска с умеренной радикулопатией/миелопатией, сохраняющейся после 6–12 недель консервативной терапии, показана плановая ACDF или протезирование диска у отобранных пациентов.",
-        "parameters": {
-          "options": [
-            "ACDF – стандарт у большинства пациентов",
-            "Дисковый протез у молодых пациентов без выраженной дегенерации соседних уровней"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Плановая ACDF (молодые)",
+        "recommendation": "Рекомендована плановая передняя цервикальная дискэктомия и спондилодез (ACDF) при стойкой радикулопатии или стабильной миелопатии после ≥ 6–8 недель консервативного лечения."
       },
       {
-        "id": "R_Cervical_Continue_Conservative",
+        "id": "R_Young_Urgent_ACDF",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Продолжение консервативного лечения",
-        "recommendation": "При коротком сроке лечения и положительной динамике рекомендуется продолжать консервативную терапию (анальгезия, шейный ортез, ЛФК); решение о хирургии пересматривается при стойких жалобах.",
-        "parameters": {
-          "components": [
-            "НПВП, миорелаксанты, нейропатическая анальгезия",
-            "Шейный воротник кратковременно по показаниям",
-            "ЛФК и модификация активности"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Срочная ACDF (молодые)",
+        "recommendation": "При прогрессирующей миелопатии или тяжелой радикулопатии показана срочная декомпрессия (ACDF) в ближайшие дни."
+      },
+      {
+        "id": "R_Young_Emergency_Decompression",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Экстренная декомпрессия (молодые)",
+        "recommendation": "При острой тяжелой миелопатии или быстро прогрессирующем неврологическом дефиците показана экстренная декомпрессия."
+      },
+
+      {
+        "id": "R_Elderly_Continue_Conservative",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Продолжить консервативное лечение (пожилые)",
+        "recommendation": "При умеренной симптоматике рекомендовано продолжение консервативной терапии с учетом сопутствующей патологии и регулярной оценкой динамики."
+      },
+      {
+        "id": "R_Elderly_Intensive_Conservative",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Интенсификация консервативного лечения (пожилые)",
+        "recommendation": "Интенсификация терапии с использованием минимально инвазивных методов (блокады) и регулярной оценкой баланса польза/риск хирургии."
+      },
+      {
+        "id": "R_Elderly_Elective_ACDF",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Плановая ACDF (пожилые)",
+        "recommendation": "Плановая ACDF рассматривается при стойкой радикулопатии или миелопатии, не поддающихся лечению, при приемлемом анестезиологическом риске."
+      },
+      {
+        "id": "R_Elderly_Urgent_ACDF",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Срочная ACDF (пожилые)",
+        "recommendation": "Прогрессирующая миелопатия требует срочной декомпрессии с мультидисциплинарной оценкой операционного риска."
+      },
+      {
+        "id": "R_Elderly_Emergency_Decompression",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Экстренная декомпрессия (пожилые)",
+        "recommendation": "При острой тяжелой миелопатии решение об экстренной декомпрессии принимается мультидисциплинарно с учетом общего состояния."
       }
     ],
     "metadata": {
       "title": "Клинический опросник: Грыжа межпозвонкового диска шейного отдела",
-      "version": "1.0",
+      "version": "2.0",
       "source": "Клинические рекомендации по лечению шейной радикулопатии и миелопатии",
-      "description": "Граф принятия решений для выбора раннего и планового хирургического лечения шейной грыжи диска и продолжения консервативной терапии."
+      "description": "Граф принятия решений для выбора между консервативным лечением и различными вариантами хирургической декомпрессии при грыже шейного диска у пациентов моложе и старше 60 лет."
     }
   }
 }
