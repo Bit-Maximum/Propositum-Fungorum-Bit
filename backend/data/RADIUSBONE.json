@@ -8,21 +8,10 @@
         "question": "Возраст пациента?",
         "question_type": "number",
         "description": "Введите возраст пациента в годах",
-        "validation": {
-          "min": 0,
-          "max": 120
-        },
+        "validation": { "min": 0, "max": 120 },
         "transitions": [
-          {
-            "condition": "value < 60",
-            "target_node_id": "Q1_Young",
-            "description": "Пациент моложе 60 лет"
-          },
-          {
-            "condition": "value >= 60",
-            "target_node_id": "Q1_Elderly",
-            "description": "Пациент 60 лет и старше"
-          }
+          { "condition": "value < 60", "target_node_id": "Q1_Young", "description": "Пациент моложе 60 лет" },
+          { "condition": "value >= 60", "target_node_id": "Q1_Elderly", "description": "Пациент 60 лет и старше" }
         ]
       },
 
@@ -34,58 +23,18 @@
         "question_type": "radio",
         "description": "Выберите тип перелома на основании рентгенологической диагностики",
         "options": [
-          {
-            "id": "opt1",
-            "value": "extraarticular_stable",
-            "label": "Внесуставной стабильный перелом (23A1–A2 AO/OTA)"
-          },
-          {
-            "id": "opt2",
-            "value": "extraarticular_unstable",
-            "label": "Внесуставной нестабильный перелом (23A3 AO/OTA)"
-          },
-          {
-            "id": "opt3",
-            "value": "partial_articular",
-            "label": "Частично внутрисуставной перелом (23B AO/OTA)"
-          },
-          {
-            "id": "opt4",
-            "value": "complete_articular_simple",
-            "label": "Полностью внутрисуставной простой (23C1–C2 AO/OTA)"
-          },
-          {
-            "id": "opt5",
-            "value": "complete_articular_complex",
-            "label": "Полностью внутрисуставной многооскольчатый (23C3 AO/OTA)"
-          }
+          { "id": "opt1", "value": "extraarticular_stable", "label": "Внесуставной стабильный перелом (23A1–A2 AO/OTA)" },
+          { "id": "opt2", "value": "extraarticular_unstable", "label": "Внесуставной нестабильный перелом (23A3 AO/OTA)" },
+          { "id": "opt3", "value": "partial_articular", "label": "Частично внутрисуставной перелом (23B AO/OTA)" },
+          { "id": "opt4", "value": "complete_articular_simple", "label": "Полностью внутрисуставной простой (23C1–C2 AO/OTA)" },
+          { "id": "opt5", "value": "complete_articular_complex", "label": "Полностью внутрисуставной многооскольчатый (23C3 AO/OTA)" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'extraarticular_stable'",
-            "target_node_id": "Q2_Young_Stable_Extra",
-            "description": "Оценить смещение стабильного перелома"
-          },
-          {
-            "condition": "value == 'extraarticular_unstable'",
-            "target_node_id": "Q2_Young_Unstable_Extra",
-            "description": "Нестабильный внесуставной"
-          },
-          {
-            "condition": "value == 'partial_articular'",
-            "target_node_id": "Q2_Young_Partial_Art",
-            "description": "Частично внутрисуставной"
-          },
-          {
-            "condition": "value == 'complete_articular_simple'",
-            "target_node_id": "Q2_Young_Simple_Art",
-            "description": "Простой полностью внутрисуставной"
-          },
-          {
-            "condition": "value == 'complete_articular_complex'",
-            "target_node_id": "R_Young_Complex_Art_Bridge",
-            "description": "Многооскольчатый – мостовидная фиксация"
-          }
+          { "condition": "value == 'extraarticular_stable'", "target_node_id": "Q2_Young_Stable_Extra", "description": "Оценить смещение стабильного перелома" },
+          { "condition": "value == 'extraarticular_unstable'", "target_node_id": "Q2_Young_Unstable_Extra", "description": "Нестабильный внесуставной" },
+          { "condition": "value == 'partial_articular'", "target_node_id": "Q2_Young_Partial_Art", "description": "Частично внутрисуставной" },
+          { "condition": "value == 'complete_articular_simple'", "target_node_id": "Q2_Young_Simple_Art", "description": "Простой полностью внутрисуставной" },
+          { "condition": "value == 'complete_articular_complex'", "target_node_id": "R_Young_Complex_Art_Bridge", "description": "Многооскольчатый – мостовидная фиксация" }
         ]
       },
 
@@ -97,58 +46,18 @@
         "question_type": "radio",
         "description": "Выберите тип перелома на основании рентгенологической диагностики",
         "options": [
-          {
-            "id": "opt1",
-            "value": "extraarticular_stable",
-            "label": "Внесуставной стабильный перелом (23A1–A2 AO/OTA)"
-          },
-          {
-            "id": "opt2",
-            "value": "extraarticular_unstable",
-            "label": "Внесуставной нестабильный перелом (23A3 AO/OTA)"
-          },
-          {
-            "id": "opt3",
-            "value": "partial_articular",
-            "label": "Частично внутрисуставной перелом (23B AO/OTA)"
-          },
-          {
-            "id": "opt4",
-            "value": "complete_articular_simple",
-            "label": "Полностью внутрисуставной простой (23C1–C2 AO/OTA)"
-          },
-          {
-            "id": "opt5",
-            "value": "complete_articular_complex",
-            "label": "Полностью внутрисуставной многооскольчатый (23C3 AO/OTA)"
-          }
+          { "id": "opt1", "value": "extraarticular_stable", "label": "Внесуставной стабильный перелом (23A1–A2 AO/OTA)" },
+          { "id": "opt2", "value": "extraarticular_unstable", "label": "Внесуставной нестабильный перелом (23A3 AO/OTA)" },
+          { "id": "opt3", "value": "partial_articular", "label": "Частично внутрисуставной перелом (23B AO/OTA)" },
+          { "id": "opt4", "value": "complete_articular_simple", "label": "Полностью внутрисуставной простой (23C1–C2 AO/OTA)" },
+          { "id": "opt5", "value": "complete_articular_complex", "label": "Полностью внутрисуставной многооскольчатый (23C3 AO/OTA)" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'extraarticular_stable'",
-            "target_node_id": "Q2_Elderly_Stable_Extra",
-            "description": "Оценить смещение стабильного перелома"
-          },
-          {
-            "condition": "value == 'extraarticular_unstable'",
-            "target_node_id": "Q2_Elderly_Unstable_Extra",
-            "description": "Нестабильный внесуставной"
-          },
-          {
-            "condition": "value == 'partial_articular'",
-            "target_node_id": "Q2_Elderly_Partial_Art",
-            "description": "Частично внутрисуставной"
-          },
-          {
-            "condition": "value == 'complete_articular_simple'",
-            "target_node_id": "Q2_Elderly_Simple_Art",
-            "description": "Простой полностью внутрисуставной"
-          },
-          {
-            "condition": "value == 'complete_articular_complex'",
-            "target_node_id": "R_Elderly_Complex_Art_Bridge",
-            "description": "Многооскольчатый – мостовидная фиксация"
-          }
+          { "condition": "value == 'extraarticular_stable'", "target_node_id": "Q2_Elderly_Stable_Extra", "description": "Оценить смещение стабильного перелома" },
+          { "condition": "value == 'extraarticular_unstable'", "target_node_id": "Q2_Elderly_Unstable_Extra", "description": "Нестабильный внесуставной" },
+          { "condition": "value == 'partial_articular'", "target_node_id": "Q2_Elderly_Partial_Art", "description": "Частично внутрисуставной" },
+          { "condition": "value == 'complete_articular_simple'", "target_node_id": "Q2_Elderly_Simple_Art", "description": "Простой полностью внутрисуставной" },
+          { "condition": "value == 'complete_articular_complex'", "target_node_id": "R_Elderly_Complex_Art_Bridge", "description": "Многооскольчатый – мостовидная фиксация" }
         ]
       },
 
@@ -159,28 +68,12 @@
         "question": "Степень смещения стабильного внесуставного перелома?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "nons_displaced",
-            "label": "Непризведенный (< 2–3 мм смещения, угловое < 10°)"
-          },
-          {
-            "id": "opt2",
-            "value": "displaced",
-            "label": "Призведенный (> 3 мм смещения и/или угловое > 10°)"
-          }
+          { "id": "opt1", "value": "nons_displaced", "label": "Непризведенный (< 2–3 мм смещения, угловое < 10°)" },
+          { "id": "opt2", "value": "displaced", "label": "Призведенный (> 3 мм смещения и/или угловое > 10°)" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'nons_displaced'",
-            "target_node_id": "R_Young_Stable_Conservative",
-            "description": "Консервативное лечение"
-          },
-          {
-            "condition": "value == 'displaced'",
-            "target_node_id": "R_Young_Stable_ORIF_Volar",
-            "description": "ORIF волярной пластиной"
-          }
+          { "condition": "value == 'nons_displaced'", "target_node_id": "R_Young_Stable_Conservative", "description": "Консервативное лечение" },
+          { "condition": "value == 'displaced'", "target_node_id": "R_Young_Stable_ORIF_Volar", "description": "ORIF волярной пластиной" }
         ]
       },
 
@@ -191,38 +84,14 @@
         "question": "Направление смещения и состояние мягких тканей?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "volar_displacement",
-            "label": "Волярное смещение, удовлетворительные мягкие ткани"
-          },
-          {
-            "id": "opt2",
-            "value": "dorsal_displacement",
-            "label": "Дорсальное смещение"
-          },
-          {
-            "id": "opt3",
-            "value": "compromised_soft_tissue",
-            "label": "Любое смещение + повреждение мягких тканей/открытый перелом"
-          }
+          { "id": "opt1", "value": "volar_displacement", "label": "Волярное смещение, удовлетворительные мягкие ткани" },
+          { "id": "opt2", "value": "dorsal_displacement", "label": "Дорсальное смещение" },
+          { "id": "opt3", "value": "compromised_soft_tissue", "label": "Любое смещение + повреждение мягких тканей/открытый перелом" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'volar_displacement'",
-            "target_node_id": "R_Young_Unstable_Volar_ORIF",
-            "description": "ORIF волярной блокируемой пластиной"
-          },
-          {
-            "condition": "value == 'dorsal_displacement'",
-            "target_node_id": "R_Young_Unstable_Dorsal_ORIF",
-            "description": "ORIF дорсальной/комбинированной фиксацией"
-          },
-          {
-            "condition": "value == 'compromised_soft_tissue'",
-            "target_node_id": "R_Young_External_Fixation",
-            "description": "Внешняя фиксация + отсроченный ORIF"
-          }
+          { "condition": "value == 'volar_displacement'", "target_node_id": "R_Young_Unstable_Volar_ORIF", "description": "ORIF волярной блокируемой пластиной" },
+          { "condition": "value == 'dorsal_displacement'", "target_node_id": "R_Young_Unstable_Dorsal_ORIF", "description": "ORIF дорсальной/комбинированной фиксацией" },
+          { "condition": "value == 'compromised_soft_tissue'", "target_node_id": "R_Young_External_Fixation", "description": "Внешняя фиксация + отсроченный ORIF" }
         ]
       },
 
@@ -233,28 +102,12 @@
         "question": "Тип частично внутрисуставного перелома и смещение?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "stable",
-            "label": "Стабильный (без смещения суставной поверхности)"
-          },
-          {
-            "id": "opt2",
-            "value": "displaced",
-            "label": "Призведенный (ступенька > 1–2 мм или диастаз)"
-          }
+          { "id": "opt1", "value": "stable", "label": "Стабильный (без смещения суставной поверхности)" },
+          { "id": "opt2", "value": "displaced", "label": "Призведенный (ступенька > 1–2 мм или диастаз)" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'stable'",
-            "target_node_id": "R_Young_Partial_Stable_ORIF",
-            "description": "ORIF волярной пластиной"
-          },
-          {
-            "condition": "value == 'displaced'",
-            "target_node_id": "R_Young_Partial_Displaced_ORIF",
-            "description": "Открытая репозиция + ORIF"
-          }
+          { "condition": "value == 'stable'", "target_node_id": "R_Young_Partial_Stable_ORIF", "description": "ORIF волярной пластиной" },
+          { "condition": "value == 'displaced'", "target_node_id": "R_Young_Partial_Displaced_ORIF", "description": "Открытая репозиция + ORIF" }
         ]
       },
 
@@ -265,28 +118,12 @@
         "question": "Состояние суставной поверхности и мягких тканей?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "good_soft_tissue",
-            "label": "Относительно простая конфигурация, удовлетворительные мягкие ткани"
-          },
-          {
-            "id": "opt2",
-            "value": "complex_soft_tissue",
-            "label": "Сложная конфигурация или повреждение мягких тканей"
-          }
+          { "id": "opt1", "value": "good_soft_tissue", "label": "Относительно простая конфигурация, удовлетворительные мягкие ткани" },
+          { "id": "opt2", "value": "complex_soft_tissue", "label": "Сложная конфигурация или повреждение мягких тканей" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'good_soft_tissue'",
-            "target_node_id": "R_Young_Simple_ACDF_Volar",
-            "description": "Анатомическая репозиция + волярная пластина"
-          },
-          {
-            "condition": "value == 'complex_soft_tissue'",
-            "target_node_id": "R_Young_Simple_Stage_ORIF",
-            "description": "Этапное лечение"
-          }
+          { "condition": "value == 'good_soft_tissue'", "target_node_id": "R_Young_Simple_ORIF_Plate", "description": "Анатомическая репозиция + волярная пластина" },
+          { "condition": "value == 'complex_soft_tissue'", "target_node_id": "R_Young_Simple_Stage_ORIF", "description": "Этапное лечение" }
         ]
       },
 
@@ -297,28 +134,12 @@
         "question": "Степень смещения и качество кости?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "nons_displaced",
-            "label": "Непризведенный (< 2–3 мм смещения)"
-          },
-          {
-            "id": "opt2",
-            "value": "displaced_osteoporotic",
-            "label": "Призведенный + выраженный остеопороз"
-          }
+          { "id": "opt1", "value": "nons_displaced", "label": "Непризведенный (< 2–3 мм смещения)" },
+          { "id": "opt2", "value": "displaced_osteoporotic", "label": "Призведенный + выраженный остеопороз" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'nons_displaced'",
-            "target_node_id": "R_Elderly_Stable_Conservative",
-            "description": "Консервативное лечение"
-          },
-          {
-            "condition": "value == 'displaced_osteoporotic'",
-            "target_node_id": "R_Elderly_Stable_Volar_LCP",
-            "description": "ORIF блокируемой волярной пластиной"
-          }
+          { "condition": "value == 'nons_displaced'", "target_node_id": "R_Elderly_Stable_Conservative", "description": "Консервативное лечение" },
+          { "condition": "value == 'displaced_osteoporotic'", "target_node_id": "R_Elderly_Stable_Volar_LCP", "description": "ORIF блокируемой волярной пластиной" }
         ]
       },
 
@@ -329,38 +150,14 @@
         "question": "Направление смещения и состояние мягких тканей?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "volar_displacement",
-            "label": "Волярное смещение, удовлетворительные мягкие ткани"
-          },
-          {
-            "id": "opt2",
-            "value": "dorsal_displacement",
-            "label": "Дорсальное смещение"
-          },
-          {
-            "id": "opt3",
-            "value": "compromised_soft_tissue",
-            "label": "Любое смещение + повреждение мягких тканей"
-          }
+          { "id": "opt1", "value": "volar_displacement", "label": "Волярное смещение, удовлетворительные мягкие ткани" },
+          { "id": "opt2", "value": "dorsal_displacement", "label": "Дорсальное смещение" },
+          { "id": "opt3", "value": "compromised_soft_tissue", "label": "Любое смещение + повреждение мягких тканей" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'volar_displacement'",
-            "target_node_id": "R_Elderly_Unstable_Volar_LCP",
-            "description": "ORIF волярной блокируемой пластиной"
-          },
-          {
-            "condition": "value == 'dorsal_displacement'",
-            "target_node_id": "R_Elderly_Unstable_Dorsal_LCP",
-            "description": "ORIF дорсальной/комбинированной фиксацией"
-          },
-          {
-            "condition": "value == 'compromised_soft_tissue'",
-            "target_node_id": "R_Elderly_External_Fixation",
-            "description": "Внешняя фиксация"
-          }
+          { "condition": "value == 'volar_displacement'", "target_node_id": "R_Elderly_Unstable_Volar_LCP", "description": "ORIF волярной блокируемой пластиной" },
+          { "condition": "value == 'dorsal_displacement'", "target_node_id": "R_Elderly_Unstable_Dorsal_LCP", "description": "ORIF дорсальной/комбинированной фиксацией" },
+          { "condition": "value == 'compromised_soft_tissue'", "target_node_id": "R_Elderly_External_Fixation", "description": "Внешняя фиксация" }
         ]
       },
 
@@ -371,28 +168,12 @@
         "question": "Тип частично внутрисуставного перелома и смещение?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "stable",
-            "label": "Стабильный (без смещения суставной поверхности)"
-          },
-          {
-            "id": "opt2",
-            "value": "displaced",
-            "label": "Призведенный (ступенька > 1–2 мм)"
-          }
+          { "id": "opt1", "value": "stable", "label": "Стабильный (без смещения суставной поверхности)" },
+          { "id": "opt2", "value": "displaced", "label": "Призведенный (ступенька > 1–2 мм)" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'stable'",
-            "target_node_id": "R_Elderly_Partial_Stable_LCP",
-            "description": "ORIF блокируемой пластиной"
-          },
-          {
-            "condition": "value == 'displaced'",
-            "target_node_id": "R_Elderly_Partial_Displaced_LCP",
-            "description": "Открытая репозиция + ORIF"
-          }
+          { "condition": "value == 'stable'", "target_node_id": "R_Elderly_Partial_Stable_LCP", "description": "ORIF блокируемой пластиной" },
+          { "condition": "value == 'displaced'", "target_node_id": "R_Elderly_Partial_Displaced_LCP", "description": "Открытая репозиция + ORIF" }
         ]
       },
 
@@ -403,28 +184,12 @@
         "question": "Состояние суставной поверхности и кости?",
         "question_type": "radio",
         "options": [
-          {
-            "id": "opt1",
-            "value": "simple_osteoporotic",
-            "label": "Относительно простая конфигурация + остеопороз"
-          },
-          {
-            "id": "opt2",
-            "value": "complex_osteoporotic",
-            "label": "Сложная конфигурация + выраженный остеопороз"
-          }
+          { "id": "opt1", "value": "simple_osteoporotic", "label": "Относительно простая конфигурация + остеопороз" },
+          { "id": "opt2", "value": "complex_osteoporotic", "label": "Сложная конфигурация + выраженный остеопороз" }
         ],
         "transitions": [
-          {
-            "condition": "value == 'simple_osteoporotic'",
-            "target_node_id": "R_Elderly_Simple_ACDF_LCP",
-            "description": "Анатомическая репозиция + блокируемая пластина"
-          },
-          {
-            "condition": "value == 'complex_osteoporotic'",
-            "target_node_id": "R_Elderly_Simple_Stage_LCP",
-            "description": "Этапное лечение блокируемыми конструкциями"
-          }
+          { "condition": "value == 'simple_osteoporotic'", "target_node_id": "R_Elderly_Simple_ORIF_LCP", "description": "Анатомическая репозиция + блокируемая пластина" },
+          { "condition": "value == 'complex_osteoporotic'", "target_node_id": "R_Elderly_Simple_Stage_LCP", "description": "Этапное лечение блокируемыми конструкциями" }
         ]
       },
 
@@ -465,10 +230,16 @@
         "recommendation": "Призведенные частично внутрисуставные переломы требуют открытой репозиции суставной поверхности и фиксации анатомической пластиной."
       },
       {
-        "id": "R_Young_Simple_ACDF_Volar",
+        "id": "R_Young_Simple_ORIF_Plate",
         "type": "final",
         "title": "РЕКОМЕНДАЦИЯ: ORIF простого внутрисуставного (молодые)",
         "recommendation": "Простые полностью внутрисуставные переломы у молодых лечат анатомической репозицией суставного блока и фиксацией волярной пластиной."
+      },
+      {
+        "id": "R_Young_Simple_Stage_ORIF",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Этапное лечение (молодые)",
+        "recommendation": "При сложных простых внутрисуставных переломах с повреждением мягких тканей показано двухэтапное лечение: временная фиксация в АВФ, затем окончательный ORIF."
       },
       {
         "id": "R_Young_Complex_Art_Bridge",
@@ -480,7 +251,7 @@
         "id": "R_Young_External_Fixation",
         "type": "final",
         "title": "РЕКОМЕНДАЦИЯ: Наружная фиксация (молодые)",
-        "recommendation": "При повреждении мягких тканей показана первичная наружная фиксация с отсроченным внутренним остеосинтезом."
+        "recommendation": "При значительном повреждении мягких тканей показана первичная наружная фиксация с отсроченным внутренним остеосинтезом."
       },
 
       {
@@ -520,7 +291,7 @@
         "recommendation": "Призведенные частично внутрисуставные переломы требуют репозиции и фиксации блокируемой пластиной."
       },
       {
-        "id": "R_Elderly_Simple_ACDF_LCP",
+        "id": "R_Elderly_Simple_ORIF_LCP",
         "type": "final",
         "title": "РЕКОМЕНДАЦИЯ: ORIF простого внутрисуставного LCP (пожилые)",
         "recommendation": "Простые внутрисуставные переломы у пожилых лечат репозицией и фиксацией блокируемой пластиной."
@@ -546,7 +317,7 @@
     ],
     "metadata": {
       "title": "Клинический опросник: Перелом дистального конца лучевой кости",
-      "version": "2.0",
+      "version": "2.2",
       "source": "Клинические рекомендации по лечению переломов предплечья",
       "description": "Граф принятия решений для выбора тактики лечения переломов дистального конца лучевой кости по AO/OTA у пациентов моложе и старше 60 лет."
     }
