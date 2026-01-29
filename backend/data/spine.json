@@ -4,186 +4,410 @@
       {
         "id": "Q0",
         "type": "intermediate",
-        "title": "Грыжа поясничного межпозвонкового диска",
+        "title": "Начало диагностики",
         "question": "Возраст пациента?",
         "question_type": "number",
         "description": "Введите возраст пациента в годах",
         "validation": { "min": 18, "max": 120 },
         "transitions": [
           {
-            "condition": "value >= 18",
-            "target_node_id": "Q_Lumbar_Entry_Adult",
-            "description": "Взрослый пациент"
+            "condition": "value < 60",
+            "target_node_id": "Q1_Young",
+            "description": "Пациент моложе 60 лет"
+          },
+          {
+            "condition": "value >= 60",
+            "target_node_id": "Q1_Elderly",
+            "description": "Пациент 60 лет и старше"
           }
         ]
       },
+
       {
-        "id": "Q_Lumbar_Entry_Adult",
+        "id": "Q1_Young",
         "type": "intermediate",
-        "title": "Подтверждение поясничной грыжи",
-        "question": "Подтверждена ли грыжа диска поясничного отдела по данным МРТ?",
+        "title": "Начало оценки (молодые)",
+        "question": "Что является ведущей жалобой у пациента с подозрением на грыжу поясничного диска?",
+        "question_type": "radio",
+        "description": "Выберите наиболее значимый симптом",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "lumbar_pain_only",
+            "label": "Преимущественно боль в пояснице без выраженной корешковой симптоматики"
+          },
+          {
+            "id": "opt2",
+            "value": "radicular_pain",
+            "label": "Выраженная корешковая боль в ноге (люмбоишиалгия)"
+          },
+          {
+            "id": "opt3",
+            "value": "motor_deficit",
+            "label": "Наличие слабости/пареза в ноге"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'lumbar_pain_only'",
+            "target_node_id": "Q2_Young_Conservative_Trial",
+            "description": "Рассмотреть консервативную терапию"
+          },
+          {
+            "condition": "value == 'radicular_pain'",
+            "target_node_id": "Q2_Young_Radicular_Severity",
+            "description": "Оценить выраженность радикулопатии"
+          },
+          {
+            "condition": "value == 'motor_deficit'",
+            "target_node_id": "Q2_Young_Motor_Severity",
+            "description": "Оценить выраженность моторного дефицита"
+          }
+        ]
+      },
+
+      {
+        "id": "Q1_Elderly",
+        "type": "intermediate",
+        "title": "Начало оценки (пожилые)",
+        "question": "Что является ведущей жалобой у пациента с подозрением на грыжу поясничного диска?",
+        "question_type": "radio",
+        "description": "Выберите наиболее значимый симптом",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "lumbar_pain_only",
+            "label": "Преимущественно боль в пояснице без выраженной корешковой симптоматики"
+          },
+          {
+            "id": "opt2",
+            "value": "radicular_pain",
+            "label": "Выраженная корешковая боль в ноге (люмбоишиалгия)"
+          },
+          {
+            "id": "opt3",
+            "value": "motor_deficit",
+            "label": "Наличие слабости/пареза в ноге"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'lumbar_pain_only'",
+            "target_node_id": "Q2_Elderly_Conservative_Trial",
+            "description": "Рассмотреть консервативную терапию"
+          },
+          {
+            "condition": "value == 'radicular_pain'",
+            "target_node_id": "Q2_Elderly_Radicular_Severity",
+            "description": "Оценить выраженность радикулопатии"
+          },
+          {
+            "condition": "value == 'motor_deficit'",
+            "target_node_id": "Q2_Elderly_Motor_Severity",
+            "description": "Оценить выраженность моторного дефицита"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Young_Radicular_Severity",
+        "type": "intermediate",
+        "title": "Выраженность радикулопатии (молодые)",
+        "question": "Оцените выраженность корешковой боли и длительность консервативного лечения",
         "question_type": "radio",
         "options": [
           {
             "id": "opt1",
-            "value": "yes",
-            "label": "Да, подтверждена клинически значимая грыжа L3–S1"
-          }
-        ],
-        "transitions": [
-          {
-            "condition": "value == 'yes'",
-            "target_node_id": "Q_Lumbar_Emergency",
-            "description": "Оценка экстренных показаний"
-          }
-        ]
-      },
-      {
-        "id": "Q_Lumbar_Emergency",
-        "type": "intermediate",
-        "title": "Экстренные показания к операции",
-        "question": "Отметьте наличие экстренных показаний к хирургическому лечению",
-        "question_type": "checkbox",
-        "options": [
-          {
-            "id": "opt1",
-            "value": "cauda_equina",
-            "label": "Синдром конского хвоста (нарушение функции тазовых органов, анестезия в области промежности)"
+            "value": "mild_short",
+            "label": "Умеренная болевая симптоматика, консервативная терапия < 6 недель"
           },
           {
             "id": "opt2",
-            "value": "rapid_motor_deficit",
-            "label": "Быстро прогрессирующий моторный дефицит (парез стопы/ноги)"
+            "value": "severe_short",
+            "label": "Выраженная боль, но консервативная терапия проводится < 6 недель"
           },
           {
             "id": "opt3",
-            "value": "severe_refractory_pain",
-            "label": "Резкая радикулопатия, некупируемая адекватной консервативной терапией"
-          },
-          {
-            "id": "opt4",
-            "value": "none",
-            "label": "Экстренных показаний нет"
+            "value": "severe_long",
+            "label": "Выраженная боль, консервативная терапия ≥ 6–8 недель без эффекта"
           }
         ],
         "transitions": [
           {
-            "condition": "includes('cauda_equina') || includes('rapid_motor_deficit')",
-            "target_node_id": "R_Lumbar_Emergency_Decompression",
-            "description": "Экстренная декомпрессия/микродискэктомия"
-          },
-          {
-            "condition": "!includes('cauda_equina') && !includes('rapid_motor_deficit') && includes('severe_refractory_pain')",
-            "target_node_id": "R_Lumbar_SeverePain_Microdiscectomy",
-            "description": "Ранняя плановая микродискэктомия при некупируемой боли"
-          },
-          {
-            "condition": "includes('none')",
-            "target_node_id": "Q_Lumbar_Conservative_Failure",
-            "description": "Оценить эффективность консервативной терапии"
-          }
-        ]
-      },
-      {
-        "id": "Q_Lumbar_Conservative_Failure",
-        "type": "intermediate",
-        "title": "Эффективность консервативного лечения",
-        "question": "Сколько времени проводится адекватная консервативная терапия и какова динамика?",
-        "question_type": "radio",
-        "options": [
-          {
-            "id": "opt1",
-            "value": "less_6_weeks",
-            "label": "Менее 6 недель, положительная динамика"
-          },
-          {
-            "id": "opt2",
-            "value": "more_6_weeks_no_effect",
-            "label": "Более 6–12 недель без существенного эффекта"
-          },
-          {
-            "id": "opt3",
-            "value": "motor_deficit_stable",
-            "label": "Умеренный моторный дефицит без тенденции к регрессу"
-          }
-        ],
-        "transitions": [
-          {
-            "condition": "value == 'less_6_weeks'",
-            "target_node_id": "R_Lumbar_Continue_Conservative",
+            "condition": "value == 'mild_short'",
+            "target_node_id": "R_Young_Continue_Conservative",
             "description": "Продолжить консервативное лечение"
           },
           {
-            "condition": "value == 'more_6_weeks_no_effect' || value == 'motor_deficit_stable'",
-            "target_node_id": "R_Lumbar_Elective_Microdiscectomy",
-            "description": "Плановая микродискэктомия"
+            "condition": "value == 'severe_short'",
+            "target_node_id": "R_Young_Intensive_Conservative",
+            "description": "Интенсифицировать консервативную терапию"
+          },
+          {
+            "condition": "value == 'severe_long'",
+            "target_node_id": "R_Young_Elective_Microdiscectomy",
+            "description": "Рассмотреть плановую микродискэктомию"
           }
         ]
       },
+
       {
-        "id": "R_Lumbar_Emergency_Decompression",
+        "id": "Q2_Young_Motor_Severity",
+        "type": "intermediate",
+        "title": "Моторный дефицит (молодые)",
+        "question": "Оцените выраженность моторного дефицита и наличие красных флагов",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "mild_stable",
+            "label": "Легкий/умеренный парез, стабильный без прогрессирования, без тазовых нарушений"
+          },
+          {
+            "id": "opt2",
+            "value": "progressive",
+            "label": "Прогрессирующий парез (усиление слабости за дни/недели)"
+          },
+          {
+            "id": "opt3",
+            "value": "cauda_equina",
+            "label": "Признаки синдрома конского хвоста (тазовые нарушения, анестезия в промежности)"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'mild_stable'",
+            "target_node_id": "R_Young_Elective_Microdiscectomy",
+            "description": "Плановая микродискэктомия при сохранном качестве жизни"
+          },
+          {
+            "condition": "value == 'progressive'",
+            "target_node_id": "R_Young_Urgent_Microdiscectomy",
+            "description": "Срочная декомпрессия (ранняя операция)"
+          },
+          {
+            "condition": "value == 'cauda_equina'",
+            "target_node_id": "R_Young_Emergency_Decompression",
+            "description": "Экстренная декомпрессия"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Young_Conservative_Trial",
+        "type": "intermediate",
+        "title": "Консервативная терапия (молодые)",
+        "question": "Проводилась ли уже консервативная терапия и каков результат?",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "no_or_short",
+            "label": "Нет или < 4–6 недель, выраженное улучшение"
+          },
+          {
+            "id": "opt2",
+            "value": "no_effect",
+            "label": "Проводится ≥ 6–8 недель, существенного улучшения нет"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'no_or_short'",
+            "target_node_id": "R_Young_Continue_Conservative",
+            "description": "Продолжать консервативное лечение"
+          },
+          {
+            "condition": "value == 'no_effect'",
+            "target_node_id": "R_Young_Elective_Microdiscectomy",
+            "description": "Рассмотреть плановую операцию"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Radicular_Severity",
+        "type": "intermediate",
+        "title": "Выраженность радикулопатии (пожилые)",
+        "question": "Оцените выраженность боли и переносимость консервативной терапии",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "mild_short",
+            "label": "Умеренная болевая симптоматика, консервативная терапия < 6 недель"
+          },
+          {
+            "id": "opt2",
+            "value": "severe_short",
+            "label": "Выраженная боль, но консервативная терапия проводится < 6 недель"
+          },
+          {
+            "id": "opt3",
+            "value": "severe_long",
+            "label": "Выраженная боль, консервативная терапия ≥ 6–8 недель без эффекта"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'mild_short'",
+            "target_node_id": "R_Elderly_Continue_Conservative",
+            "description": "Продолжить консервативное лечение"
+          },
+          {
+            "condition": "value == 'severe_short'",
+            "target_node_id": "R_Elderly_Intensive_Conservative",
+            "description": "Интенсифицировать консервативную терапию"
+          },
+          {
+            "condition": "value == 'severe_long'",
+            "target_node_id": "R_Elderly_Elective_Microdiscectomy",
+            "description": "Рассмотреть плановую микродискэктомию с учетом соматического статуса"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Motor_Severity",
+        "type": "intermediate",
+        "title": "Моторный дефицит (пожилые)",
+        "question": "Оцените выраженность моторного дефицита и наличие красных флагов",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "mild_stable",
+            "label": "Легкий/умеренный парез, стабильный, без тазовых нарушений"
+          },
+          {
+            "id": "opt2",
+            "value": "progressive",
+            "label": "Прогрессирующий парез"
+          },
+          {
+            "id": "opt3",
+            "value": "cauda_equina",
+            "label": "Признаки синдрома конского хвоста"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'mild_stable'",
+            "target_node_id": "R_Elderly_Elective_Microdiscectomy",
+            "description": "Плановая операция при достаточной переносимости"
+          },
+          {
+            "condition": "value == 'progressive'",
+            "target_node_id": "R_Elderly_Urgent_Microdiscectomy",
+            "description": "Срочная декомпрессия"
+          },
+          {
+            "condition": "value == 'cauda_equina'",
+            "target_node_id": "R_Elderly_Emergency_Decompression",
+            "description": "Экстренная декомпрессия"
+          }
+        ]
+      },
+
+      {
+        "id": "Q2_Elderly_Conservative_Trial",
+        "type": "intermediate",
+        "title": "Консервативная терапия (пожилые)",
+        "question": "Как долго проводится консервативное лечение и каков результат?",
+        "question_type": "radio",
+        "options": [
+          {
+            "id": "opt1",
+            "value": "no_or_short",
+            "label": "Нет или < 4–6 недель, отмечается улучшение"
+          },
+          {
+            "id": "opt2",
+            "value": "no_effect",
+            "label": "Проводится ≥ 6–8 недель, улучшения нет"
+          }
+        ],
+        "transitions": [
+          {
+            "condition": "value == 'no_or_short'",
+            "target_node_id": "R_Elderly_Continue_Conservative",
+            "description": "Продолжить консервативное лечение"
+          },
+          {
+            "condition": "value == 'no_effect'",
+            "target_node_id": "R_Elderly_Elective_Microdiscectomy",
+            "description": "Рассмотреть плановую операцию при приемлемом риске"
+          }
+        ]
+      },
+
+      {
+        "id": "R_Young_Continue_Conservative",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Экстренная декомпрессия",
-        "recommendation": "При синдроме конского хвоста или быстро прогрессирующем моторном дефиците показана экстренная декомпрессия (микродискэктомия/ламинэктомия) в максимально ранние сроки, предпочтительно в первые 24 часа.",
-        "parameters": {
-          "surgical_method": [
-            "Микродискэктомия через интерламинарный доступ под микроскопом",
-            "Расширенная гемиламинэктомия/ламинэктомия при массивных центральных грыжах"
-          ],
-          "postop": [
-            "Ранняя мобилизация при стабильном состоянии",
-            "Мониторинг функции тазовых органов и неврологического статуса"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Продолжить консервативное лечение (молодые)",
+        "recommendation": "Рекомендовано продолжать консервативное лечение (анальгетики, ЛФК, физиотерапия, блокады по показаниям) при отсутствии тяжелого дефицита и положительной динамике в течение первых 6 недель."
       },
       {
-        "id": "R_Lumbar_SeverePain_Microdiscectomy",
+        "id": "R_Young_Intensive_Conservative",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Ранняя микродискэктомия при некупируемой боли",
-        "recommendation": "При выраженной радикулопатии, некупируемой адекватной консервативной терапией, у пациентов без экстренных неврологических показаний рекомендуется ранняя плановая микродискэктомия.",
-        "parameters": {
-          "indications": [
-            "Сильная корешковая боль более 4–6 недель при полноценном лечении",
-            "Значимое ограничение повседневной активности"
-          ],
-          "technique": [
-            "Малый интерламинарный доступ",
-            "Удаление секвестра/экструзии с минимальным вмешательством в диск"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Интенсификация консервативного лечения (молодые)",
+        "recommendation": "Показана интенсификация консервативной терапии (оптимизация анальгезии, эпидуральные/паравертебральные блокады, активная реабилитация) с пересмотром вопроса об операции при отсутствии эффекта через 4–6 недель."
       },
       {
-        "id": "R_Lumbar_Elective_Microdiscectomy",
+        "id": "R_Young_Elective_Microdiscectomy",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Плановая микродискэктомия",
-        "recommendation": "При стойкой пояснично‑корешковой боли и/или умеренном моторном дефиците, сохраняющихся после 6–12 недель консервативной терапии, показана плановая микродискэктомия на уровне поражения.",
-        "parameters": {
-          "goals": [
-            "Декомпрессия корешка",
-            "Быстрое уменьшение боли",
-            "Сохранение опороспособности позвоночного сегмента"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Плановая микродискэктомия (молодые)",
+        "recommendation": "Рекомендована плановая микродискэктомия при стойкой радикулопатии или стабильном умеренном моторном дефиците, сохраняющихся после ≥ 6–8 недель адекватной консервативной терапии."
       },
       {
-        "id": "R_Lumbar_Continue_Conservative",
+        "id": "R_Young_Urgent_Microdiscectomy",
         "type": "final",
-        "title": "РЕКОМЕНДАЦИЯ: Продолжение консервативной терапии",
-        "recommendation": "При положительной динамике в течение первых недель лечения целесообразно продолжение консервативной терапии с обезболиванием, ЛФК и физиотерапией; вопрос об операции пересматривают при отсутствии дальнейшего улучшения.",
-        "parameters": {
-          "components": [
-            "НПВП и адъювантная анальгезия",
-            "ЛФК и обучение правильной двигательной активности",
-            "Эпидуральные блокады по показаниям"
-          ]
-        }
+        "title": "РЕКОМЕНДАЦИЯ: Срочная микродискэктомия (молодые)",
+        "recommendation": "При прогрессирующем моторном дефиците рекомендуется срочная декомпрессия (микродискэктомия) в ближайшие дни для предотвращения дальнейшего ухудшения."
+      },
+      {
+        "id": "R_Young_Emergency_Decompression",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Экстренная декомпрессия (молодые)",
+        "recommendation": "При синдроме конского хвоста показана экстренная декомпрессия (микродискэктомия/ламинэктомия) в максимально ранние сроки, предпочтительно в течение первых 24 часов."
+      },
+
+      {
+        "id": "R_Elderly_Continue_Conservative",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Продолжить консервативное лечение (пожилые)",
+        "recommendation": "Рекомендовано продолжать консервативную терапию при умеренной симптоматике и положительной динамике, учитывая сопутствующую патологию и риск хирургического вмешательства."
+      },
+      {
+        "id": "R_Elderly_Intensive_Conservative",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Интенсификация консервативного лечения (пожилые)",
+        "recommendation": "Показана более интенсивная консервативная терапия с возможным использованием минимально инвазивных процедур (блокады) и регулярной оценкой баланса польза/риск операции."
+      },
+      {
+        "id": "R_Elderly_Elective_Microdiscectomy",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Плановая микродискэктомия (пожилые)",
+        "recommendation": "Плановая микродискэктомия рассматривается при стойкой радикулопатии или умеренном моторном дефиците, не поддающихся лечению, при приемлемом анестезиологическом риске."
+      },
+      {
+        "id": "R_Elderly_Urgent_Microdiscectomy",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Срочная микродискэктомия (пожилые)",
+        "recommendation": "Прогрессирующий моторный дефицит у пожилого пациента требует срочной декомпрессии с учетом индивидуального операционного риска."
+      },
+      {
+        "id": "R_Elderly_Emergency_Decompression",
+        "type": "final",
+        "title": "РЕКОМЕНДАЦИЯ: Экстренная декомпрессия (пожилые)",
+        "recommendation": "При синдроме конского хвоста у пожилых показана экстренная декомпрессия; решение принимается мультидисциплинарно с учетом общего состояния пациента."
       }
     ],
     "metadata": {
       "title": "Клинический опросник: Грыжа межпозвонкового диска поясничного отдела",
-      "version": "1.0",
+      "version": "2.0",
       "source": "Клинические рекомендации по лечению поясничной радикулопатии",
-      "description": "Граф принятия решений для выбора между экстренной декомпрессией, ранней и плановой микродискэктомией и продолжением консервативного лечения при грыже поясничного диска."
+      "description": "Граф принятия решений для выбора между консервативным лечением и различными вариантами хирургического вмешательства при грыже поясничного диска у пациентов моложе и старше 60 лет."
     }
   }
 }
