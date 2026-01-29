@@ -430,6 +430,39 @@ class QuestionnaireApp {
         this.updateHistoryUI();
     }
 
+    getOptionLabel(node, value) {
+    if (!node || !node.options) return String(value);
+
+    const target = String(value);
+    const opt = node.options.find(o => String(o.value) === target);
+    return opt ? opt.label : String(value);
+}
+
+formatAnswerForHistory(node, answer) {
+    const type = node?.question_type;
+
+    if (type === 'checkbox') {
+        if (!Array.isArray(answer)) return String(answer);
+        return answer.map(v => this.getOptionLabel(node, v)).join(', ');
+    }
+
+    if (type === 'radio') {
+        return this.getOptionLabel(node, answer);
+    }
+
+    if (type === 'yesno') {
+        const v = (answer === true || answer === "true");
+        return v ? "Да" : "Нет";
+    }
+
+    if (type === 'number') {
+        return String(answer);
+    }
+
+    // fallback на всякий случай
+    try { return JSON.stringify(answer); } catch { return String(answer); }
+}
+
     updateHistoryUI() {
         const historyList = document.getElementById('historyList');
         if (this.history.length === 0) {
@@ -440,16 +473,36 @@ class QuestionnaireApp {
         historyList.innerHTML = this.history.map(item => `
             <div class="history-item">
                 <div class="history-question"><strong>${item.node.title || 'Вопрос'}</strong></div>
-                <div class="history-answer">Ответ: ${this.formatAnswer(item.answer)}</div>
+                <div class="history-answer">Ответ: ${this.formatAnswer(item.node, item.answer)}</div>
                 <div class="history-time"><small>${item.timestamp}</small></div>
             </div>
         `).join('');
     }
 
-    formatAnswer(answer) {
+    formatAnswer(node, answer) {
+        const qt = node?.question_type;
+
+        if (qt === 'checkbox') {
+            if (!Array.isArray(answer)) return String(answer);
+            return answer.map(v => this.getOptionLabel(node, v)).join(', ');
+        }
+
+        if (qt === 'radio') {
+            return this.getOptionLabel(node, answer);
+        }
+
+        if (qt === 'yesno' || typeof answer === 'boolean') {
+            const v = (answer === true || answer === "true");
+            return v ? 'Да' : 'Нет';
+        }
+
+        if (qt === 'number') {
+            return String(answer);
+        }
+
+        // fallback
         if (Array.isArray(answer)) return answer.join(', ');
-        if (typeof answer === 'boolean') return answer ? 'Да' : 'Нет';
-        return answer;
+        return (answer ?? '').toString();
     }
 
     updateProgressBar() {
