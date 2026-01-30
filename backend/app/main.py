@@ -46,12 +46,13 @@ session_manager = SessionManager()
 @app.get("/", response_class=FileResponse)
 async def get_home():
     """Главная страница с интерфейсом опросника"""
-    return FileResponse("static/questionnaires/questionnaires.html")
+    return FileResponse("static/index.html")
+
 
 @app.get("/main-page/{clin_req_type}", response_class=HTMLResponse)
 async def get_main_page(clin_req_type: str):
     type = question_metadata.get_question_type(clin_req_type)
-    template = env.get_template("index.html")
+    template = env.get_template("session.html")
     rendered_page = template.render(subtitle_name= type.subtitle_name, display_name= type.display_name)
 
     return rendered_page
