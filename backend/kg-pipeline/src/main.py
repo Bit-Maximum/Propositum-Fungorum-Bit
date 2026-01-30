@@ -1,18 +1,13 @@
 import click
 import json
 import os
-import boto3
 import datetime
 from .normalize import normalize_to_jsonld
 from .rdf_converter import convert_jsonld_to_rdf
 from .pg_exporter import export_property_graph_csv
+from .s3_uploader import get_s3_client
 
-
-@click.command()
-@click.option('--input-file', required=True, help='Path to input JSON')
-@click.option('--bucket', required=True, help='S3 Bucket Name')
-@click.option('--neptune-endpoint', help='Neptune Cluster Endpoint (optional)')
-def pipeline(input_file, bucket, neptune_endpoint):
+def pipeline(input_file, bucket):
     timestamp = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H%M%S')
     local_out_dir = f"data/output/{timestamp}"
     os.makedirs(local_out_dir, exist_ok=True)
@@ -26,7 +21,7 @@ def pipeline(input_file, bucket, neptune_endpoint):
     jsonld = normalize_to_jsonld(raw_data)
     jsonld_path = f"{local_out_dir}/normalized.jsonld"
     with open(jsonld_path, 'w', encoding='utf-8') as f:
-        json.dump(jsonld, f, indent=2)
+        json.dump(jsonld, f, indent=2, ensure_ascii=False)
 
     # 3. RDF Convert
     print("Converting to RDF...")
@@ -42,7 +37,7 @@ def pipeline(input_file, bucket, neptune_endpoint):
 
     # 5. Upload to S3
     print(f"Uploading to S3 bucket {bucket}...")
-    s3 = boto3.client('s3')
+    s3 = get_s3_client()
     prefix = f"kg_exports/{timestamp}"
     files = [jsonld_path, ttl_path, nt_path, nodes_path, edges_path]
     s3_map = {}
@@ -70,4 +65,6 @@ def pipeline(input_file, bucket, neptune_endpoint):
 
 
 if __name__ == "__main__":
-    pipeline()
+    input_file = "../data/questionnaire.json"
+    bucket = "<YOUR BUCKET NAME>"
+    pipeline(input_file, bucket)

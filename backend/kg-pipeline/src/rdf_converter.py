@@ -1,3 +1,4 @@
+import json
 from rdflib import Graph
 
 
