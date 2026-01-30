@@ -1,0 +1,60 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.btn-card {
+    width: 100%;
+    min-height: 70px;
+    padding: 14px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    cursor: pointer;
+    transition: 0.2s ease;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+    text-align: center;
+}
+
+.btn-card span {
+    display: block;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.btn-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(94, 234, 212, 0.35);
+    background: rgba(255, 255, 255, 0.09);
+}
+
+.btn-card:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 980px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+.muted {
+    font-size: 0.9em;
+    color: #27ae60;
+    margin-top: 5px;
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+}
