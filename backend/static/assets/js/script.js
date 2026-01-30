@@ -186,6 +186,8 @@ class QuestionnaireApp {
         const questionTitle = document.getElementById('questionTitle');
         const questionDescription = document.getElementById('questionDescription');
 
+        console.log(node);
+
         // Тексты
         questionTitle.textContent = node.title || node.question || 'Вопрос';
         questionDescription.textContent = node.description || 'Пожалуйста, выберите ответ';
@@ -235,16 +237,6 @@ class QuestionnaireApp {
             label.appendChild(input);
             label.appendChild(document.createTextNode(option.label));
 
-            // Подсветка выбора
-            input.addEventListener('change', () => {
-                container.querySelectorAll('.option-label').forEach(l => {
-                    l.style.borderColor = 'transparent';
-                    l.style.background = '#f8f9fa';
-                });
-                label.style.borderColor = '#3498db';
-                label.style.background = '#e3f2fd';
-            });
-
             form.appendChild(label);
         });
         container.appendChild(form);
@@ -291,7 +283,7 @@ class QuestionnaireApp {
             if (value === '') return;
 
             const numValue = parseFloat(value);
-        
+
             if (isNaN(numValue)) {
                 input.value = '';
                 return;
@@ -339,15 +331,6 @@ class QuestionnaireApp {
 
             label.appendChild(input);
             label.appendChild(document.createTextNode(option.label));
-
-            input.addEventListener('change', () => {
-                container.querySelectorAll('.option-label').forEach(l => {
-                    l.style.borderColor = 'transparent';
-                    l.style.background = '#f8f9fa';
-                });
-                label.style.borderColor = '#3498db';
-                label.style.background = '#e3f2fd';
-            });
 
             form.appendChild(label);
         });
@@ -423,7 +406,7 @@ class QuestionnaireApp {
 
     showRecommendation(data) {
         const questionContainer = document.querySelector('.questionnaire-container');
-        const resultContainer = document.getElementById('resultContainer');
+        const resultContainer = document.querySelector('.result-container');
         const recommendationText = document.getElementById('recommendationText');
         const parametersGrid = document.getElementById('parametersGrid');
         const evidenceLevel = document.getElementById('evidenceLevel');
@@ -457,6 +440,8 @@ class QuestionnaireApp {
                 `;
                 parametersGrid.appendChild(card);
             }
+
+            console.log("+");
         });
 
         evidenceLevel.textContent = data.node.evidence_level || 'На основе клинических рекомендаций';
@@ -489,7 +474,7 @@ class QuestionnaireApp {
 
     hideResult() {
         document.querySelector('.questionnaire-container').style.display = 'grid';
-        document.getElementById('resultContainer').style.display = 'none';
+        document.querySelector('.result-container').style.display = 'none';
     }
 
 
@@ -538,7 +523,7 @@ formatAnswerForHistory(node, answer) {
     updateHistoryUI() {
         const historyList = document.getElementById('historyList');
         if (this.history.length === 0) {
-            historyList.innerHTML = `<div class="empty-history"><i class="fas fa-clipboard-list"></i><p>Здесь будет история ответов</p></div>`;
+            historyList.innerHTML = `<div class="empty-history"><i class="fas fa-clipboard-list"></i>Здесь будет история ответов</div>`;
             return;
         }
 
@@ -632,10 +617,10 @@ formatAnswerForHistory(node, answer) {
         const backButton = document.getElementById('backButton');
 
         if (this.sessionId) {
-            sessionInfo.textContent = `Сессия: ${this.sessionId.substring(0, 8)}...`;
+            sessionInfo.textContent = `${this.sessionId.substring(0, 8)}...`;
             sessionInfo.style.color = '#27ae60';
         } else {
-            sessionInfo.textContent = 'Сессия: не начата';
+            sessionInfo.textContent = 'не начата';
             sessionInfo.style.color = '#e74c3c';
         }
 
