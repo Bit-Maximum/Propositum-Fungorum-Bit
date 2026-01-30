@@ -677,9 +677,11 @@ formatAnswerForHistory(node, answer) {
 
             let graphDefinition = 'graph TD\n';
 
-            graphDefinition += 'classDef default fill:#f9f9f9,stroke:#333,stroke-width:2px,font-size:16px;\n';
-            graphDefinition += 'classDef start fill:#3498db,color:white,stroke:#2980b9,font-size:18px;\n';
-            graphDefinition += 'classDef final fill:#2ecc71,color:white,stroke:#27ae60,font-size:16px;\n';
+            graphDefinition += 'classDef default fill:#111827,stroke:#334155,stroke-width:1.5px;\n';
+            graphDefinition += 'classDef start fill:#0EA5E9,stroke:#38BDF8,stroke-width:2px;\n';
+            graphDefinition += 'classDef final fill:#22C55E,stroke:#4ADE80,stroke-width:2px;\n';
+            graphDefinition += 'classDef decision fill:#0B1220,stroke:#64748B,stroke-width:1.5px;\n';
+
 
             nodes.forEach(node => {
                 const safeId = node.id;
@@ -697,7 +699,7 @@ formatAnswerForHistory(node, answer) {
                 } else if (node.id === 'Q0') {
                     graphDefinition += `${safeId}(("${label}")):::start\n`;
                 } else {
-                    graphDefinition += `${safeId}{"${label}"}\n`;
+                    graphDefinition += `${safeId}{"${label}"}:::decision\n`;
                 }
 
                 if (node.transitions) {
