@@ -1,7 +1,5 @@
 import json
-from pathlib import Path
 from typing import Any, Dict, List, Optional
-import re
 from app.s3_client import S3MemoryClient
 from app.config import config
 
@@ -9,7 +7,6 @@ class Questionnaire:
     def __init__(self, json_path: str):
         """Инициализация опросника из JSON файла"""
         self.json_name = json_path
-        self.json_path = Path(json_path)
         self.s3_config = config
         self.s3_client = S3MemoryClient(
             bucket_name=self.s3_config.bucket_name,
@@ -27,7 +24,7 @@ class Questionnaire:
         """Загрузить граф из JSON файла"""
 
         if not self.s3_client.object_exists(self.json_name):
-            raise FileNotFoundError(f"Файл опросника не найден: {self.json_path}")
+            raise FileNotFoundError(f"Файл опросника не найден: {self.json_name}")
 
         file = self.s3_client.download_bytes(self.json_name)
         return json.loads(file)["questionnaire_graph"]

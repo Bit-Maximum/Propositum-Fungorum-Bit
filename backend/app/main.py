@@ -1,6 +1,5 @@
 import uuid
 import logging
-from tempfile import template
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -11,9 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .models import AnswerRequest, SessionResponse, RecommendationResponse
 from .sessions import SessionManager
-from .questionnaire import Questionnaire
-
-from .questionary_service import QuestionType, get_by_type, get_all_display_questionnaires
+from .questionary_service import QuestionaryMetadata
 
 app = FastAPI(
     title="Клинический опросник по переломам бедренной кости",
@@ -22,6 +19,8 @@ app = FastAPI(
 )
 
 logger = logging.getLogger(__name__)
+
+question_metadata = QuestionaryMetadata("data/metadata.json")
 
 app.add_middleware(
     CORSMiddleware,
@@ -51,7 +50,7 @@ async def get_home():
 
 @app.get("/main-page/{clin_req_type}", response_class=HTMLResponse)
 async def get_main_page(clin_req_type: str):
-    type = QuestionType[clin_req_type]
+    type = question_metadata.get_question_type(clin_req_type)
     template = env.get_template("index.html")
     rendered_page = template.render(subtitle_name= type.subtitle_name, display_name= type.display_name)
 
@@ -61,7 +60,7 @@ async def get_main_page(clin_req_type: str):
 async def get_questionaries():
     request_id = uuid.uuid4()
     logger.debug(f"START main::get_questionaries request_id={request_id}")
-    results = get_all_display_questionnaires()
+    results = question_metadata.get_all_display_questionnaires()
     logger.debug(f"END main::get_questionaries request_id={request_id}, results={results}")
     return JSONResponse(content={"questions": results})
 
@@ -69,7 +68,7 @@ async def get_questionaries():
 async def start_session(clinReqType: str = "QUESTIONNARIE"):
     """Начать новую сессию опросника"""
     session_id = session_manager.create_session()
-    questionnaire = get_by_type(QuestionType[clinReqType])
+    questionnaire = question_metadata.get_by_type(clinReqType)
     initial_node = questionnaire.get_initial_node()
 
     session_manager.update_current_node(session_id, initial_node)
@@ -116,7 +115,7 @@ async def submit_answer(session_id: str, answer_request: AnswerRequest):
 
     # Получаем текущую ноду из графа
     type = session_manager.get_questionary_type(session_id)
-    questionnaire = get_by_type(QuestionType[type])
+    questionnaire = question_metadata.get_by_type(type)
 
     current_node = questionnaire.get_node(current_node_id)
     if not current_node:
@@ -184,7 +183,7 @@ async def go_back(session_id: str):
     prefill_answer = answers.pop(last_node_id, None) if last_node_id else None
 
     type = session_manager.get_questionary_type(session_id)
-    questionnaire = get_by_type(QuestionType[type])
+    questionnaire = question_metadata.get_by_type(type)
     prev_node = questionnaire.get_node(last_node_id) if last_node_id else None
     if not prev_node:
         prev_node = questionnaire.get_initial_node()
@@ -203,7 +202,7 @@ async def reset_session(session_id: str):
     session_manager.reset_session(session_id)
 
     type = session_manager.get_questionary_type(session_id)
-    questionnaire = get_by_type(QuestionType[type])
+    questionnaire = question_metadata.get_by_type(type)
     initial_node = questionnaire.get_initial_node()
 
     session_manager.update_current_node(session_id, initial_node)
@@ -217,15 +216,13 @@ async def reset_session(session_id: str):
 @app.get("/api/questionnaire/metadata")
 async def get_questionnaire_metadata(clinReqType: str = "QUESTIONNARIE"):
     """Получить метаданные опросника"""
-    type = QuestionType[clinReqType]
-    questionnaire = get_by_type(type)
+    questionnaire = question_metadata.get_by_type(clinReqType)
     return questionnaire.get_metadata()
 
 @app.get("/api/questionnaire/nodes")
 async def get_all_nodes(clinReqType: str = "QUESTIONNARIE"):
     """Получить все ноды опросника (для отладки)"""
-    type = QuestionType[clinReqType]
-    questionnaire = get_by_type(type)
+    questionnaire = question_metadata.get_by_type(clinReqType)
     return questionnaire.get_all_nodes()
 
 @app.get("/api/healthcheck")
