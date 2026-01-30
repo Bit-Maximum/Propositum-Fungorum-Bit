@@ -44,7 +44,7 @@ class QuestionaryMetadata:
         file = self.s3_client.download_bytes(self.json_name)
         return json.loads(file)
 
-    def _generate_map(self) -> Dict[QuestionType, Questionnaire]:
+    def _generate_map(self) -> Dict[str, Questionnaire]:
         metadata = self._load_metadata()
         result = {}
         for question in metadata:
