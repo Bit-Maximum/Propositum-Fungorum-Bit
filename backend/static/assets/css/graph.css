@@ -109,3 +109,73 @@
 .zoom-controls button:active {
   transform: translateY(0);
 }
+
+
+#graphContainer { background:#0b1220 !important; }
+
+
+#graphContainer svg .node rect,
+#graphContainer svg .node polygon,
+#graphContainer svg .node circle,
+#graphContainer svg .node ellipse {
+  fill: #0f172a !important;
+  stroke: none !important;
+}
+
+
+#graphContainer svg .node text { fill:#fff !important; }
+
+
+#graphContainer svg foreignObject,
+#graphContainer svg foreignObject * {
+  color: #fff !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+
+#graphContainer svg .edgePath path,
+#graphContainer svg .flowchart-link {
+  stroke: #94a3b8 !important;
+  stroke-width: 1.5px !important;
+}
+#graphContainer svg marker path {
+  fill: #94a3b8 !important;
+  stroke: #94a3b8 !important;
+}
+
+
+#graphContainer svg .edgeLabel rect {
+  fill: #2F4F4F !important;
+  stroke: none !important;
+  rx: 0 !important;
+  ry: 0 !important;
+}
+
+
+#graphContainer svg .edgeLabel text {
+  fill: #fff !important;
+}
+
+
+#graphContainer svg .edgeLabel foreignObject > div {
+  background: #0f172a !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 2px 8px !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+
+#graphContainer svg .edgeLabel foreignObject > div * {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #fff !important;
+}
+
+
