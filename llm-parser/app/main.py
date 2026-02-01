@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import uvicorn
@@ -19,7 +20,7 @@ PROMPTS_DIR = BASE_DIR / "app" / "pipeline" / "prompts"
 from api.parse import PDFParser
 from llm.yandex.YandexLlmClient import YandexLlmClient
 
-results = []
+results = [{}, {}]
 
 
 def test(text: str):
@@ -27,7 +28,7 @@ def test(text: str):
 
     llm = YandexLlmClient()
     result = llm.extract_guideline(text, prompt)
-    results.insert(0, result)
+    results[0] = result
     return results
 
 
@@ -35,20 +36,21 @@ def test(text: str):
 async def root(file: UploadFile):
     tmp_path = Path("/tmp") / file.filename
     tmp_path.write_bytes(file.file.read())
-    prompt = (PROMPTS_DIR / "step_2_entities.md").read_text("utf-8")
 
     parser = PDFParser()
     text = parser.parse(str(tmp_path))
 
-    if not results:
-        test(text)
-    llm1 = YandexLlmClient()
-    result1 = llm1.extract_guideline(text, prompt)
-    results.insert(1, result1)
+    llm = YandexLlmClient()
+    first_prompt = (PROMPTS_DIR / "step_1_structure.md").read_text("utf-8")
+    first_result = llm.extract_guideline(text, first_prompt)
 
-    res = evaluate_step2(results[0], results[1])
+    second_prompt = (PROMPTS_DIR / "step_2_entities.md").read_text("utf-8")
+    second_res = llm.extract_guideline(text, second_prompt)
 
-    return res
+    return {
+        "first_step": first_result,
+        "second_step": second_res,
+    }
 
 
 if __name__ == "__main__":
