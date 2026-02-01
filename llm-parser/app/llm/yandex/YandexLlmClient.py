@@ -1,8 +1,8 @@
 import requests
 from typing import Dict, Any
-from app.config.settings import settings
 import json
 import re
+from app.config import settings
 from .YandexLlmResponseParser import YandexLlmResponseParser
 
 

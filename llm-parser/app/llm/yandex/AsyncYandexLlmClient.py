@@ -1,8 +1,7 @@
 import asyncio
 import aiohttp
 from typing import List, Dict, Any
-from ...config import settings
-
+from app.config import settings
 from .YandexLlmResponseParser import YandexLlmResponseParser
 from .YandexLlmClient import _safe_json
 
