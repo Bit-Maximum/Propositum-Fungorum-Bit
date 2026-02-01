@@ -69,3 +69,11 @@ class YandexLlmClient:
             max_tokens=4000
         )
         return _safe_json(result)
+
+    def extract_guideline_prompt(self, prompt: str) -> Dict[str, Any]:
+        result = self._call(
+            system_prompt="Ты медицинский эксперт.",
+            user_content=prompt,
+            max_tokens=4000
+        )
+        return _safe_json(result)
