@@ -31,8 +31,8 @@ def compute_metrics(
     baseline: Set[str],
     current: Set[str],
 ) -> NerMetrics:
-    if not baseline and not current:
-        return NerMetrics(1.0, 1.0, 1.0, 1.0, [], [])
+    # if not baseline and not current:
+    #     return NerMetrics(1.0, 1.0, 1.0, 1.0, [], [])
 
     if not current:
         return NerMetrics(0.0, 0.0, 0.0, 0.0, [], list(baseline))
