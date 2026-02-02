@@ -54,11 +54,20 @@ class MCP:
         block = [{"id": p.id, "text": p.text, "index": p.index} for p in selected]
         return json.dumps(block, ensure_ascii=False)
 
-    def run_step(self, ctx: DocumentContext, step_name: str, base_prompt: str, response_schema, *, scope: str, extra_vars: Optional[Dict[str, Any]] = None):
-        cache_key = f"{ctx.doc_id}:{step_name}:{hashlib.md5(base_prompt.encode()).hexdigest()}"
-        cached = self.store.get_cache(cache_key)
-        if cached:
-            return cached
+    def run_step(
+            self,
+            ctx: DocumentContext,
+            step_name: str,
+            base_prompt: str,
+            response_schema,
+            *,
+            scope: str,
+            extra_vars: Optional[Dict[str, Any]] = None
+    ):
+        # cache_key = f"{ctx.doc_id}:{step_name}:{hashlib.md5(base_prompt.encode()).hexdigest()}"
+        # cached = self.store.get_cache(cache_key)
+        # if cached:
+        #     return cached
 
         ctx_block = self.build_context_block(ctx, scope=scope)
         prompt_text = base_prompt.replace("{{TEXT}}", ctx_block)
@@ -67,11 +76,22 @@ class MCP:
                 v_str = v if isinstance(v, str) else json.dumps(v, ensure_ascii=False)
                 prompt_text = prompt_text.replace(f"{{{{{k}}}}}", v_str)
 
-        raw = self.llm.extract_guideline(text="", prompt=prompt_text, force_json=True, **self.model_preset)
-        print(raw)
-        json_text = ensure_json_text(raw)
+        json_obj = self.llm.extract_json(
+            prompt_text,
+            force_json=True,
+            temperature=0.0,
+            seed=self.model_preset.get("seed", 13)
+        )
+        json_text = json.dumps(json_obj, ensure_ascii=False)
         data = validate_with_schema(json_text, response_schema)
-
-        self.store.set_cache(cache_key, data)
+        # self.store.set_cache(cache_key, data)
         self.store.save_step(ctx.doc_id, step_name, data)
         return data
+        # raw = self.llm.extract_guideline(text="", prompt=prompt_text, force_json=True, **self.model_preset)
+        # print(raw)
+        # json_text = ensure_json_text(raw)
+        # data = validate_with_schema(json_text, response_schema)
+        #
+        # # self.store.set_cache(cache_key, data)
+        # self.store.save_step(ctx.doc_id, step_name, data)
+        # return data

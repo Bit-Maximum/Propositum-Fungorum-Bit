@@ -4,7 +4,7 @@ from .mcp.processor import MCP
 from .mcp.context_store import ContextStore
 from .mcp.schemas import Step1Model, Step2Model, Step3Model
 from .mcp.step3_linking import build_step3_linking
-
+from .mcp.postprocess import dedupe_step1_structure
 
 class Pipeline:
     def __init__(self, prompts_dir: Path):
@@ -32,7 +32,7 @@ class Pipeline:
             response_schema=Step1Model,
             scope="surgery_only"
         )
-
+        step_1 = dedupe_step1_structure(step_1)
         # 3) Шаг 2 — сущности
         step_2 = self.mcp.run_step(
             ctx,

@@ -8,7 +8,6 @@ def ensure_json_text(raw: Dict[str, Any]) -> str:
     try:
         return json.dumps(raw, ensure_ascii=False)
     except (TypeError, ValueError):
-        # На всякий случай — если вдруг прилетело что-то несерилизуемое
         return "{}"
 
 
