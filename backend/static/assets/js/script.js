@@ -149,6 +149,15 @@ class QuestionnaireApp {
         window.location.href = '/';
     }
 
+    goToMetrics() {
+        const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+        // Если сессия уже есть, передаем её ID, если нет — только тип
+        let url = `/static/metrics.html?clinReqType=${type}`;
+        if (this.sessionId) {
+            url += `&session_id=${this.sessionId}`;
+        }
+        window.location.href = url;
+    }
     async resetSession() {
         if (!this.sessionId) return;
 
