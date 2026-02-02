@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контроль качества LLM-пайплайна</title>
+
+    <!-- Подключаем твои существующие стили -->
+    <link rel="stylesheet" href="/static/assets/css/style.css">
+    <link rel="stylesheet" href="/static/assets/css/section.css">
+    <link rel="stylesheet" href="/static/assets/css/metrics.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+</head>
+<body class="metrics-page">
+    <header class="header">
+        <div class="container header__inner">
+            <a class="brand" href="/">
+                <span class="brand__logo"><i class="fas fa-bone"></i></span>
+                <span class="brand__title">Система Оценки Парсинга</span>
+            </a>
+            <nav class="nav">
+                <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="pipeline-header">
+                <div>
+                    <h1>Качество извлечения знаний</h1>
+                    <p style="color: #94a3b8">Сравнение Baseline vs Current (Повторный прогон пайплайна)</p>
+                </div>
+                <button id="run-full-eval" class="btn btn--primary" style="height: fit-content;">
+                    <i class="fas fa-play"></i> Запустить полную проверку
+                </button>
+            </div>
+
+            <div class="pipeline-steps">
+                <!-- STEP 1 -->
+                <div class="step-wrapper">
+                    <div class="step-header" onclick="toggleStepContent(1)">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Шаг 1: Структура и заголовки</div>
+                        <div class="step-badge" id="badge-1">--%</div>
+                    </div>
+                    <div class="step-content" id="content-1">
+                        <p>Оценка того, насколько точно LLM разделила документ на смысловые части.</p>
+                        <div class="diff-grid" id="container-1"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="step-wrapper">
+                    <div class="step-header" onclick="toggleStepContent(2)">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Шаг 2: Клинические сущности (NER)</div>
+                        <div class="step-badge" id="badge-2">--%</div>
+                    </div>
+                    <div class="step-content" id="content-2">
+                        <p style="margin-bottom: 20px;">Сравнение извлеченных медицинских параметров по ключевым полям.</p>
+                        <div class="ner-grid" id="container-2"></div>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="step-wrapper">
+                    <div class="step-header" onclick="toggleStepContent(3)">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Шаг 3: Логические условия (IF-THEN)</div>
+                        <div class="step-badge" id="badge-3">--%</div>
+                    </div>
+                    <div class="step-content" id="content-3">
+                        <div class="data-box">
+                            <table class="logic-table" id="container-3">
+                                <thead>
+                                    <tr>
+                                        <th>Условие (Condition)</th>
+                                        <th>Целевой узел</th>
+                                        <th>Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="step-wrapper">
+                    <div class="step-header" onclick="toggleStepContent(4)">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Шаг 4: Валидация JSON-графа</div>
+                        <div class="step-badge" id="badge-4">--</div>
+                    </div>
+                    <div class="step-content" id="content-4">
+                        <div class="diff-grid" id="container-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/assets/js/metrics.js"></script>
+</body>
+</html>
