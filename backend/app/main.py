@@ -1,7 +1,7 @@
 import uuid
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,6 +10,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from .models import AnswerRequest, SessionResponse, RecommendationResponse
 from .sessions import SessionManager
 from .questionary_service import QuestionaryMetadata
+from .s3_metadata import Metadata
+
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +29,7 @@ class QuestionaryApp:
 
         self.session_manager = SessionManager()
         self.question_metadata = QuestionaryMetadata(self.metadata_path)
-
+        self.metadata = Metadata("data/metadata.json")
         self.env = Environment(
             loader=FileSystemLoader("static"), autoescape=select_autoescape(["html"])
         )
@@ -62,6 +64,7 @@ class QuestionaryApp:
         app.post("/api/session/{session_id}/answer")(self.submit_answer)
         app.post("/api/session/{session_id}/back")(self.go_back)
         app.post("/api/session/{session_id}/reset")(self.reset_session)
+        app.post("/api/v1/metadata")(self.add_metadata_entry)
 
         app.get("/api/questionnaire/metadata")(self.get_questionnaire_metadata)
         app.get("/api/questionnaire/nodes")(self.get_all_nodes)
@@ -204,6 +207,43 @@ class QuestionaryApp:
             is_final=False,
             message="Следующий вопрос",
         )
+
+    async def add_metadata_entry(
+            self,
+            payload: dict = Body(...),
+    ):
+        """
+        POST /api/v1/metadata
+        Добавляет новую запись в метаданные опросников на S3.
+        Ожидаемые поля в JSON:
+        - display_name
+        - subtitle_name
+        - questionnaire_path
+        """
+        try:
+            display_name = payload["display_name"]
+            subtitle_name = payload["subtitle_name"]
+            questionnaire_path = payload["questionnaire_path"]
+        except KeyError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Отсутствует обязательное поле: {e.args[0]}"
+            )
+
+        try:
+            result = self.metadata.change_metadata(
+                display_name=display_name,
+                subtitle_name=subtitle_name,
+                questionnaire_path=questionnaire_path
+            )
+        except FileNotFoundError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Ошибка изменения метаданных: {str(e)}")
+
+        self.question_metadata = QuestionaryMetadata(self.metadata_path)
+
+        return {"status": "ok", "message": "Метаданные успешно обновлены", "result": result}
 
     async def go_back(self, session_id: str):
         if not self.session_manager.session_exists(session_id):
