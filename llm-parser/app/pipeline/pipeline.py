@@ -1,5 +1,6 @@
 from pathlib import Path
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
+from app.llm.yandex.AsyncYandexLlmClient import AsyncYandexLlmClient
 from .mcp.processor import MCP
 from .mcp.context_store import ContextStore
 from .mcp.schemas import Step1Model, Step2Model, Step3Model
@@ -7,6 +8,7 @@ from .mcp.step3_linking import build_step3_linking
 from .mcp.postprocess import dedupe_step1_structure
 from app.utils.chunker import TextChunker
 from app.utils.guideline_aggregator import GuidelineAggregator
+from openai import OpenAI
 
 class Pipeline:
     def __init__(self, prompts_dir: Path):
@@ -29,7 +31,24 @@ class Pipeline:
         chunker = TextChunker()
         aggregator = GuidelineAggregator()
 
-        chunks = chunker.split(text)
+        # chunks = chunker.split(text)
+        # llm_client = AsyncYandexLlmClient(4)
+        # result = await llm_client.extract_guideline_batch(chunks, prompt=step_1_prompt)
+
+        client = OpenAI(
+            api_key = "<TOKEN>"
+        )
+
+        response = client.responses.create(
+            model="gpt-5-mini",
+            instructions="Ты — формальный парсер текста.",
+            input=step_1_prompt.replace("{{TEXT}}", text)
+        )
+
+        res = 32
+        # llm = YandexLlmClient()
+        # step_1 = llm.extract_guideline(step_1_prompt, text)
+
         # for chunk in chunks:
         #
         #     # 2) Шаг 1 — структура
