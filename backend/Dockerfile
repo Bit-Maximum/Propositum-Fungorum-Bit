@@ -13,10 +13,7 @@ WORKDIR /app
 
 COPY ${APP_PATH}/pyproject.toml /app/pyproject.toml
 
-RUN uv venv --python 3.13.5 .venv
-
-RUN uv venv \
-    && uv lock && uv sync
+RUN uv venv --python 3.13.5 .venv && uv lock && uv sync
 
 COPY ${APP_PATH} /app
 
