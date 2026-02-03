@@ -64,13 +64,12 @@ class QuestionaryApp:
         app.post("/api/session/{session_id}/answer")(self.submit_answer)
         app.post("/api/session/{session_id}/back")(self.go_back)
         app.post("/api/session/{session_id}/reset")(self.reset_session)
-        app.post("/api/v1/metadata")(self.add_metadata_entry)
 
         app.get("/api/questionnaire/metadata")(self.get_questionnaire_metadata)
         app.get("/api/questionnaire/nodes")(self.get_all_nodes)
 
-        # 🔥 новая ручка
-        app.post("/api/questionnaire/reload")(self.reload_questionnaire_metadata)
+        app.post("/api/questionnaire/metadata/upload")(self.add_metadata_entry)
+        app.post("/api/questionnaire/metadata/reload")(self.reload_questionnaire_metadata)
 
         app.get("/api/healthcheck")(self.get_healthcheck)
 
