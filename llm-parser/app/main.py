@@ -1,11 +1,6 @@
 from pathlib import Path
-from fastapi import FastAPI, UploadFile, Body
+from fastapi import FastAPI, UploadFile
 import uvicorn
-from metrics import (
-    extract_entities,
-    compare_documents,
-    compare_documents_per_label,
-)
 from api.parse import PDFParser
 from pipeline.pipeline import Pipeline
 
