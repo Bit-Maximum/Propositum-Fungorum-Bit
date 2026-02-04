@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     LLM_TEMPERATURE: float = os.environ["LLM_TEMPERATURE"]
     LLM_MAX_TOKENS: int = os.environ["LLM_MAX_TOKENS"]
+    LLM_PARALLEL_TASK_MODE: bool = os.environ["LLM_PARALLEL_TASK_MODE"]
 
     SERVICE_NAME: str = os.environ["SERVICE_NAME"]
     SERVICE_ENV: str = os.environ["SERVICE_ENV"]

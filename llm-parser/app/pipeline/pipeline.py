@@ -1,5 +1,7 @@
+from asyncio import create_task
 from pathlib import Path
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
+from app.config import settings
 from app.llm.yandex.AsyncYandexLlmClient import AsyncYandexLlmClient
 from .mcp.processor import MCP
 from .mcp.context_store import ContextStore
@@ -8,46 +10,38 @@ from .mcp.step3_linking import build_step3_linking
 from .mcp.postprocess import dedupe_step1_structure
 from app.utils.chunker import TextChunker
 from app.utils.guideline_aggregator import GuidelineAggregator
-from openai import OpenAI
+import asyncio
 
 class Pipeline:
     def __init__(self, prompts_dir: Path):
-        self.llm = YandexLlmClient()
         self.prompts_dir = prompts_dir
-        self.mcp = MCP(
-            store=ContextStore(base_dir=prompts_dir.parent / "mcp_store"),
-            llm_client=self.llm,
-            prompts_dir=prompts_dir,
-            model_preset=dict(temperature=0.0, seed=13)
-        )
+        self.llm_client = AsyncYandexLlmClient(4)
+        self.is_parallel = settings.LLM_PARALLEL_TASK_MODE
 
-    def run(self, text: str) -> dict:
+    async def __aggregate_results(self, prompt:str, chunks: list[str]):
+        results = await self.llm_client.extract_guideline_batch(chunks, prompt=prompt)
+
+        aggregator = GuidelineAggregator()
+        for result in results:
+            aggregator.add(result)
+
+        return aggregator.get()
+
+    async def run(self, text: str) -> dict:
         step_1_prompt = (self.prompts_dir / "step_1_structure.md").read_text("utf-8")
         step_2_prompt = (self.prompts_dir / "step_2_entities.md").read_text("utf-8")
 
-        # 1) Создаём контекст документа
-        ctx = self.mcp.start_session(text)
-
         chunker = TextChunker()
-        aggregator = GuidelineAggregator()
+        chunks = chunker.split(text)
 
-        # chunks = chunker.split(text)
-        # llm_client = AsyncYandexLlmClient(4)
-        # result = await llm_client.extract_guideline_batch(chunks, prompt=step_1_prompt)
+        first_res, second_res = {}, {}
+        if self.is_parallel:
+            first_task = asyncio.create_task(self.__aggregate_results(step_1_prompt, chunks))
+            second_task = asyncio.create_task(self.__aggregate_results(step_1_prompt, chunks))
 
-        client = OpenAI(
-            api_key = "<TOKEN>"
-        )
-
-        response = client.responses.create(
-            model="gpt-5-mini",
-            instructions="Ты — формальный парсер текста.",
-            input=step_1_prompt.replace("{{TEXT}}", text)
-        )
-
-        res = 32
-        # llm = YandexLlmClient()
-        # step_1 = llm.extract_guideline(step_1_prompt, text)
+            first_res, second_res = await asyncio.gather(first_task, second_task)
+        else:
+            first_res = await self.llm_client.extract_guideline_batch(chunks, prompt=step_1_prompt)
 
         # for chunk in chunks:
         #
@@ -77,7 +71,8 @@ class Pipeline:
         # step_3_validated = Step3Model.model_validate(step_3).model_dump()
 
         return {
-            "step_1": step_1,
+            "step_1": first_res,
+            "step_1_2": second_res
             # "step_2": step_2,
             # "step_3": step_3_validated
         }
