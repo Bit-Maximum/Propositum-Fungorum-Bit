@@ -21,7 +21,7 @@ async def parse_pdf(file: UploadFile):
     parser = PDFParser()
     text = parser.parse(str(tmp_path))
 
-    return pipeline.run(text)
+    return await pipeline.run(text)
 
 
 if __name__ == "__main__":
