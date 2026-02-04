@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, APIRouter
 import uvicorn
 from app.api.parse import PDFParser
 from app.pipeline.pipeline import Pipeline
@@ -19,21 +19,50 @@ PROMPTS_DIR = BASE_DIR / "app" / "pipeline" / "prompts"
 
 pipeline = Pipeline(PROMPTS_DIR)
 
+router: APIRouter = APIRouter(prefix='/api/parser')
 
-@app.post("/api/parser/")
+file_text: str  # Пока так потом в сессию закинуть можно
+
+@router.post("/")
 async def parse_pdf(file: UploadFile):
     tmp_path = Path("/tmp") / file.filename
     tmp_path.write_bytes(file.file.read())
 
     parser = PDFParser()
-    text = parser.parse(str(tmp_path))
+    global file_text
+    file_text = parser.parse(str(tmp_path))
 
-    return await pipeline.run(text)
+    # return await pipeline.run(text)
+    return {
+        "status": "ok"
+    }
+
+@router.get("/step-1")
+async def get_step_1_result():
+    global file_text  # Потом убрать
+    return await pipeline.run(1, file_text)
+
+@router.get("/step-2")
+async def get_step_2_result():
+    global file_text  # Потом убрать
+    return await pipeline.run(2, file_text)
+
+@router.get("/step-3")
+async def get_step_3_result():
+    global file_text  # Потом убрать
+    return await pipeline.run(3, file_text)
+
+@router.get("/step-4")
+async def get_step_4_result():
+    global file_text  # Потом убрать
+    return await pipeline.run(4, file_text)
 
 
-@app.get("/api/parser/healthcheck")
+@router.get("/healthcheck")
 async def healthcheck():
     return {"status": "ok"}
+
+app.include_router(router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
