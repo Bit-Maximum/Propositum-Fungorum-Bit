@@ -1,8 +1,12 @@
+import json
 from pathlib import Path
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
 from app.config import settings
 from app.llm.yandex.AsyncYandexLlmClient import AsyncYandexLlmClient
 from app.utils.guideline_aggregator import GuidelineAggregator
+from app.metrics.load_baseline import load_baseline, save_baseline
+from app.metrics.evaluator import evaluate
+
 
 class Pipeline:
     def __init__(self, prompts_dir: Path):
@@ -21,11 +25,24 @@ class Pipeline:
 
     async def run(self, text: str) -> dict:
         step_1_prompt = (self.prompts_dir / "step_1_structure.md").read_text("utf-8")
-        step_2_prompt = (self.prompts_dir / "step_2_entities.md").read_text("utf-8")
+        # step_2_prompt = (self.prompts_dir / "step_2_entities.md").read_text("utf-8")
 
         llm = YandexLlmClient()
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
 
+        baseline = load_baseline()
+
+        if baseline is None:
+            save_baseline(step_1)
+            return {
+                "result": step_1,
+                "metrics": None,
+                "message": "Baseline created"
+            }
+
+        metrics = evaluate(baseline, step_1)
+
         return {
-            "step_1": step_1
+            "result": step_1,
+            "metrics": metrics
         }
