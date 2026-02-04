@@ -3,6 +3,7 @@ from pathlib import Path
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
 from app.config import settings
 from app.llm.yandex.AsyncYandexLlmClient import AsyncYandexLlmClient
+from app.llm.openai.openai_client import OpenAIAdapter
 from app.utils.chunker import TextChunker
 from app.utils.guideline_aggregator import GuidelineAggregator
 
@@ -10,11 +11,11 @@ from app.utils.guideline_aggregator import GuidelineAggregator
 class Pipeline:
     def __init__(self, prompts_dir: Path):
         self.prompts_dir = prompts_dir
-        self.llm_client = AsyncYandexLlmClient(4)
+        self.llm_client = OpenAIAdapter()
         self.is_parallel = settings.LLM_PARALLEL_TASK_MODE
 
     async def __aggregate_results(self, prompt:str, chunks: list[str]):
-        results = await self.llm_client.extract_guideline_batch(chunks, prompt=prompt)
+        results = await self.llm_client.extract_guideline_batch(chunks=chunks, user_prompt=prompt, system_prompt=None)
 
         aggregator = GuidelineAggregator()
         for result in results:
@@ -35,7 +36,7 @@ class Pipeline:
             print(f"[INFO]: First task: {first_task}, Second task: {second_task}")
             first_res, second_res = await asyncio.gather(first_task, second_task)
         else:
-            first_res = await self.llm_client.extract_guideline_batch(chunks, prompt=step_1_prompt)
+            first_res = await self.llm_client.extract_guideline_batch(chunks, user_prompt=step_1_prompt, system_prompt=None)
 
         return {
             "step_1": first_res,

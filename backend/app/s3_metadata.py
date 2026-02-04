@@ -48,3 +48,5 @@ class Metadata:
         self.s3_client.upload_bytes(data=data_bytes, s3_key=self.json_path)
 
         return True
+
+    # def upload_file(self, file_path):
