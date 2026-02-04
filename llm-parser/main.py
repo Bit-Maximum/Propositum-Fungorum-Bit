@@ -20,7 +20,7 @@ PROMPTS_DIR = BASE_DIR / "app" / "pipeline" / "prompts"
 pipeline = Pipeline(PROMPTS_DIR)
 
 
-@app.post("/api/parser")
+@app.post("/api/parser/")
 async def parse_pdf(file: UploadFile):
     tmp_path = Path("/tmp") / file.filename
     tmp_path.write_bytes(file.file.read())
