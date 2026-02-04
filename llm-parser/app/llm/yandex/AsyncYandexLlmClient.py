@@ -61,7 +61,6 @@ class AsyncYandexLlmClient:
                 result = YandexLlmResponseParser.parse_response(body)
                 return result.get_first_message_text()
 
-    # Универсальный генератор (сырой ответ)
     async def generate(
         self,
         prompt: str,
@@ -90,7 +89,6 @@ class AsyncYandexLlmClient:
                 seed=seed
             )
 
-    # Универсальный извлекатель JSON (dict)
     async def extract_json(
             self,
             prompt: str,
@@ -113,7 +111,6 @@ class AsyncYandexLlmClient:
         )
         return _safe_json(text)
 
-    # Пакетная обработка кусков текста (с подстановкой {{TEXT}})
     async def extract_guideline_batch(
             self,
             chunks: List[str],
@@ -153,7 +150,7 @@ class AsyncYandexLlmClient:
             prompt: str,
             *,
             force_json: bool = True,
-            max_tokens: int = 4000,
+            max_tokens: int = 3500,
             temperature: float = 0.0,
             model_name: Optional[str] = None,
             seed: Optional[int] = None

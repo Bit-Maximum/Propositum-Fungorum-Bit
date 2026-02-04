@@ -12,18 +12,15 @@ def _safe_json(text: str) -> Dict[str, Any]:
 
     s = text.strip()
 
-    # Срезаем код-блоки '''json ... '''
     if s.startswith("```"):
         s = re.sub(r"^```[a-zA-Z]*\n?", "", s)
         s = re.sub(r"\n?```$", "", s)
 
-    # Пробуем как есть
     try:
         return json.loads(s)
     except json.JSONDecodeError:
         pass
 
-    # Пытаемся выдернуть первый JSON-объект или массив
     m = re.search(r"(\{.*\}|\[.*\])", s, flags=re.S)
     if m:
         candidate = m.group(1)
@@ -32,7 +29,6 @@ def _safe_json(text: str) -> Dict[str, Any]:
         except json.JSONDecodeError:
             pass
 
-    # Если всё плохо — выбрасываем исходный текст
     raise ValueError(f"LLM returned invalid JSON:\n{s}")
 
 
@@ -67,9 +63,7 @@ class YandexLlmClient:
             ]
         }
 
-        # Если API поддерживает randomSeed — добавим детерминизм
         if seed is not None:
-            # YandexGPT поддерживает randomSeed в completionOptions (в новых релизах)
             payload["completionOptions"]["randomSeed"] = seed
 
         headers = {
@@ -85,7 +79,6 @@ class YandexLlmClient:
 
         return result.get_first_message_text()
 
-    # Универсальный генератор (сырой ответ)
     def generate(
         self,
         prompt: str,
@@ -112,13 +105,12 @@ class YandexLlmClient:
             seed=seed
         )
 
-    # Универсальный извлекатель JSON (dict)
     def extract_json(
             self,
             prompt: str,
             *,
             system_prompt: Optional[str] = None,
-            force_json: bool = True,  # по умолчанию включаем "жёсткий JSON"
+            force_json: bool = True,
             max_tokens: int = 4000,
             temperature: float = 0.0,
             model_name: Optional[str] = None,
@@ -135,7 +127,6 @@ class YandexLlmClient:
         )
         return _safe_json(text)
 
-    # Обратная совместимость: (text, prompt) → JSON
     def extract_guideline(
             self,
             text: str,
@@ -157,7 +148,6 @@ class YandexLlmClient:
             seed=seed
         )
 
-    # Обратная совместимость: уже собранный промпт → JSON
     def extract_guideline_prompt(
             self,
             prompt: str,
