@@ -4,7 +4,15 @@ import uvicorn
 from app.api.parse import PDFParser
 from app.pipeline.pipeline import Pipeline
 
-app = FastAPI(title="LLM Clinical Guideline Parser")
+app = FastAPI(
+    title="LLM Parser API",
+    description="API for LLM document parsing",
+    version="1.0.0",
+    openapi_url="/api/parser/openapi.json",  # Доступен по /openapi.json внутри контейнера
+    docs_url="/api/parser/docs",              # Swagger UI
+    redoc_url="/api/parser/redoc",            # ReDoc
+
+)
 
 BASE_DIR = Path(__file__).parents[0]
 PROMPTS_DIR = BASE_DIR / "app" / "pipeline" / "prompts"
