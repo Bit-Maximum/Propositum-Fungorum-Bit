@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, Body
 import uvicorn
@@ -12,7 +13,7 @@ PROMPTS_DIR = BASE_DIR / "app" / "pipeline" / "prompts"
 pipeline = Pipeline(PROMPTS_DIR)
 
 
-@app.post("/")
+@app.post("/api/parser")
 async def parse_pdf(file: UploadFile):
     tmp_path = Path("/tmp") / file.filename
     tmp_path.write_bytes(file.file.read())
@@ -22,6 +23,10 @@ async def parse_pdf(file: UploadFile):
 
     return await pipeline.run(text)
 
+
+@app.get("/api/parser/healthcheck")
+async def healthcheck():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

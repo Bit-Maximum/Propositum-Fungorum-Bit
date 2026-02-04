@@ -66,7 +66,7 @@ class OpenAIAdapter(BaseLLMAdapter):
         response = await self.client.responses.create(
             model=self.model,
             input=messages,
-            # temperature=self.temperature,
+            temperature=self.temperature,
         )
 
         if (

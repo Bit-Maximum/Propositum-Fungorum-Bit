@@ -45,6 +45,19 @@ services:
       timeout: 20s
       retries: 3
 
+  llm-parser:
+    build:
+      context: .
+      dockerfile: llm-parser/Dockerfile
+    container_name: llm-parser
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/parser/healthcheck" ]
+      interval: 15s
+      timeout: 20s
+      retries: 3
+    env_file:
+      - .env
+
   nginx:
     image: nginx:latest
     container_name: nginx
@@ -53,6 +66,8 @@ services:
       minio:
         condition: service_healthy
       backend:
+        condition: service_healthy
+      llm-parser:
         condition: service_healthy
     ports:
       - "80:80"
