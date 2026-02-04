@@ -1,7 +1,12 @@
 from pathlib import Path
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, Body
 import uvicorn
-
+from typing import Dict
+from metrics import (
+    extract_entities,
+    compute_metrics,
+    compute_metrics_per_label,
+)
 from api.parse import PDFParser
 from pipeline.pipeline import Pipeline
 
@@ -23,6 +28,17 @@ async def parse_pdf(file: UploadFile):
 
     return await pipeline.run(text)
 
+@app.post("/metrics")
+async def metrics(gold: dict, pred: dict):
+    gold_entities = extract_entities(gold)
+    pred_entities = extract_entities(pred)
+
+    return {
+        "ner": compute_metrics(gold_entities, pred_entities),
+        "per_label": compute_metrics_per_label(gold_entities, pred_entities),
+        "total_gold": len(gold_entities),
+        "total_pred": len(pred_entities),
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
