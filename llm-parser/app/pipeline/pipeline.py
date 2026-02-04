@@ -20,7 +20,7 @@ class Pipeline:
 
     async def __aggregate_results(self, prompt:str, chunks: list[str]):
         results = await self.llm_client.extract_guideline_batch(chunks, prompt=prompt)
-
+        print(f"INFO: {results}")
         aggregator = GuidelineAggregator()
         for result in results:
             aggregator.add(result)
@@ -28,6 +28,7 @@ class Pipeline:
         return aggregator.get()
 
     async def run(self, text: str) -> dict:
+        print(f"INFO: Running pipeline...")
         step_1_prompt = (self.prompts_dir / "step_1_structure.md").read_text("utf-8")
         step_2_prompt = (self.prompts_dir / "step_2_entities.md").read_text("utf-8")
 
@@ -38,7 +39,10 @@ class Pipeline:
         if self.is_parallel:
             first_task = asyncio.create_task(self.__aggregate_results(step_1_prompt, chunks))
             second_task = asyncio.create_task(self.__aggregate_results(step_1_prompt, chunks))
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
             first_res, second_res = await asyncio.gather(first_task, second_task)
         else:
             first_res = await self.llm_client.extract_guideline_batch(chunks, prompt=step_1_prompt)

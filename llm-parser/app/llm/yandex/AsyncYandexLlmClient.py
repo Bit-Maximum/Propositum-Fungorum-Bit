@@ -1,5 +1,7 @@
 import asyncio
 import aiohttp
+import re
+import json
 from typing import List, Dict, Any, Optional
 from app.config import settings
 from .YandexLlmResponseParser import YandexLlmResponseParser
@@ -146,6 +148,7 @@ class AsyncYandexLlmClient:
             parsed.append(_safe_json(r) if isinstance(r, str) else {})
         return parsed
 
+
     async def _process_chunk(
             self,
             session: aiohttp.ClientSession,
@@ -164,7 +167,23 @@ class AsyncYandexLlmClient:
             if force_json else
             "Ты медицинский эксперт."
         )
-        full_prompt = prompt.replace("{{TEXT}}", chunk)
+
+        if isinstance(chunk, str):
+            chunk_text = json.dumps(chunk, ensure_ascii=False)
+        else:
+            chunk_text = chunk
+
+        full_prompt = re.sub(
+            r"TEXT",
+            chunk_text,
+            prompt
+        )
+        if "{{TEXT}}" in full_prompt:
+            raise RuntimeError("{{TEXT}} не был полностью заменён")
+
+        if not chunk_text.strip():
+            raise RuntimeError("Пустой chunk")
+
         return await self._call(
             session=session,
             system_prompt=sys_prompt,
