@@ -12,12 +12,12 @@
 
 БЕЛЫЙ СПИСОК (WHITELIST):
 [
-  "questionnaire_graph", "nodes", "id", "type", "title", "question", 
+  "metadata", "nodes", "id", "type", "title", "question", 
   "question_type", "validation", "min", "max", "transitions", "condition", 
   "target_node_id", "description", "options", "value", "label", 
   "recommendation", "parameters", "surgical_method", "approach", 
   "drainage", "component_type", "fixation_type", "postop_instructions", 
-  "evidence_level", "metadata", "version", "source",
+  "evidence_level", "version", "source",
   "indications", "restrictions"
 ]
 
@@ -25,7 +25,15 @@
 1. Если ключ ЕСТЬ в списке — оставляй его и содержимое без изменений.
 2. Если ключа НЕТ в списке — удаляй ключ и его значение целиком.
 3. НЕ добавляй никакого своего текста.
-4. ВЕРНИ ТОЛЬКО ЧИСТЫЙ JSON (начиная с { "questionnaire_graph": ... }).
+4. ВЕРНИ ТОЛЬКО ЧИСТЫЙ JSON (начиная с "metadata": { 
+    "title": ..., 
+    "version": ..., 
+    "source": ..., 
+    "description": ... 
+  },
+    "nodes": [
+    ...
+]).
 
 ВХОДНЫЕ ДАННЫЕ:
 
