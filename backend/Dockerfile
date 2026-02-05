@@ -6,15 +6,16 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade pip \
-    && pip install uv
-
 WORKDIR /app
 
-COPY ${APP_PATH}/pyproject.toml /app/pyproject.toml
+COPY ${APP_PATH}/requirements.txt /app/requirements.txt
 
-RUN uv venv --python 3.13.5 .venv && uv lock && uv sync
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
+# Копируем остальной код приложения
 COPY ${APP_PATH} /app
 
-CMD ["uv", "run", "python", "main.py"]
+
+# Запуск приложения
+CMD ["python", "main.py"]
