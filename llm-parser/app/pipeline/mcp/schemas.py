@@ -40,7 +40,6 @@ class EntitiesModel(BaseModel):
 class Step2Model(EntitiesModel):
     pass
 
-# TODO: Отсмотреть, всё ли учёл при формировании Node и Edge
 NodeType = Literal["diagnosis_category", "diagnosis", "surgical_model", "operation"]
 EdgeType = Literal["category_to_diagnosis", "diagnosis_to_model", "model_to_operation"]
 

@@ -20,7 +20,6 @@ class QuestionnaireApp {
     async getGraphNodes() {
         const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
 
-        // кешируем по типу опросника
         if (this.graphNodes && this.progressModelType === type) {
             return this.graphNodes;
         }
@@ -37,7 +36,7 @@ class QuestionnaireApp {
         const byId = {};
         nodes.forEach(n => { byId[n.id] = n; });
 
-        const memo = {}; // id -> {min, max}
+        const memo = {};
 
         const dfs = (id, stack = new Set()) => {
             if (memo[id]) return memo[id];
@@ -46,7 +45,6 @@ class QuestionnaireApp {
             if (!node) return (memo[id] = { min: 0, max: 0 });
             if (node.type === "final") return (memo[id] = { min: 0, max: 0 });
 
-            // защита от циклов (на всякий случай)
             if (stack.has(id)) return { min: 1, max: 1 };
 
             stack.add(id);
@@ -67,7 +65,6 @@ class QuestionnaireApp {
             return (memo[id] = { min, max });
         };
 
-        // прогреваем для всех нод
         nodes.forEach(n => dfs(n.id));
 
         return { stepsToFinal: memo };
@@ -130,10 +127,8 @@ class QuestionnaireApp {
 
             const data = await response.json();
 
-            // Добавляем в историю
             this.addToHistory(this.currentNode, answer);
 
-            // Обновляем текущий узел
             this.currentNode = data.node;
 
             if (data.is_final) {
@@ -188,14 +183,11 @@ class QuestionnaireApp {
 
         console.log(node);
 
-        // Тексты
         questionTitle.textContent = node.title || node.question || 'Вопрос';
         questionDescription.textContent = node.description || 'Пожалуйста, выберите ответ';
 
-        // Очистка
         questionBody.innerHTML = '';
 
-        // Генерация полей ввода
         switch (node.question_type) {
             case 'radio':
                 this.createRadioQuestion(node, questionBody);
@@ -346,7 +338,6 @@ class QuestionnaireApp {
                 inputs.forEach(inp => {
                     if (inp.value === target) {
                         inp.checked = true;
-                        // чтобы подсветка сработала (у тебя она на change)
                         inp.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 });
@@ -418,11 +409,9 @@ class QuestionnaireApp {
 
         Object.entries(parameters).forEach(([key, value]) => {
             if (value && typeof value === 'object' && !Array.isArray(value)) {
-                // Объект (например, description + options)
                 const card = this.createParameterCard(key, value);
                 parametersGrid.appendChild(card);
             } else if (Array.isArray(value)) {
-                // Список
                 const card = document.createElement('div');
                 card.className = 'parameter-card';
                 card.innerHTML = `
@@ -431,7 +420,6 @@ class QuestionnaireApp {
                 `;
                 parametersGrid.appendChild(card);
             } else if (value) {
-                // Строка/число
                 const card = document.createElement('div');
                 card.className = 'parameter-card';
                 card.innerHTML = `
@@ -516,7 +504,6 @@ formatAnswerForHistory(node, answer) {
         return String(answer);
     }
 
-    // fallback на всякий случай
     try { return JSON.stringify(answer); } catch { return String(answer); }
 }
 
@@ -557,7 +544,6 @@ formatAnswerForHistory(node, answer) {
             return String(answer);
         }
 
-        // fallback
         if (Array.isArray(answer)) return answer.join(', ');
         return (answer ?? '').toString();
     }
@@ -567,14 +553,12 @@ formatAnswerForHistory(node, answer) {
         const progressText = document.getElementById('progressText');
         if (!progressBar) return;
 
-        // нет сессии/ноды
         if (!this.currentNode) {
             progressBar.style.width = `0%`;
             if (progressText) progressText.textContent = '';
             return;
         }
 
-        // если модель ещё не успела прогрузиться — старое поведение как fallback
         if (!this.progressModel || !this.progressModel.stepsToFinal) {
             const progress = this.history.length * 10;
             progressBar.style.width = `${Math.min(progress, 100)}%`;
@@ -582,7 +566,6 @@ formatAnswerForHistory(node, answer) {
             return;
         }
 
-        // финал
         if (this.currentNode.type === 'final') {
             progressBar.style.width = `100%`;
             if (progressText) progressText.textContent = 'Готово';
@@ -645,16 +628,12 @@ formatAnswerForHistory(node, answer) {
 
             const data = await response.json();
 
-            // Сервер откатился -> синхронизируем фронт
             this.currentNode = data.node;
 
-            // Локальная история у тебя "новое сверху" (unshift), значит откатываем первый элемент
             if (this.history.length > 0) this.history.shift();
 
-            // Если были результаты — вернёмся к вопросам
             this.hideResult();
 
-            // Рендерим вопрос и (опционально) подставляем прошлый ответ
             this.loadQuestion(this.currentNode);
             this.prefillAnswer(data.prefill_answer);
 
@@ -763,7 +742,6 @@ formatAnswerForHistory(node, answer) {
         }
     }
 
-    // Методы управления модальным окном
     showGraph() {
         const modal = document.getElementById('graphModal');
         modal.style.display = "block";
@@ -775,7 +753,6 @@ formatAnswerForHistory(node, answer) {
         modal.style.display = "none";
     }
 
-    // Методы для кнопок ЗУМА
     zoomIn() {
         if (this.panZoomInstance) this.panZoomInstance.zoomIn();
     }
@@ -825,7 +802,6 @@ ID Сессии: ${this.sessionId}
         alert(message);
     }
 
-    // Привязка событий
     initEventListeners() {
 
 
@@ -840,12 +816,10 @@ ID Сессии: ${this.sessionId}
         window.showGraph = () => this.showGraph();
         window.closeGraph = () => this.closeGraph();
 
-        // Кнопки зума
         window.zoomIn = () => this.zoomIn();
         window.zoomOut = () => this.zoomOut();
         window.resetZoomGraph = () => this.resetZoomGraph();
 
-        // Enter для ввода числа
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && this.currentNode?.question_type === 'number') {
                 this.submitAnswer();

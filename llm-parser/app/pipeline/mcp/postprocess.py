@@ -3,27 +3,24 @@ from typing import List, Dict, Any, Tuple, Optional
 import unicodedata
 import re
 
-# --------------------- Нормализация ---------------------
 
 LATIN_TO_CYR_LOOKALIKES = {
     "a": "а", "e": "е", "o": "о", "p": "р", "c": "с", "x": "х",
     "y": "у", "k": "к", "m": "м", "t": "т", "b": "в", "h": "н"
 }
-DASHES = r"\u2010\u2011\u2012\u2013\u2014\u2212"  # разные тире/минусы
+DASHES = r"\u2010\u2011\u2012\u2013\u2014\u2212"
 
 def _to_str(x: Any) -> str:
     if isinstance(x, str):
         return x
     if isinstance(x, (int, float, bool)):
         return str(x)
-    # для dict/list/None возвращаем пустую строку, чтобы не ломать нормализацию
     return ""
 
 def _has_cyrillic(s: str) -> bool:
     return bool(re.search(r"[а-яё]", s, flags=re.I))
 
 def _fix_mixed_alphabet(s: str) -> str:
-    # Если строка содержит кириллицу и латиницу — заменим похожие латинские символы на кириллицу
     if _has_cyrillic(s) and re.search(r"[A-Za-z]", s):
         out = []
         for ch in s:
@@ -41,14 +38,12 @@ def _norm_for_display(x: Any) -> str:
     return s.strip()
 
 def _soft_name_key(x: Any) -> str:
-    # Агрессивная нормализация под ключ
     s = _norm_for_display(x).lower()
     s = re.sub(f"[{DASHES}]", "-", s)
     s = re.sub(r"[^\w\-]+", "", s, flags=re.U)
     s = s.replace("-", "")
     return s
 
-# --------------------- Утилиты ---------------------
 
 def _uniq_str_list(items: List[Any]) -> List[str]:
     seen = set()
@@ -64,8 +59,6 @@ def _uniq_str_list(items: List[Any]) -> List[str]:
 def _merge_params(a: Optional[List[Any]], b: Optional[List[Any]]) -> List[str]:
     return _uniq_str_list((a or []) + (b or []))
 
-
-# --------------------- Merge-логика ---------------------
 
 def _merge_operations(a_ops: List[Any], b_ops: List[Any]) -> List[Dict[str, Any]]:
     merged: Dict[str, Dict[str, Any]] = {}
@@ -87,13 +80,11 @@ def _merge_operations(a_ops: List[Any], b_ops: List[Any]) -> List[Dict[str, Any]
                 "diagnosis_parameters": dx_params,
             }
         else:
-            # объединяем параметры; source_text оставляем первый
             merged[soft]["operation_parameters"] = _merge_params(merged[soft].get("operation_parameters"), op_params)
             merged[soft]["diagnosis_parameters"] = _merge_params(merged[soft].get("diagnosis_parameters"), dx_params)
     return list(merged.values())
 
 def _collapse_model_op_duplicate(model: Dict[str, Any]) -> None:
-    # Если у модели одна операция и она дублирует модель по имени (мягкий ключ)
     ops = model.get("operations") or []
     if len(ops) != 1:
         return
@@ -102,7 +93,6 @@ def _collapse_model_op_duplicate(model: Dict[str, Any]) -> None:
     if _soft_name_key(op.get("name", "")) == m_name_soft:
         op_params = op.get("operation_parameters") or []
         dx_params = op.get("diagnosis_parameters") or []
-        # Если операция не несёт дополнительных параметров — убираем её как дубликат
         if not (op_params or dx_params):
             model["operations"] = []
 
@@ -127,7 +117,6 @@ def _merge_models(a_models: List[Any], b_models: List[Any]) -> List[Dict[str, An
         else:
             merged[soft]["operations"] = _merge_operations(merged[soft].get("operations", []), ops)
 
-    # Удалим «пустые дубли» (модель == единственная операция)
     for mdl in merged.values():
         _collapse_model_op_duplicate(mdl)
 
@@ -155,12 +144,10 @@ def _merge_diagnoses(a_dx: List[Any], b_dx: List[Any]) -> List[Dict[str, Any]]:
             merged[soft]["surgical_models"] = _merge_models(merged[soft].get("surgical_models", []), models)
     return list(merged.values())
 
-# --------------------- Публичная функция ---------------------
 def dedupe_step1_structure(step1: Dict[str, Any]) -> Dict[str, Any]:
     step1 = dict(step1 or {})
     cats_in = step1.get("diagnosis_categories", []) or []
 
-    # 1) нормализуем внутри каждой категории
     norm_cats: List[Dict[str, Any]] = []
     for c in cats_in:
         if not isinstance(c, dict):
@@ -168,7 +155,6 @@ def dedupe_step1_structure(step1: Dict[str, Any]) -> Dict[str, Any]:
         c_name = _norm_for_display(c.get("name", "") or "Без категории")
         c_src = _norm_for_display(c.get("source_text", ""))
         diagnoses = _merge_diagnoses(c.get("diagnoses", []) or [], [])
-        # внутри моделей ещё раз уберём точные дубли операций по soft-name
         for dx in diagnoses:
             for m in dx.get("surgical_models", []) or []:
                 m["operations"] = _merge_operations(m.get("operations", []) or [], [])
@@ -179,7 +165,6 @@ def dedupe_step1_structure(step1: Dict[str, Any]) -> Dict[str, Any]:
             "diagnoses": diagnoses
         })
 
-    # 2) сливаем категории по нормализованному имени
     by_soft_name: Dict[str, Dict[str, Any]] = {}
     for c in norm_cats:
         soft = _soft_name_key(c.get("name", ""))
