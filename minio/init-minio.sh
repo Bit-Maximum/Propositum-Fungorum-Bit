@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 echo "⏳ Waiting for MinIO..."
 
