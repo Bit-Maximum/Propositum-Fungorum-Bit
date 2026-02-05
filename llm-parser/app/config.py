@@ -20,4 +20,9 @@ class Settings(BaseSettings):
     BACKEND_UPLOAD_PATH: str = os.environ["BACKEND_UPLOAD_PATH"]
     BACKEND_METADATA_PATH: str = os.environ["BACKEND_METADATA_PATH"]
 
+    MINIO_APP_ENDPOINT: str = os.getenv("MINIO_APP_ENDPOINT")
+    MINIO_APP_USER: str = os.getenv("MINIO_APP_USER")
+    MINIO_APP_PASSWORD: str = os.getenv("MINIO_APP_PASSWORD")
+    MINIO_APP_BUCKET_NAME: str = os.getenv("MINIO_APP_BUCKET_NAME")
+
 settings = Settings()
