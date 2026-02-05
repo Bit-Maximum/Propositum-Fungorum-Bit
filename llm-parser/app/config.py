@@ -16,4 +16,8 @@ class Settings(BaseSettings):
     SERVICE_NAME: str = os.environ["SERVICE_NAME"]
     SERVICE_ENV: str = os.environ["SERVICE_ENV"]
 
+    BACKEND_HOST: str = os.environ["BACKEND_HOST"]
+    BACKEND_UPLOAD_PATH: str = os.environ["BACKEND_UPLOAD_PATH"]
+    BACKEND_METADATA_PATH: str = os.environ["BACKEND_METADATA_PATH"]
+
 settings = Settings()

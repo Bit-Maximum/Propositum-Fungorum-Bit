@@ -30,7 +30,10 @@ class Metadata:
 
         ids = [item['id'] for item in data]
 
-        max_value = max(item["value"] for item in data)
+        max_value = -1
+
+        if len(ids) != 0:
+            max_value = max(item["value"] for item in data)
 
         while json_uuid in ids:
             json_uuid = uuid.uuid4()
@@ -48,5 +51,3 @@ class Metadata:
         self.s3_client.upload_bytes(data=data_bytes, s3_key=self.json_path)
 
         return True
-
-    # def upload_file(self, file_path):

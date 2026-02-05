@@ -36,15 +36,15 @@ class Pipeline:
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
         step_results["step_1"] = step_1
 
-        baseline = load_baseline()
-        if baseline is None:
-            save_baseline(step_1)
-            return {
-                "result": step_1,
-                "metrics": None,
-                "message": "Baseline created"
-            }
-        metrics = evaluate(baseline, step_1)
+        # baseline = load_baseline()
+        # if baseline is None:
+        #     save_baseline(step_1)
+        #     return {
+        #         "result": step_1,
+        #         "metrics": None,
+        #         "message": "Baseline created"
+        #     }
+        # metrics = evaluate(baseline, step_1)
 
         step_2_prompt_path: Path = self.prompt_manager.get_step_prompt(2)
         step_2_prompt: str = step_2_prompt_path.read_text("utf-8")
