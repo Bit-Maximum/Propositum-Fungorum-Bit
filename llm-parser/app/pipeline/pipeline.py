@@ -25,29 +25,37 @@ class Pipeline:
 
         return aggregator.get()
 
-    async def run(self, step_number: int, text: str = "") -> dict:
-        # step_1_prompt = (self.prompts_dir / "step_1_structure.md").read_text("utf-8")
-        # step_2_prompt = (self.prompts_dir / "step_2_entities.md").read_text("utf-8")
+    async def run(self, text: str = "") -> dict:
 
-        step_prompt_path: Path = self.prompt_manager.get_step_prompt(step_number)
-        step_prompt: str = step_prompt_path.read_text("utf-8")
+        step_results = {}
 
         llm = YandexLlmClient()
-        step = llm.extract_guideline(text=text, prompt=step_prompt)
+        step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
+        step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
+
+        step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
+        step_results["step_1"] = step_1
 
         baseline = load_baseline()
-
         if baseline is None:
-            save_baseline(step)
+            save_baseline(step_1)
             return {
-                "result": step,
+                "result": step_1,
                 "metrics": None,
                 "message": "Baseline created"
             }
+        metrics = evaluate(baseline, step_1)
 
-        metrics = evaluate(baseline, step)
+        step_2_prompt_path: Path = self.prompt_manager.get_step_prompt(2)
+        step_2_prompt: str = step_2_prompt_path.read_text("utf-8")
 
-        return {
-            "result": step,
-            "metrics": metrics
-        }
+        step_2 = llm.extract_guideline(text=json.dumps(step_1, ensure_ascii=False), prompt=step_2_prompt)
+        step_results["step_2"] = step_2
+
+        step_3_prompt_path: Path = self.prompt_manager.get_step_prompt(3)
+        step_3_prompt: str = step_3_prompt_path.read_text("utf-8")
+
+        step_3 = llm.extract_guideline(text=json.dumps(step_2, ensure_ascii=False), prompt=step_3_prompt)
+        step_results["step_3"] = step_3
+
+        return step_3

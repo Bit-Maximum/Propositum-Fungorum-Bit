@@ -32,31 +32,7 @@ async def parse_pdf(file: UploadFile):
     global file_text
     file_text = parser.parse(str(tmp_path))
 
-    # return await pipeline.run(text)
-    return {
-        "status": "ok"
-    }
-
-@router.get("/step-1")
-async def get_step_1_result():
-    global file_text  # Потом убрать
-    return await pipeline.run(1, file_text)
-
-@router.get("/step-2")
-async def get_step_2_result():
-    global file_text  # Потом убрать
-    return await pipeline.run(2, file_text)
-
-@router.get("/step-3")
-async def get_step_3_result():
-    global file_text  # Потом убрать
-    return await pipeline.run(3, file_text)
-
-@router.get("/step-4")
-async def get_step_4_result():
-    global file_text  # Потом убрать
-    return await pipeline.run(4, file_text)
-
+    return await pipeline.run(file_text)
 
 @router.get("/healthcheck")
 async def healthcheck():

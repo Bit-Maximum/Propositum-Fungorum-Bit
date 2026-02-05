@@ -55,7 +55,7 @@ class YandexLlmClient:
             "completionOptions": {
                 "stream": False,
                 "temperature": temperature,
-                "maxTokens": max_tokens
+                "maxTokens": 12000
             },
             "messages": [
                 {"role": "system", "text": system_prompt},
