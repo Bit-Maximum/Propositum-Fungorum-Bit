@@ -58,4 +58,10 @@ class Pipeline:
         step_3 = llm.extract_guideline(text=json.dumps(step_2, ensure_ascii=False), prompt=step_3_prompt)
         step_results["step_3"] = step_3
 
-        return step_3
+        step_4_prompt_path: Path = self.prompt_manager.get_step_prompt(4)
+        step_4_prompt: str = step_4_prompt_path.read_text("utf-8")
+
+        step_4 = llm.extract_guideline(text=json.dumps(step_3, ensure_ascii=False), prompt=step_4_prompt)
+        step_results["step_4"] = step_4
+
+        return step_4
