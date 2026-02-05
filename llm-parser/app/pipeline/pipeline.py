@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from pathlib import Path
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
 from app.config import settings
@@ -16,6 +17,13 @@ class Pipeline:
         self.is_parallel = settings.LLM_PARALLEL_TASK_MODE
         self.prompt_manager = PromptManager(prompts_dir)
 
+        self.outputs_dir = (
+                Path(__file__).resolve()
+                .parents[1]
+                / "outputs"
+        )
+        self.outputs_dir.mkdir(parents=True, exist_ok=True)
+
     async def __aggregate_results(self, prompt: str, chunks: list[str]):
         results = await self.llm_client.extract_guideline_batch(chunks, prompt=prompt)
 
@@ -24,6 +32,17 @@ class Pipeline:
             aggregator.add(result)
 
         return aggregator.get()
+
+
+    def _save_step_results(self, step_results: dict) -> None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        for step_name, result in step_results.items():
+            file_path = self.outputs_dir / f"{step_name}_{timestamp}.json"
+
+            with file_path.open("w", encoding="utf-8") as fout:
+                json.dump(result, fout, ensure_ascii=False, indent=2)
+
 
     async def run(self, text: str = "") -> dict:
 
@@ -63,5 +82,7 @@ class Pipeline:
 
         step_4 = llm.extract_guideline(text=json.dumps(step_3, ensure_ascii=False), prompt=step_4_prompt)
         step_results["step_4"] = step_4
+
+        self._save_step_results(step_results)
 
         return step_4
