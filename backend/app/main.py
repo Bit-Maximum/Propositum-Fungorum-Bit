@@ -93,7 +93,7 @@ class QuestionaryApp:
         app.get("/api/questionnaire/metadata")(self.get_questionnaire_metadata)
         app.get("/api/questionnaire/nodes")(self.get_all_nodes)
 
-        app.post("/api/upload")(self.upload_file_to_s3)
+        app.post("/api/questionnaire/upload")(self.upload_file_to_s3)
 
         app.post("/api/questionnaire/metadata/upload")(self.add_metadata_entry)
         app.post("/api/questionnaire/metadata/reload")(self.reload_questionnaire_metadata)
@@ -110,11 +110,9 @@ class QuestionaryApp:
             subtitle_name=q_type.subtitle_name, display_name=q_type.display_name
         )
 
-    # По хорошему бы написать функцию для проверки 
     async def upload_file_to_s3(
         self,
         file: UploadFile,
-        file_metadata: FileUploadMetadata = Depends(get_upload_metadata),
     ):
         try:
             file_uuid: str = str(uuid.uuid4())
