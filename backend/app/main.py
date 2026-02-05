@@ -1,5 +1,6 @@
 import uuid
 import logging
+from io import BytesIO
 
 from fastapi import FastAPI, HTTPException, Body, Form, UploadFile, Depends, status
 from pydantic import BaseModel
@@ -7,6 +8,8 @@ from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from .config import config
+from .s3_client import S3MemoryClient
 
 from .models import (AnswerRequest, 
                      SessionResponse, 
@@ -47,8 +50,10 @@ class QuestionaryApp:
 
         # Работа с S3 
         # при тестировании раскомментить!!!!!!!!
-        # self.question_metadata = QuestionaryMetadata(self.metadata_path)
-        
+        self.question_metadata = QuestionaryMetadata(self.metadata_path)
+        self.s3_client = S3MemoryClient(config.bucket_name, aws_access_key_id= config.minio_user,
+                                        aws_secret_access_key= config.minio_password, endpoint_url= config.minio_endpoint)
+
         self.metadata = Metadata("data/metadata.json")
         self.env = Environment(
             loader=FileSystemLoader("static"), autoescape=select_autoescape(["html"])
@@ -113,20 +118,20 @@ class QuestionaryApp:
     ):
         try:
             file_uuid: str = str(uuid.uuid4())
-            original_filename: str = file.filename
-            
             file_content: bytes = await file.read()
 
-            # здесь загружаем на S3 c помощью клиента
-            # и проверяем на уникальность
+            file_path = '/data/'
+            while self.s3_client.object_exists(f"{file_path}{file_uuid}.json"):
+                file_uuid = str(uuid.uuid4())
 
-            s3_path: str = 'ПОЛУЧИТЬ'
+            byteIo = BytesIO(file_content)
+            self.s3_client.upload_stream(byteIo, f"{file_path}{file_uuid}.json")
 
             return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
                 content= {
                     "success": "ok",
-                    "s3_path": s3_path
+                    "s3_path": f"{file_path}{file_uuid}.json"
                 }
             )
 
