@@ -52,7 +52,7 @@ fi
 
 
 # Применяем политику
-mc admin policy attach $MINIO_ALIAS readwrite --user $MINIO_APP_USER
+mc admin policy attach "$MINIO_ALIAS" readwrite --user "$MINIO_APP_USER"
 
 echo "🎉 MinIO buckets and application user initialized"
 echo "🔑 Application credentials:"
