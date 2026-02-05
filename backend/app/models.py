@@ -1,6 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Any, Dict, List, Optional, Union
 from datetime import datetime
+
+
+class FileUploadMetadata(BaseModel):
+    display_name: str = Field(..., min_length=1,
+                              max_length=100, description="Отображаемое имя")
+    subtitle_name: str = Field(..., min_length=1,
+                               max_length=200, description="Подзаголовок")
 
 
 class QuestionOption(BaseModel):

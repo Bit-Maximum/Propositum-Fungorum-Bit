@@ -1,13 +1,17 @@
 import uuid
 import logging
 
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, Form, UploadFile, Depends, status
+from pydantic import BaseModel
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from .models import AnswerRequest, SessionResponse, RecommendationResponse
+from .models import (AnswerRequest, 
+                     SessionResponse, 
+                     RecommendationResponse,
+                     FileUploadMetadata)
 from .sessions import SessionManager
 from .questionary_service import QuestionaryMetadata
 from .s3_metadata import Metadata
@@ -15,6 +19,18 @@ from .s3_metadata import Metadata
 
 
 logger = logging.getLogger(__name__)
+
+# Перенести в deps 
+# еще что-нибудь заинджектить потому что я графоман
+async def get_upload_metadata(
+    display_name: str = Form(...),
+    subtitle_name: str = Form(...)
+) -> FileUploadMetadata:
+    """Для инъекции зависимости"""
+    return FileUploadMetadata(
+        display_name=display_name,
+        subtitle_name=subtitle_name
+    )
 
 
 class QuestionaryApp:
@@ -28,7 +44,11 @@ class QuestionaryApp:
         )
 
         self.session_manager = SessionManager()
-        self.question_metadata = QuestionaryMetadata(self.metadata_path)
+
+        # Работа с S3 
+        # при тестировании раскомментить!!!!!!!!
+        # self.question_metadata = QuestionaryMetadata(self.metadata_path)
+        
         self.metadata = Metadata("data/metadata.json")
         self.env = Environment(
             loader=FileSystemLoader("static"), autoescape=select_autoescape(["html"])
@@ -68,6 +88,8 @@ class QuestionaryApp:
         app.get("/api/questionnaire/metadata")(self.get_questionnaire_metadata)
         app.get("/api/questionnaire/nodes")(self.get_all_nodes)
 
+        app.post("/api/upload")(self.upload_file_to_s3)
+
         app.post("/api/questionnaire/metadata/upload")(self.add_metadata_entry)
         app.post("/api/questionnaire/metadata/reload")(self.reload_questionnaire_metadata)
 
@@ -82,6 +104,41 @@ class QuestionaryApp:
         return template.render(
             subtitle_name=q_type.subtitle_name, display_name=q_type.display_name
         )
+
+    # По хорошему бы написать функцию для проверки 
+    async def upload_file_to_s3(
+        self,
+        file: UploadFile,
+        file_metadata: FileUploadMetadata = Depends(get_upload_metadata),
+    ):
+        try:
+            file_uuid: str = str(uuid.uuid4())
+            original_filename: str = file.filename
+            
+            file_content: bytes = await file.read()
+
+            # здесь загружаем на S3 c помощью клиента
+            # и проверяем на уникальность
+
+            s3_path: str = 'ПОЛУЧИТЬ'
+
+            return JSONResponse(
+                status_code=status.HTTP_201_CREATED,
+                content= {
+                    "success": "ok",
+                    "s3_path": s3_path
+                }
+            )
+
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке файл в S3: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail="Fucked by stupid"
+            )
+            
+        
+        
 
     async def get_questionaries(self):
         request_id = uuid.uuid4()
