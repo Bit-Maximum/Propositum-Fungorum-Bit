@@ -1,10 +1,12 @@
+import mimetypes
 import uuid
 import logging
 from io import BytesIO
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Body, Form, UploadFile, Depends, status
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -97,6 +99,7 @@ class QuestionaryApp:
         app.get("/api/questionnaire/nodes")(self.get_all_nodes)
 
         app.post("/api/questionnaire/upload")(self.upload_file_to_s3)
+        app.post("/api/questionnaire/download")(self.download_file_from_s3)
 
         app.post("/api/questionnaire/metadata/upload")(self.add_metadata_entry)
         app.post("/api/questionnaire/metadata/reload")(self.reload_questionnaire_metadata)
@@ -147,7 +150,32 @@ class QuestionaryApp:
                 status_code=500,
                 detail="Fucked by stupid"
             )
-            
+
+
+    async def download_file_from_s3(
+        self,
+        path: str = Body(..., description="Путь для сохранения файла в S3")
+    ):
+        if not self.s3_client.object_exists(path):
+            raise HTTPException(
+                status_code=404,
+                detail="Not Found"
+            )
+
+        file_bytes = self.s3_client.download_bytes(path)
+
+        filename = Path(path).name
+
+        content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+        return Response(
+            content=file_bytes,
+            media_type=content_type,
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"',
+                'Content-Length': str(len(file_bytes))
+            }
+        )
 
     async def get_questionaries(self):
         request_id = uuid.uuid4()
