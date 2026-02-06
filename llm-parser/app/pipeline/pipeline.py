@@ -87,14 +87,14 @@ class Pipeline:
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
         step_results["step_1"] = step_1
 
-        # baseline = load_baseline()
-        # if baseline is None:
-        #     save_baseline(step_1)
-        #     return {
-        #         "result": step_1,
-        #         "metrics": None,
-        #         "message": "Baseline created"
-        #     }
+        baseline = load_baseline()
+        if baseline is None:
+            save_baseline(step_1)
+            # return {
+            #     "result": step_1,
+            #     "metrics": None,
+            #     "message": "Baseline created"
+            # }
         # metrics = evaluate(baseline, step_1)
 
         logger.info(f"(2/4) 'Этап 2'")
@@ -122,3 +122,9 @@ class Pipeline:
         self._upload_step_results_to_s3(step_results)
 
         return step_4
+
+    async def run_metrics_evaluation(self, text: str = "") -> dict:
+        logger.info("Запуск 1 этапа для получения метрик")
+
+        return {}
+
