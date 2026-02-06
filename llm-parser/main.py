@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 
 import requests
-from fastapi import FastAPI, UploadFile, APIRouter, Body, HTTPException
+from fastapi import FastAPI, UploadFile, APIRouter, Body, HTTPException,File
 import uvicorn
 from app.api.parse import PDFParser
 from app.pipeline.pipeline import Pipeline
@@ -113,19 +113,20 @@ async def healthcheck():
     return {"status": "ok"}
 
 
-@router.get("/metrics")
-async def metrics(
-        file: UploadFile
-):
-
+@router.post("/metrics")
+async def metrics(file: UploadFile = File(...)):
     tmp_path = Path("/tmp") / file.filename
-    tmp_path.write_bytes(file.file.read())
+
+    content = await file.read()
+    tmp_path.write_bytes(content)
 
     parser = PDFParser()
-    global file_text
-    file_text = parser.parse(str(tmp_path))
+    text = parser.parse(str(tmp_path))
 
-    metrics_json = await pipeline.run_metrics_evaluation(file_text, file.filename)
+    metrics_json = await pipeline.run_metrics_evaluation(
+        text=text,
+        filename=file.filename
+    )
 
     return metrics_json
 

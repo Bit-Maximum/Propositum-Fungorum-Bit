@@ -1,198 +1,275 @@
-/* --- Переменные темы --- */
 :root {
-    --bg-dark: #0f172a;
-    --card-bg: #1e293b;
-    --accent-blue: #38bdf8;
-    --success: #22c55e;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border-color: #334155;
+  --bg: #0b0f1a;
+  --panel: #121826;
+  --panel-2: #161e2e;
+  --border: #334155;
+
+  --text: #f8fafc;
+  --muted: #94a3b8;
+
+  --accent: #38bdf8;
+  --success: #22c55e;
+  --danger: #ef4444;
 }
 
-/* --- Общие стили страницы --- */
+/* Страница */
 .metrics-page {
-    background: #0b0f1a;
-    min-height: 100vh;
-    color: var(--text-main);
-    padding-bottom: 50px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
 }
 
-.pipeline-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 20px 0;
-    border-bottom: 1px solid var(--border-color);
+/* Чтобы общие .card из style.css не делали белое */
+.metrics-page .card.metrics-card,
+.metrics-page .card.metrics-card .card__header,
+.metrics-page .card.metrics-card .card__body {
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
 }
 
-/* --- Компонент: Шаги Пайплайна (Аккордеон) --- */
-.step-wrapper {
-    margin-bottom: 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    background: var(--card-bg);
-    overflow: hidden;
+/* Текст подсказок */
+.metrics-page .muted,
+.metrics-page .card__meta {
+  color: var(--muted) !important;
 }
 
-.step-header {
-    padding: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    background: #161e2e;
-    transition: background 0.3s ease;
+/* Верхние блоки */
+.metrics-page .toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
 }
 
-.step-header:hover {
-    background: #1c2538;
+.metrics-page .file-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
 }
 
-.step-number {
-    width: 35px;
-    height: 35px;
-    background: var(--accent-blue);
-    color: #000;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 20px;
-    font-weight: 800;
+/* Input file */
+.metrics-page input[type="file"] {
+  color: var(--text);
+}
+.metrics-page input[type="file"]::file-selector-button {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
-.step-title {
-    flex-grow: 1;
-    font-size: 1.2rem;
-    font-weight: 600;
+/* ===== ОКОШКИ МЕТРИК ===== */
+.metrics-page .metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
 }
 
-.step-badge {
-    padding: 6px 16px;
-    border-radius: 20px;
-    background: var(--bg-dark);
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    border: 1px solid var(--border-color);
+@media (max-width: 900px) {
+  .metrics-page .metrics-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.step-content {
-    padding: 25px;
-    display: none;
-    border-top: 1px solid var(--border-color);
-    animation: fadeIn 0.4s ease;
+.metrics-page .metric-card {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
 }
 
-.step-content.open {
-    display: block;
+.metrics-page .metric-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 8px;
 }
 
-/* --- Визуализация данных и сравнение (Diff) --- */
-.diff-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.metrics-page .metric-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 }
 
-.data-box {
-    background: var(--bg-dark);
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    font-size: 0.9rem;
+/* ===== СЧЕТЧИКИ ===== */
+.metrics-page .counts-wrap {
+  margin-top: 14px;
 }
 
-.data-box h4 {
-    margin-top: 0;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+.metrics-page .counts-card {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-/* --- Сетка NER (Сущности) --- */
-.ner-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 15px;
+.metrics-page .pill {
+  background: #0f172a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
 }
 
-.ner-card {
-    background: #161e2e;
-    border: 1px solid var(--border-color);
-    padding: 15px;
-    border-radius: 8px;
+/* ===== BASELINE / RESULT ===== */
+.metrics-page .docs-block {
+  margin-top: 18px;
 }
 
-.ner-card-header {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 8px;
-    margin-bottom: 10px;
+.metrics-page .docs-title {
+  margin: 0 0 10px 0;
 }
 
-.ner-tag-added {
-    color: var(--success);
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 4px;
+.metrics-page .docs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
-.ner-tag-removed {
-    color: var(--danger);
-    display: block;
-    font-size: 0.85rem;
-    margin-bottom: 4px;
+@media (max-width: 900px) {
+  .metrics-page .docs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* --- Таблицы логики --- */
-.logic-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
+.metrics-page .data-box {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
 }
 
-.logic-table th {
-    text-align: left;
-    padding: 10px;
-    border-bottom: 2px solid var(--border-color);
-    color: var(--text-muted);
+.metrics-page .data-box h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.6px;
 }
 
-.logic-table td {
-    padding: 12px 10px;
-    border-bottom: 1px solid var(--border-color);
+/* Важно: pre/code без белого фона */
+.metrics-page .codebox {
+  margin: 0;
+  background: #0f172a;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 420px;
+  overflow: auto;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
-/* --- Статусы (Pills) --- */
-.status-pill {
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: bold;
+/* ===== Layout как на рисунке ===== */
+.metrics-page .metrics-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "metrics metrics"
+    "baseline result";
+  gap: 16px;
+  margin-top: 18px;
 }
 
-.status-match {
-    background: rgba(34, 197, 94, 0.2);
-    color: #4ade80;
+/* Верхний широкий блок */
+.metrics-page .metrics-panel {
+  grid-area: metrics;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
 }
 
-.status-mismatch {
-    background: rgba(239, 68, 68, 0.2);
-    color: #f87171;
+/* Нижние два окна */
+.metrics-page .baseline-panel {
+  grid-area: baseline;
 }
 
-/* --- Анимации --- */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.metrics-page .result-panel {
+  grid-area: result;
 }
+
+.metrics-page .json-panel {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+/* Заголовки панелей */
+.metrics-page .panel-title {
+  margin: 0 0 12px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Метрики внутри верхнего блока */
+.metrics-page .metrics-panel .metrics-grid {
+  margin-top: 0; /* чтобы заголовок был плотнее */
+}
+
+/* Codebox чуть выше, чтобы не было пустого места */
+.metrics-page .json-panel .codebox {
+  max-height: 520px; /* побольше, как окно */
+}
+
+/* Адаптив */
+@media (max-width: 900px) {
+  .metrics-page .metrics-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "metrics"
+      "baseline"
+      "result";
+  }
+}
+
+/* ===== Раздельные окошки для TP/FP/FN/Support ===== */
+.metrics-page .counts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .metrics-page .counts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.metrics-page .count-box {
+  background: #0f172a;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.metrics-page .count-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.metrics-page .count-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+}
+

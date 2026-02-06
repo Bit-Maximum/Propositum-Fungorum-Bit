@@ -48,8 +48,7 @@ class QuestionaryApp:
 
         self.session_manager = SessionManager()
 
-        # Работа с S3 
-        # при тестировании раскомментить!!!!!!!!
+        # Работа с S3
         self.question_metadata = QuestionaryMetadata(self.metadata_path)
         self.s3_client = S3MemoryClient(config.bucket_name, aws_access_key_id= config.minio_user,
                                         aws_secret_access_key= config.minio_password, endpoint_url= config.minio_endpoint)
@@ -83,6 +82,10 @@ class QuestionaryApp:
             self.get_main_page
         )
 
+        app.get("/metrics/{clin_req_type}", response_class=HTMLResponse)(
+            self.get_metrics_page
+        )
+
         app.get("/api/questionaries/")(self.get_questionaries)
         app.post("/api/session/start")(self.start_session)
         app.get("/api/session/{session_id}")(self.get_session_state)
@@ -107,7 +110,17 @@ class QuestionaryApp:
         q_type = self.question_metadata.get_question_type(clin_req_type)
         template = self.env.get_template("session.html")
         return template.render(
-            subtitle_name=q_type.subtitle_name, display_name=q_type.display_name
+            subtitle_name=q_type.subtitle_name, display_name=q_type.display_name, id=clin_req_type
+        )
+
+    async def get_metrics_page(self, clin_req_type: str):
+        q_type = self.question_metadata.get_question_type(clin_req_type)
+
+        template = self.env.get_template("metrics.html")
+        return template.render(
+            clin_req_type=clin_req_type,
+            subtitle_name=q_type.subtitle_name,
+            display_name=q_type.display_name
         )
 
     async def upload_file_to_s3(
