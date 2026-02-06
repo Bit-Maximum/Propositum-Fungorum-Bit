@@ -133,15 +133,16 @@ class Pipeline:
         logger.info("Запуск 1 этапа для получения метрик")
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
 
-        baseline = load_baseline()
+        baseline: dict | None = load_baseline()
 
         if baseline is None:
             save_baseline(step_1)
             baseline = load_baseline()
 
-        metrics = evaluate(baseline, step_1)
+        metrics: dict = evaluate(baseline, step_1)
 
         return {
+            "base": baseline,
             "result": step_1,
             "metrics": metrics,
             "message": "Baseline created"
