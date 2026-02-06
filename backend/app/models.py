@@ -70,3 +70,7 @@ class SessionData(BaseModel):
     history: List[Dict[str, Any]]
     created_at: datetime
     last_activity: datetime
+
+
+class DownloadRequest(BaseModel):
+    path: str = Field(..., description="Путь к файлу в S3")

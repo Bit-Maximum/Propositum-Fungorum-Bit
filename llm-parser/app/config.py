@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     BACKEND_HOST: str = os.environ["BACKEND_HOST"]
     BACKEND_UPLOAD_PATH: str = os.environ["BACKEND_UPLOAD_PATH"]
+    BACKEND_DOWNLOAD_PATH: str = os.environ["BACKEND_DOWNLOAD_PATH"]
     BACKEND_METADATA_PATH: str = os.environ["BACKEND_METADATA_PATH"]
     BACKEND_RELOAD_PATH: str = os.environ["BACKEND_RELOAD_PATH"]
 

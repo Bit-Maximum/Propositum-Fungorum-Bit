@@ -16,7 +16,9 @@ from .s3_client import S3MemoryClient
 from .models import (AnswerRequest, 
                      SessionResponse, 
                      RecommendationResponse,
-                     FileUploadMetadata)
+                     FileUploadMetadata,
+                     DownloadRequest
+                     )
 from .sessions import SessionManager
 from .questionary_service import QuestionaryMetadata
 from .s3_metadata import Metadata
@@ -154,8 +156,9 @@ class QuestionaryApp:
 
     async def download_file_from_s3(
         self,
-        path: str = Body(..., description="Путь для сохранения файла в S3")
+        request: DownloadRequest
     ):
+        path = request.path
         if not self.s3_client.object_exists(path):
             raise HTTPException(
                 status_code=404,

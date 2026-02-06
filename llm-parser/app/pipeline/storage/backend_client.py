@@ -6,7 +6,7 @@ from io import BytesIO
 import requests
 from app.config import settings
 from fastapi import HTTPException
-
+from app.utils.file_processor import FileProcessor
 
 class BackendClient:
     """
@@ -20,6 +20,7 @@ class BackendClient:
         self.base_path = base_path
         self.settings = settings
         self.logger = logging.getLogger(__name__)
+        self.file_processor = FileProcessor()
 
     async def upload_file(self, file_obj: BytesIO, filename: str, uuid):
         """
@@ -124,3 +125,16 @@ class BackendClient:
 
         return response.json()
 
+
+    async def download_file(self, filename, uuid):
+        full_path = self.base_path + uuid + "/" + filename
+        response = requests.post(
+            url=f"{self.settings.BACKEND_HOST}{self.settings.BACKEND_DOWNLOAD_PATH}",
+            json={'path': full_path}
+        )
+
+        response.raise_for_status()
+        file_bytes = response.content
+        content_type = response.headers.get('content-type')
+
+        return self.file_processor.process_file_by_type(file_bytes, content_type, filename)

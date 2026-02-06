@@ -14,8 +14,8 @@ services:
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 10s
+      interval: 5s
+      timeout: 5s
       retries: 3
 
   minio-init:
@@ -45,8 +45,8 @@ services:
       - .env
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/api/healthcheck" ]
-      interval: 15s
-      timeout: 20s
+      interval: 5s
+      timeout: 5s
       retries: 3
 
   llm-parser:
@@ -59,8 +59,8 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/api/parser/healthcheck" ]
-      interval: 15s
-      timeout: 20s
+      interval: 5s
+      timeout: 5s
       retries: 3
     env_file:
       - .env

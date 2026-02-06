@@ -1,4 +1,5 @@
 import json
+import uuid
 from io import BytesIO
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from fastapi import FastAPI, UploadFile, APIRouter, Body, HTTPException,File
 import uvicorn
 from app.api.parse import PDFParser
 from app.pipeline.pipeline import Pipeline
-from app.config import settings
+
 from app.pipeline.storage.backend_client import BackendClient
 
 app = FastAPI(
@@ -50,6 +51,11 @@ async def parse_pdf(
 @router.get("/healthcheck")
 async def healthcheck():
     return {"status": "ok"}
+
+@router.get("/file")
+async def file(path: str, uuid: str):
+    client = BackendClient("data/")
+    return await client.download_file(path, uuid=uuid)
 
 
 @router.post("/metrics")
