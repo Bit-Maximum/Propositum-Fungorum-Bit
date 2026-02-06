@@ -71,5 +71,28 @@ async def metrics(file: UploadFile = File(...)):
 
 app.include_router(router)
 
+
+@router.post("/metrics/{file_id}")
+async def metrics(
+        file_id: str
+):
+    download_results = await download_file_to_s3(file_id)
+    if not download_results.get("success"):
+        print("Хочу кушац! Но S3 не скачал оригинал...")
+        raise HTTPException(
+            status_code=502,
+        )
+
+    parser = PDFParser()
+    global file_text
+    file_text = parser.parse(str(download_results.get("file_path")))
+
+    metrics_json = await pipeline.run_metrics_evaluation(file_text, s3_key)
+
+    return metrics_json
+
+
+app.include_router(router)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
