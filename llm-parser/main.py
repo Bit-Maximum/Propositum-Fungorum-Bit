@@ -16,7 +16,6 @@ app = FastAPI(
     openapi_url="/api/parser/openapi.json",  # Доступен по /openapi.json внутри контейнера
     docs_url="/api/parser/docs",              # Swagger UI
     redoc_url="/api/parser/redoc",            # ReDoc
-
 )
 
 BASE_DIR = Path(__file__).parents[0]
@@ -112,6 +111,23 @@ async def parse_pdf(
 @router.get("/healthcheck")
 async def healthcheck():
     return {"status": "ok"}
+
+
+@router.get("/metrics")
+async def metrics(
+        file: UploadFile
+):
+
+    tmp_path = Path("/tmp") / file.filename
+    tmp_path.write_bytes(file.file.read())
+
+    parser = PDFParser()
+    global file_text
+    file_text = parser.parse(str(tmp_path))
+
+    metrics_json = await pipeline.run_metrics_evaluation(file_text, file.filename)
+
+    return metrics_json
 
 app.include_router(router)
 
