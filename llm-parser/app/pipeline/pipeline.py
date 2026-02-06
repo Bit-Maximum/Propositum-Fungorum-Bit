@@ -75,7 +75,7 @@ class Pipeline:
                 detail="Fucked by stupid"
             )
 
-    async def run(self, text: str = "") -> dict:
+    async def run(self, text: str = "", filename: str = "file") -> dict:
 
         step_results = {}
 
@@ -87,16 +87,26 @@ class Pipeline:
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
         step_results["step_1"] = step_1
 
-        baseline = load_baseline()
+        # baseline = load_baseline()
         
-        if baseline is None:
-            save_baseline(step_1)
+        # if baseline is None:
+        #     save_baseline(step_1)
             # return {
             #     "result": step_1,
             #     "metrics": None,
             #     "message": "Baseline created"
             # }
         # metrics = evaluate(baseline, step_1)
+
+        baseline: dict | None = load_baseline()
+        processed_baseline = baseline
+
+        if baseline is None:
+            processed_baseline = {filename: step_1}
+        else:
+            processed_baseline[filename] = step_1
+
+        save_baseline(processed_baseline)
 
         logger.info(f"(2/4) 'Этап 2'")
         step_2_prompt_path: Path = self.prompt_manager.get_step_prompt(2)
@@ -124,7 +134,8 @@ class Pipeline:
 
         return step_4
 
-    async def run_metrics_evaluation(self, text: str = "") -> dict:
+    async def run_metrics_evaluation(self, text: str = "",
+                                     filename: str = "file") -> dict:
         llm = YandexLlmClient()
 
         step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
@@ -134,12 +145,16 @@ class Pipeline:
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
 
         baseline: dict | None = load_baseline()
+        processed_baseline = baseline
 
         if baseline is None:
-            save_baseline(step_1)
-            baseline = load_baseline()
+            processed_baseline = {filename: step_1}
+        else:
+            processed_baseline[filename] = step_1
 
-        metrics: dict = evaluate(baseline, step_1)
+        save_baseline(processed_baseline)
+
+        metrics: dict = evaluate(processed_baseline[filename], step_1)
 
         return {
             "base": baseline,
