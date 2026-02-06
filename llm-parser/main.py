@@ -71,5 +71,16 @@ async def metrics(file: UploadFile = File(...)):
 
 app.include_router(router)
 
+
+@router.post("/metrics/{s3_key}")
+async def metrics(
+        s3_key: str
+):
+    metrics_json = await pipeline.run_metrics_evaluation_with_s3(s3_key)
+    return metrics_json
+
+
+app.include_router(router)
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

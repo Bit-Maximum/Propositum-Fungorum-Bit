@@ -1,5 +1,6 @@
 import json
 import logging
+import warnings
 from pathlib import Path
 
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
@@ -68,9 +69,9 @@ class Pipeline:
         processed_baseline = baseline
 
         if baseline is None:
-            processed_baseline = {filename: step_1}
+            processed_baseline = {uuid: step_1}
         else:
-            processed_baseline[filename] = step_1
+            processed_baseline[uuid] = step_1
 
         save_baseline(processed_baseline)
 
@@ -104,6 +105,7 @@ class Pipeline:
 
         return step_4
 
+    @warnings.deprecated()
     async def run_metrics_evaluation(self, text: str = "",
                                      filename: str = "file") -> dict:
         llm = YandexLlmClient()
@@ -125,6 +127,49 @@ class Pipeline:
         save_baseline(processed_baseline)
 
         metrics: dict = evaluate(processed_baseline[filename], step_1)
+
+        return {
+            "base": baseline,
+            "result": step_1,
+            "metrics": metrics,
+            "message": "Baseline created"
+        }
+
+    async def run_metrics_evaluation_with_s3(self, s3_key: str) -> dict:
+
+        llm = YandexLlmClient()
+
+        # TODO Проверить что набабашил Никита
+        # в .storage.backend_client новая функция, чтобы получать ответ в виде:
+        """
+        {
+            'type': 'text',
+            'content': ...... тут для ввода в step_1
+            'lines_count': ..... много линий
+            'size': ..... жирный файл
+        }
+        """
+
+        s3_response = self.backend_client.download_file(s3_key)
+        text = s3_response.get('content')
+
+        step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
+        step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
+
+        logger.info("Запуск 1 этапа для получения метрик")
+        step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
+
+        baseline: dict | None = load_baseline()
+        processed_baseline = baseline
+
+        if baseline is None:
+            processed_baseline = {s3_key: step_1}
+        elif s3_key not in processed_baseline:
+            processed_baseline[s3_key] = step_1
+
+        save_baseline(processed_baseline)
+
+        metrics: dict = evaluate(processed_baseline[s3_key], step_1)
 
         return {
             "base": baseline,
