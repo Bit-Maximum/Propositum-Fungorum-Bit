@@ -137,4 +137,4 @@ class BackendClient:
         file_bytes = response.content
         content_type = response.headers.get('content-type')
 
-        return self.file_processor.process_file_by_type(file_bytes, content_type, filename)
+        return self.file_processor.process_file_by_type(file_bytes, content_type)
