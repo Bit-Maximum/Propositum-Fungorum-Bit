@@ -105,7 +105,6 @@ class Pipeline:
 
         return step_4
 
-    @warnings.deprecated()
     async def run_metrics_evaluation(self, text: str = "",
                                      filename: str = "file") -> dict:
         llm = YandexLlmClient()
@@ -135,7 +134,7 @@ class Pipeline:
             "message": "Baseline created"
         }
 
-    async def run_metrics_evaluation_with_s3(self, s3_key: str) -> dict:
+    async def run_metrics_evaluation_with_s3(self, uuid: str) -> dict:
 
         llm = YandexLlmClient()
 
@@ -149,9 +148,10 @@ class Pipeline:
             'size': ..... жирный файл
         }
         """
-
-        s3_response = self.backend_client.download_file(s3_key)
-        text = s3_response.get('content')
+        s3_response = await self.backend_client.download_file("input.txt", uuid)
+        text = s3_response.get('data')
+        logger.error(s3_response)
+        logger.error(text)
 
         step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
         step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
@@ -163,13 +163,13 @@ class Pipeline:
         processed_baseline = baseline
 
         if baseline is None:
-            processed_baseline = {s3_key: step_1}
-        elif s3_key not in processed_baseline:
-            processed_baseline[s3_key] = step_1
+            processed_baseline = {uuid: step_1}
+        elif uuid not in processed_baseline:
+            processed_baseline[uuid] = step_1
 
         save_baseline(processed_baseline)
 
-        metrics: dict = evaluate(processed_baseline[s3_key], step_1)
+        metrics: dict = evaluate(processed_baseline[uuid], step_1)
 
         return {
             "base": baseline,
