@@ -1,145 +1,241 @@
 /**
- * Управление страницей метрик
+ * metrics.js
+ *
+ * Мы НЕ трогаем python-логику, поэтому делаем фронт максимально терпимым к формату ответа.
+ *
+ * Метрики из compare_documents() / evaluator.evaluate():
+ * {
+ *   ner_precision: 0.9,
+ *   ner_recall: 0.8,
+ *   ner_f1: 0.85,
+ *   tp: 10, fp: 2, fn: 3, support: 13
+ * }
+ *
+ * Возможные дополнительные поля (если бэк решит вернуть):
+ * - per_label: { "DIAGNOSIS": { ... }, ... }  (из compare_documents_per_label)
+ * - baseline: {...}  (документ baseline)
+ * - current: {...}   (документ текущий)
  */
-document.addEventListener('DOMContentLoaded', () => {
-    const runBtn = document.getElementById('run-full-eval');
 
-    // Переключение видимости шагов (Аккордеон)
-    window.toggleStepContent = function(stepId) {
-        const content = document.getElementById(`content-${stepId}`);
-        content.classList.toggle('open');
-    };
+document.addEventListener("DOMContentLoaded", () => {
+  // Назад
+  const back = document.getElementById("backLink");
+  back.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.history.back();
+  });
 
-    runBtn.addEventListener('click', async () => {
-        runBtn.disabled = true;
-        runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Выполняется повторный парсинг...';
+  // Параметры
+  const params = new URLSearchParams(window.location.search);
+  const clinReqType = params.get("clinReqType") || localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+  const sessionId = params.get("session_id") || null;
 
-        try {
-            // Запрашиваем у бэкенда полный отчет по всем 4 шагам
-            // Бэкенд должен вызвать evaluate_metrics.py и вернуть JSON
-            const response = await fetch('/api/evaluate-full-pipeline', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
+  document.getElementById("clinReqTypeLabel").textContent = clinReqType;
+  document.getElementById("sessionIdLabel").textContent = sessionId ? sessionId : "не задана";
 
-            if (!response.ok) throw new Error("Ошибка при получении данных от сервера");
-
-            const data = await response.json();
-
-            // Отрисовываем результаты
-            renderStep1(data.step_1);
-            renderStep2(data.step_2); // Твой NER отчет
-            renderStep3(data.step_3);
-            renderStep4(data.step_4);
-
-            // Автоматически открываем Шаг 2, так как он самый важный
-            toggleStepContent(2);
-
-        } catch (error) {
-            console.error(error);
-            alert("Ошибка связи с пайплайном: " + error.message);
-        } finally {
-            runBtn.disabled = false;
-            runBtn.innerHTML = '<i class="fas fa-play"></i> Запустить полную проверку';
-        }
-    });
+  const runBtn = document.getElementById("runMetricsBtn");
+  runBtn.addEventListener("click", () => runMetrics({ clinReqType, sessionId }));
 });
 
-/** Рендеринг Шага 1: Структура */
-function renderStep1(data) {
-    const badge = document.getElementById('badge-1');
-    const container = document.getElementById('container-1');
+function setStatus(text, kind = "info") {
+  const el = document.getElementById("statusText");
+  if (!el) return;
+  el.textContent = text || "";
 
-    badge.innerText = (data.metrics.score * 100).toFixed(1) + "%";
-
-    container.innerHTML = `
-        <div class="data-box">
-            <h4>Baseline Headers</h4>
-            ${data.baseline.map(h => `<div>• ${h}</div>`).join('')}
-        </div>
-        <div class="data-box">
-            <h4>Current Headers</h4>
-            ${data.current.map(h => `<div>• ${h}</div>`).join('')}
-        </div>
-    `;
+  el.style.color =
+    kind === "error" ? "#e74c3c" :
+    kind === "success" ? "#27ae60" :
+    "#334155";
 }
 
-/** Рендеринг Шага 2: NER (На основе твоего python-кода) */
-function renderStep2(report) {
-    const badge = document.getElementById('badge-2');
-    const grid = document.getElementById('container-2');
-    grid.innerHTML = '';
+function pct(x) {
+  const n = Number(x);
+  if (!isFinite(n)) return "—";
+  return (n * 100).toFixed(1) + "%";
+}
 
-    let totalF1 = 0;
-    let count = 0;
+function num(x) {
+  const n = Number(x);
+  if (!isFinite(n)) return "—";
+  return String(n);
+}
 
-    // Итерируем по объекту, который вернул evaluate_step2 (diagnosis, fixation_type и т.д.)
-    for (const [field, data] of Object.entries(report)) {
-        totalF1 += data.metrics.f1;
-        count++;
+function safeJson(obj) {
+  try {
+    return JSON.stringify(obj, null, 2);
+  } catch {
+    return String(obj);
+  }
+}
 
-        const card = document.createElement('div');
-        card.className = 'ner-card';
+/**
+ * Пытаемся вытащить метрики из разных обёрток ответа.
+ */
+function extractMetricsPayload(apiJson) {
+  // Самое частое:
+  if (apiJson?.metrics && typeof apiJson.metrics === "object") return { metrics: apiJson.metrics, ...apiJson };
 
-        const addedHtml = data.metrics.added.map(v => `<span class="ner-tag-added">+ ${v}</span>`).join('');
-        const removedHtml = data.metrics.removed.map(v => `<span class="ner-tag-removed">- ${v}</span>`).join('');
+  // Иногда: { result: {metrics...}}
+  if (apiJson?.result && typeof apiJson.result === "object") {
+    const inner = apiJson.result;
+    if (inner.metrics) return { metrics: inner.metrics, ...inner };
+    if ("ner_f1" in inner || "ner_precision" in inner || "ner_recall" in inner) return { metrics: inner, ...apiJson };
+  }
 
-        card.innerHTML = `
-            <div class="ner-card-header">
-                <span style="color: #38bdf8; font-weight:bold; font-size: 0.8rem;">${field.toUpperCase()}</span>
-                <span style="font-weight:bold;">${(data.metrics.f1 * 100).toFixed(0)}%</span>
-            </div>
-            <div>
-                ${addedHtml}
-                ${removedHtml}
-                ${(!addedHtml && !removedHtml) ? '<small style="color:#4b5563">Нет изменений</small>' : ''}
-            </div>
-        `;
-        grid.appendChild(card);
+  // Иногда: { evaluation: {...} }
+  if (apiJson?.evaluation && typeof apiJson.evaluation === "object") {
+    const inner = apiJson.evaluation;
+    if (inner.metrics) return { metrics: inner.metrics, ...inner };
+    if ("ner_f1" in inner || "ner_precision" in inner || "ner_recall" in inner) return { metrics: inner, ...apiJson };
+  }
+
+  // Если сам объект и есть метрики
+  if ("ner_f1" in (apiJson || {}) || "ner_precision" in (apiJson || {}) || "ner_recall" in (apiJson || {})) {
+    return { metrics: apiJson };
+  }
+
+  // Если совсем непонятно — вернём как есть
+  return { metrics: null, raw: apiJson };
+}
+
+async function runMetrics({ clinReqType, sessionId }) {
+  const runBtn = document.getElementById("runMetricsBtn");
+  runBtn.disabled = true;
+  runBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Запуск...';
+
+  // очистка UI
+  renderSummary(null);
+  renderCounts(null);
+  renderPerLabel(null);
+  renderDocs(null);
+
+  try {
+    setStatus("Запрос к серверу...", "info");
+
+    /**
+     * ВАЖНО:
+     * Здесь должен быть ТВОЙ реальный эндпоинт.
+     *
+     * Если у тебя уже есть /api/evaluate-full-pipeline — можешь временно поставить его.
+     * Но по твоей текущей python-логике метрик логичнее иметь что-то типа:
+     *   POST /api/metrics/evaluate
+     * или
+     *   POST /api/evaluate-ner
+     *
+     * Я оставляю универсально: /api/evaluate-ner
+     * ЗАМЕНИ на реальный URL твоего бэка.
+     */
+    const endpoint = "/api/evaluate-ner";
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        clinReqType,
+        session_id: sessionId, // оставляю snake_case — часто на бэке так
+      })
+    });
+
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      throw new Error(`Ошибка сервера: ${res.status} ${txt}`);
     }
 
-    badge.innerText = (totalF1 / count * 100).toFixed(1) + "%";
+    const apiJson = await res.json();
+    const payload = extractMetricsPayload(apiJson);
+
+    if (!payload.metrics) {
+      console.error("Не удалось извлечь metrics из ответа:", apiJson);
+      throw new Error("Ответ сервера не содержит ожидаемых метрик (ner_f1/ner_precision/ner_recall).");
+    }
+
+    setStatus("Готово", "success");
+
+    // Основные метрики
+    renderSummary(payload.metrics);
+
+    // TP/FP/FN/support
+    renderCounts(payload.metrics);
+
+    // per-label (если бэк отдаёт)
+    const perLabel = payload.per_label || payload.perLabel || payload.metrics_per_label || null;
+    renderPerLabel(perLabel);
+
+    // baseline/current (если бэк отдаёт)
+    const baseline = payload.baseline ?? apiJson.baseline ?? null;
+    const current  = payload.current  ?? apiJson.current  ?? null;
+    renderDocs({ baseline, current });
+
+  } catch (e) {
+    console.error(e);
+    setStatus(e.message || "Ошибка", "error");
+    alert(e.message || "Ошибка запуска метрик");
+  } finally {
+    runBtn.disabled = false;
+    runBtn.innerHTML = '<i class="fas fa-play"></i> Запустить метрики';
+  }
 }
 
-/** Рендеринг Шага 3: Логика */
-function renderStep3(data) {
-    const badge = document.getElementById('badge-3');
-    const tbody = document.querySelector('#container-3 tbody');
-    badge.innerText = (data.total_score * 100).toFixed(1) + "%";
+function renderSummary(metrics) {
+  const grid = document.getElementById("summaryGrid");
+  if (!grid) return;
 
-    tbody.innerHTML = data.rules.map(rule => `
-        <tr>
-            <td><code>${rule.condition}</code></td>
-            <td>${rule.target}</td>
-            <td>
-                <span class="status-pill ${rule.is_match ? 'status-match' : 'status-mismatch'}">
-                    ${rule.is_match ? 'MATCH' : 'CHANGED'}
-                </span>
-            </td>
-        </tr>
-    `).join('');
+  if (!metrics) {
+    grid.innerHTML = "";
+    return;
+  }
+
+  grid.innerHTML = `
+    <div class="metric-card">
+      <div class="metric-title">NER Precision</div>
+      <div class="metric-value">${pct(metrics.ner_precision ?? metrics.precision)}</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">NER Recall</div>
+      <div class="metric-value">${pct(metrics.ner_recall ?? metrics.recall)}</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">NER F1</div>
+      <div class="metric-value">${pct(metrics.ner_f1 ?? metrics.f1)}</div>
+    </div>
+  `;
 }
 
-/** Рендеринг Шага 4: JSON/Graph */
-function renderStep4(data) {
-    const badge = document.getElementById('badge-4');
-    const container = document.getElementById('container-4');
+function renderCounts(metrics) {
+  const grid = document.getElementById("countsGrid");
+  if (!grid) return;
 
-    badge.innerText = data.is_valid ? "OK" : "ERR";
-    badge.style.color = data.is_valid ? "#4ade80" : "#f87171";
+  if (!metrics) {
+    grid.innerHTML = "";
+    return;
+  }
 
-    container.innerHTML = `
-        <div class="data-box">
-            <h4>Статистика узлов</h4>
-            <div>Узлов (Baseline): ${data.baseline_count}</div>
-            <div>Узлов (Current): ${data.current_count}</div>
-        </div>
-        <div class="data-box">
-            <h4>Схема JSON</h4>
-            <div style="color: ${data.is_valid ? '#4ade80' : '#f87171'}">
-                <i class="fas ${data.is_valid ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
-                ${data.validation_message || 'Схема валидна'}
-            </div>
-        </div>
-    `;
+  grid.innerHTML = `
+    <div class="metric-card">
+      <div class="metric-title">TP / FP / FN</div>
+      <div class="metric-value">
+        <span class="pill">TP: ${num(metrics.tp)}</span>
+        <span class="pill">FP: ${num(metrics.fp)}</span>
+        <span class="pill">FN: ${num(metrics.fn)}</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-title">Support</div>
+      <div class="metric-value">${num(metrics.support)}</div>
+    </div>
+  `;
 }
+
+function renderPerLabel(perLabel) {
+  const block = document.getElementById("perLabelBlock");
+  const tbody = document.getElementById("perLabelTbody");
+  if (!block || !tbody) return;
+
+  if (!perLabel || typeof perLabel !== "object" || Array.isArray(perLabel)) {
+    block.style.display = "none";
+    tbody.innerHTML = "";
+    return;
+  }
+
+  const rows = Object.entries(perLabel).map(([label, m]) => {
+    const p = m.ner_precision ?? m.precision;

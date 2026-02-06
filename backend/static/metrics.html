@@ -1,108 +1,137 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Контроль качества LLM-пайплайна</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Метрики качества</title>
 
-    <!-- Подключаем твои существующие стили -->
-    <link rel="stylesheet" href="/static/assets/css/style.css">
-    <link rel="stylesheet" href="/static/assets/css/section.css">
-    <link rel="stylesheet" href="/static/assets/css/metrics.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/assets/css/style.css">
+  <link rel="stylesheet" href="/static/assets/css/section.css">
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <style>
+    .toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .meta-line { opacity:.85; }
+    .pill {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid #e5e7eb; background:#fff;
+      font-weight:600;
+    }
+    .grid { display:grid; gap:12px; }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 900px){ .grid-3{grid-template-columns:1fr;} .grid-2{grid-template-columns:1fr;} }
+
+    .metric-card { border:1px solid #e5e7eb; border-radius:14px; padding:12px; background:#fff; }
+    .metric-title { font-size:.9rem; opacity:.8; margin-bottom:6px; }
+    .metric-value { font-size:1.4rem; font-weight:800; }
+
+    .table { width:100%; border-collapse:collapse; background:#fff; border:1px solid #e5e7eb; border-radius:14px; overflow:hidden; }
+    .table th, .table td { padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:left; }
+    .table th { background:#f9fafb; font-weight:700; }
+    .table tr:last-child td { border-bottom:none; }
+
+    .small { font-size:.9rem; opacity:.85; }
+    .codebox { white-space:pre-wrap; word-break:break-word; padding:12px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; max-height:360px; overflow:auto; }
+  </style>
 </head>
-<body class="metrics-page">
-    <header class="header">
-        <div class="container header__inner">
-            <a class="brand" href="/">
-                <span class="brand__logo"><i class="fas fa-bone"></i></span>
-                <span class="brand__title">Система Оценки Парсинга</span>
-            </a>
-            <nav class="nav">
-                <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
-            </nav>
+<body>
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href="/">
+      <span class="brand__logo" aria-hidden="true"><i class="fas fa-bone custom-logo"></i></span>
+      <span class="brand__title">Клинический опросник</span>
+    </a>
+
+    <nav class="nav" aria-label="Основная навигация">
+      <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
+      <a class="nav__link" href="#" id="backLink"><i class="fas fa-arrow-left"></i> Назад</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+  <div class="container">
+
+    <section class="card">
+      <div class="card__header">
+        <h2 class="card__title"><i class="fas fa-chart-line"></i> Метрики качества</h2>
+        <div class="card__meta meta-line">
+          Тип: <b id="clinReqTypeLabel">—</b> · Сессия: <b id="sessionIdLabel">—</b>
         </div>
-    </header>
+      </div>
 
-    <main class="main">
-        <div class="container">
-            <div class="pipeline-header">
-                <div>
-                    <h1>Качество извлечения знаний</h1>
-                    <p style="color: #94a3b8">Сравнение Baseline vs Current (Повторный прогон пайплайна)</p>
-                </div>
-                <button id="run-full-eval" class="btn btn--primary" style="height: fit-content;">
-                    <i class="fas fa-play"></i> Запустить полную проверку
-                </button>
-            </div>
+      <div class="card__body">
+        <div class="toolbar">
+          <button class="btn btn--primary" id="runMetricsBtn">
+            <i class="fas fa-play"></i> Запустить метрики
+          </button>
 
-            <div class="pipeline-steps">
-                <!-- STEP 1 -->
-                <div class="step-wrapper">
-                    <div class="step-header" onclick="toggleStepContent(1)">
-                        <div class="step-number">1</div>
-                        <div class="step-title">Шаг 1: Структура и заголовки</div>
-                        <div class="step-badge" id="badge-1">--%</div>
-                    </div>
-                    <div class="step-content" id="content-1">
-                        <p>Оценка того, насколько точно LLM разделила документ на смысловые части.</p>
-                        <div class="diff-grid" id="container-1"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 2 -->
-                <div class="step-wrapper">
-                    <div class="step-header" onclick="toggleStepContent(2)">
-                        <div class="step-number">2</div>
-                        <div class="step-title">Шаг 2: Клинические сущности (NER)</div>
-                        <div class="step-badge" id="badge-2">--%</div>
-                    </div>
-                    <div class="step-content" id="content-2">
-                        <p style="margin-bottom: 20px;">Сравнение извлеченных медицинских параметров по ключевым полям.</p>
-                        <div class="ner-grid" id="container-2"></div>
-                    </div>
-                </div>
-
-                <!-- STEP 3 -->
-                <div class="step-wrapper">
-                    <div class="step-header" onclick="toggleStepContent(3)">
-                        <div class="step-number">3</div>
-                        <div class="step-title">Шаг 3: Логические условия (IF-THEN)</div>
-                        <div class="step-badge" id="badge-3">--%</div>
-                    </div>
-                    <div class="step-content" id="content-3">
-                        <div class="data-box">
-                            <table class="logic-table" id="container-3">
-                                <thead>
-                                    <tr>
-                                        <th>Условие (Condition)</th>
-                                        <th>Целевой узел</th>
-                                        <th>Статус</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- STEP 4 -->
-                <div class="step-wrapper">
-                    <div class="step-header" onclick="toggleStepContent(4)">
-                        <div class="step-number">4</div>
-                        <div class="step-title">Шаг 4: Валидация JSON-графа</div>
-                        <div class="step-badge" id="badge-4">--</div>
-                    </div>
-                    <div class="step-content" id="content-4">
-                        <div class="diff-grid" id="container-4"></div>
-                    </div>
-                </div>
-            </div>
+          <span id="statusText" class="small"></span>
         </div>
-    </main>
 
-    <script src="/static/assets/js/metrics.js"></script>
+        <!-- Итоговые метрики -->
+        <div style="margin-top:16px;">
+          <div class="grid grid-3" id="summaryGrid"></div>
+        </div>
+
+        <!-- TP/FP/FN -->
+        <div style="margin-top:12px;">
+          <div class="grid grid-2" id="countsGrid"></div>
+        </div>
+
+        <!-- Метрики по меткам (если бэк вернёт per_label) -->
+        <div style="margin-top:16px; display:none;" id="perLabelBlock">
+          <h3 style="margin:0 0 10px 0;">По типам сущностей (per label)</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1</th>
+                <th>TP</th>
+                <th>FP</th>
+                <th>FN</th>
+                <th>Support</th>
+              </tr>
+            </thead>
+            <tbody id="perLabelTbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Baseline / Current (если бэк отдаёт) -->
+        <div style="margin-top:16px; display:none;" id="docsBlock">
+          <h3 style="margin:0 0 10px 0;">Документы (baseline vs current)</h3>
+          <div class="grid grid-2">
+            <div>
+              <div class="small" style="margin-bottom:6px;"><b>Baseline</b></div>
+              <div class="codebox" id="baselineBox"></div>
+            </div>
+            <div>
+              <div class="small" style="margin-bottom:6px;"><b>Current</b></div>
+              <div class="codebox" id="currentBox"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <small class="footer__text">
+      <p>Разработано на основе Федеральных клинических рекомендаций</p>
+      <p class="version">Версия 1.0.0 | Доказательная медицина</p>
+    </small>
+  </div>
+</footer>
+
+<script src="/static/assets/js/metrics.js"></script>
 </body>
 </html>
