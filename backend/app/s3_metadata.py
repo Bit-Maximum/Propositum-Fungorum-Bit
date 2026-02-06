@@ -16,12 +16,10 @@ class Metadata:
             endpoint_url=self.s3_config.minio_endpoint
         )
 
-    def change_metadata(self, display_name, subtitle_name, questionnaire_path):
+
+    def add_entry_in_metadata(self, display_name, subtitle_name):
         if not self.s3_client.object_exists(self.json_path):
             raise FileNotFoundError(f"Файл метадаты не найден: {self.json_path}")
-
-        if not self.s3_client.object_exists(questionnaire_path):
-            raise FileNotFoundError(f"Файл опросника не найден: {questionnaire_path}")
 
         file = self.s3_client.download_bytes(self.json_path)
         data = json.loads(file)
@@ -43,11 +41,11 @@ class Metadata:
             'value': max_value + 1,
             'display_name': display_name,
             'subtitle_name': subtitle_name,
-            'questionnaire_path': questionnaire_path
+            'questionnaire_path': f"data/{json_uuid}/graph.json"
         })
 
         data_bytes = json.dumps(data, ensure_ascii=False).encode("utf-8")
 
         self.s3_client.upload_bytes(data=data_bytes, s3_key=self.json_path)
 
-        return True
+        return json_uuid

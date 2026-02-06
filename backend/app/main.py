@@ -126,23 +126,18 @@ class QuestionaryApp:
     async def upload_file_to_s3(
         self,
         file: UploadFile,
+        path: str = Body(..., description="Путь для сохранения файла в S3")
     ):
         try:
-            file_uuid: str = str(uuid.uuid4())
             file_content: bytes = await file.read()
 
-            file_path = '/data/'
-            while self.s3_client.object_exists(f"{file_path}{file_uuid}.json"):
-                file_uuid = str(uuid.uuid4())
-
             byteIo = BytesIO(file_content)
-            self.s3_client.upload_stream(byteIo, f"{file_path}{file_uuid}.json")
+            self.s3_client.upload_stream(byteIo, path)
 
             return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
                 content= {
                     "success": "ok",
-                    "s3_path": f"{file_path}{file_uuid}.json"
                 }
             )
 
@@ -153,8 +148,6 @@ class QuestionaryApp:
                 detail="Fucked by stupid"
             )
             
-        
-        
 
     async def get_questionaries(self):
         request_id = uuid.uuid4()
@@ -295,7 +288,6 @@ class QuestionaryApp:
         try:
             display_name = payload["display_name"]
             subtitle_name = payload["subtitle_name"]
-            questionnaire_path = payload["questionnaire_path"]
         except KeyError as e:
             raise HTTPException(
                 status_code=400,
@@ -303,10 +295,9 @@ class QuestionaryApp:
             )
 
         try:
-            result = self.metadata.change_metadata(
+            result = self.metadata.add_entry_in_metadata(
                 display_name=display_name,
                 subtitle_name=subtitle_name,
-                questionnaire_path=questionnaire_path
             )
         except FileNotFoundError as e:
             raise HTTPException(status_code=404, detail=str(e))

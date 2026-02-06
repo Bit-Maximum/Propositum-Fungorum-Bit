@@ -1,18 +1,15 @@
 import json
 import logging
-from datetime import datetime
-from io import BytesIO
 from pathlib import Path
+
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
 from app.config import settings
 from app.llm.yandex.AsyncYandexLlmClient import AsyncYandexLlmClient
 from app.utils.guideline_aggregator import GuidelineAggregator
 from app.metrics.load_baseline import load_baseline, save_baseline
 from app.metrics.evaluator import evaluate
-from fastapi import HTTPException
+from app.pipeline.storage.backend_client import BackendClient
 
-from .storage.s3_client import S3MemoryClient
-from .storage.s3_metadata import Metadata
 from .prompt_manager import PromptManager
 
 
@@ -25,10 +22,8 @@ class Pipeline:
         self.is_parallel = settings.LLM_PARALLEL_TASK_MODE
         self.prompt_manager = PromptManager(prompts_dir)
 
-        self.s3_client = S3MemoryClient(settings.MINIO_APP_BUCKET_NAME, aws_access_key_id=settings.MINIO_APP_USER,
-                                        aws_secret_access_key=settings.MINIO_APP_PASSWORD, endpoint_url=settings.MINIO_APP_ENDPOINT)
+        self.backend_client = BackendClient("data/")
 
-        self.metadata = Metadata("data/metadata.json")
 
 
     async def __aggregate_results(self, prompt: str, chunks: list[str]):
@@ -41,45 +36,16 @@ class Pipeline:
         return aggregator.get()
 
 
-    def _upload_step_results_to_s3(self, step_results: dict) -> dict:
-        try:
-            logger.info(f"(S3) Начинаем загружать результаты этапов в S3")
-            run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-            base_path = f"llm-pipeline/runs/"
 
-            uploaded_paths = {}
-
-            while self.s3_client.object_exists(f"{base_path}{run_id}.json"):
-                run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            logger.info(f"(S3) Путь загрузки: {base_path}{run_id}")
-            for step_name, result in step_results.items():
-                s3_key = f"{base_path}{run_id}/{step_name}.json"
-
-                logger.info(f"(S3) Загружаем файл {s3_key}")
-                byte_io = BytesIO(
-                    json.dumps(result, ensure_ascii=False, indent=2).encode("utf-8")
-                )
-
-                self.s3_client.upload_stream(byte_io, f"{base_path}{run_id}/{step_name}.json")
-
-                uploaded_paths[step_name] = s3_key
-
-            logger.info(f"(S3) Загружены файлы: {uploaded_paths}")
-            return uploaded_paths
-
-        except Exception as e:
-            logger.error(f"Ошибка при загрузке файл в S3: {str(e)}")
-            raise HTTPException(
-                status_code=500,
-                detail="Fucked by stupid"
-            )
-
-    async def run(self, text: str = "", filename: str = "file") -> dict:
+    async def run(self, text: str = "", filename: str = "file", display_name: str = "default", subtitle_name: str = "default") -> dict:
 
         step_results = {}
 
         llm = YandexLlmClient()
+
+        uuid = await self.backend_client.upload_metadata(display_name, subtitle_name)
+        await self.backend_client.upload_text_as_file(text, uuid)
+
         step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
         step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
 
@@ -130,7 +96,11 @@ class Pipeline:
         step_results["step_4"] = step_4
 
         logger.info(f"(!) 'Пайплайн завершён успешно'")
-        self._upload_step_results_to_s3(step_results)
+        await self.backend_client.upload_step_results_to_s3(uuid, step_results)
+
+        await self.backend_client.upload_json_as_file(step_4, uuid, "graph.json")
+
+        await self.backend_client.reload_metadata()
 
         return step_4
 

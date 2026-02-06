@@ -53,6 +53,8 @@ class QuestionaryMetadata:
         metadata = self._load_metadata()
         result = {}
         for question in metadata:
+            if not self.s3_client.object_exists(question["questionnaire_path"]):
+                continue
             question_type = self.QuestionTypee(**question)
             result[question_type.id] = (question_type, Questionnaire(question_type.path))
         return result
