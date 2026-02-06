@@ -135,6 +135,10 @@ class BackendClient:
 
         response.raise_for_status()
         file_bytes = response.content
-        content_type = response.headers.get('content-type')
+        self.logger.error(response.headers)
+        content_type = response.headers.get('content-type').split(';')[0]
 
-        return self.file_processor.process_file_by_type(file_bytes, content_type)
+        return self.file_processor.process_file_by_type(
+            file_bytes=file_bytes,
+            content_type=content_type
+        )
