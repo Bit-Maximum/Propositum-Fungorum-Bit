@@ -54,27 +54,6 @@ class Pipeline:
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
         step_results["step_1"] = step_1
 
-        # baseline = load_baseline()
-        
-        # if baseline is None:
-        #     save_baseline(step_1)
-            # return {
-            #     "result": step_1,
-            #     "metrics": None,
-            #     "message": "Baseline created"
-            # }
-        # metrics = evaluate(baseline, step_1)
-
-        baseline: dict | None = load_baseline()
-        processed_baseline = baseline
-
-        if baseline is None:
-            processed_baseline = {uuid: step_1}
-        else:
-            processed_baseline[uuid] = step_1
-
-        save_baseline(processed_baseline)
-
         logger.info(f"(2/4) 'Этап 2'")
         step_2_prompt_path: Path = self.prompt_manager.get_step_prompt(2)
         step_2_prompt: str = step_2_prompt_path.read_text("utf-8")
@@ -148,32 +127,37 @@ class Pipeline:
             'size': ..... жирный файл
         }
         """
-        s3_response = await self.backend_client.download_file("input.txt", uuid)
-        text = s3_response.get('data')
-        logger.error(s3_response)
+        text_response = await self.backend_client.download_file("input.txt", uuid)
+        step_1_response = await self.backend_client.download_file("step_1.json", uuid)
+
+        step_1 = step_1_response.get("data")
+        text = text_response.get('content')
+
+
+        logger.error(text_response)
         logger.error(text)
 
         step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
         step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
 
         logger.info("Запуск 1 этапа для получения метрик")
-        step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
+        step_1_extracted = llm.extract_guideline(text=text, prompt=step_1_prompt)
 
-        baseline: dict | None = load_baseline()
-        processed_baseline = baseline
+        # baseline: dict | None = load_baseline()
+        # processed_baseline = baseline
+        #
+        # if baseline is None:
+        #     processed_baseline = {uuid: step_1}
+        # elif uuid not in processed_baseline:
+        #     processed_baseline[uuid] = step_1
+        #
+        # save_baseline(processed_baseline)
 
-        if baseline is None:
-            processed_baseline = {uuid: step_1}
-        elif uuid not in processed_baseline:
-            processed_baseline[uuid] = step_1
-
-        save_baseline(processed_baseline)
-
-        metrics: dict = evaluate(processed_baseline[uuid], step_1)
+        metrics: dict = evaluate(step_1, step_1_extracted)
 
         return {
-            "base": baseline,
-            "result": step_1,
+            "base": step_1,
+            "result": step_1_extracted,
             "metrics": metrics,
             "message": "Baseline created"
         }
