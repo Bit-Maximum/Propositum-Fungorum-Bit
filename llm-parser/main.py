@@ -81,7 +81,7 @@ async def parse_pdf(
     global file_text
     file_text = parser.parse(str(tmp_path))
 
-    graph_json = await pipeline.run(file_text)
+    graph_json = await pipeline.run(file_text, file.filename)
 
     file_path = upload_json_as_file(
         data=graph_json,
