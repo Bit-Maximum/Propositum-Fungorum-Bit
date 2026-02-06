@@ -57,3 +57,4 @@ echo "🎉 MinIO buckets and application user initialized"
 echo "🔑 Application credentials:"
 echo "   Access Key: $MINIO_APP_USER"
 echo "   Secret Key: $MINIO_APP_PASSWORD"
+
