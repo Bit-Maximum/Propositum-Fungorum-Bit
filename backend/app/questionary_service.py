@@ -39,7 +39,12 @@ class QuestionaryMetadata:
     def _load_metadata(self) -> Dict[str, Any]:
         """Загрузить граф из JSON файла"""
         if not self.s3_client.object_exists(self.json_name):
-            raise FileNotFoundError(f"Файл опросника не найден: {self.json_name}")
+            data = json.dumps([]).encode('utf-8')
+
+            self.s3_client.upload_bytes(
+                data=data,
+                s3_key=self.json_name,
+            )
 
         file = self.s3_client.download_bytes(self.json_name)
         return json.loads(file)

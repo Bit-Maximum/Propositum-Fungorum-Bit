@@ -27,7 +27,7 @@ class Questionnaire:
             raise FileNotFoundError(f"Файл опросника не найден: {self.json_name}")
 
         file = self.s3_client.download_bytes(self.json_name)
-        return json.loads(file)["questionnaire_graph"]
+        return json.loads(file)
 
     
     def get_initial_node(self) -> Dict[str, Any]:

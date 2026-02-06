@@ -4,6 +4,8 @@ services:
     image: minio/minio:latest
     container_name: minio
     restart: unless-stopped
+    ports:
+      - "9001:9001"
     env_file:
       - .env
     volumes:
@@ -37,13 +39,31 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     env_file:
       - .env
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/api/healthcheck" ]
-      interval: 10s
-      timeout: 10s
+      interval: 15s
+      timeout: 20s
       retries: 3
+
+  llm-parser:
+    build:
+      context: .
+      dockerfile: llm-parser/Dockerfile
+    container_name: llm-parser
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/parser/healthcheck" ]
+      interval: 15s
+      timeout: 20s
+      retries: 3
+    env_file:
+      - .env
 
   nginx:
     image: nginx:latest
@@ -53,6 +73,8 @@ services:
       minio:
         condition: service_healthy
       backend:
+        condition: service_healthy
+      llm-parser:
         condition: service_healthy
     ports:
       - "80:80"
