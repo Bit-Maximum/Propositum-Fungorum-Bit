@@ -88,6 +88,7 @@ class Pipeline:
         step_results["step_1"] = step_1
 
         baseline = load_baseline()
+        
         if baseline is None:
             save_baseline(step_1)
             # return {
@@ -124,7 +125,24 @@ class Pipeline:
         return step_4
 
     async def run_metrics_evaluation(self, text: str = "") -> dict:
+        llm = YandexLlmClient()
+
+        step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
+        step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
+
         logger.info("Запуск 1 этапа для получения метрик")
+        step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
 
-        return {}
+        baseline = load_baseline()
 
+        if baseline is None:
+            save_baseline(step_1)
+            baseline = load_baseline()
+
+        metrics = evaluate(baseline, step_1)
+
+        return {
+            "result": step_1,
+            "metrics": metrics,
+            "message": "Baseline created"
+        }
