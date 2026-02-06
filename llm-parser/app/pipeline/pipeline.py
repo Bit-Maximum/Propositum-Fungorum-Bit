@@ -149,7 +149,7 @@ class Pipeline:
 
         if baseline is None:
             processed_baseline = {filename: step_1}
-        else:
+        elif filename not in processed_baseline:
             processed_baseline[filename] = step_1
 
         save_baseline(processed_baseline)
