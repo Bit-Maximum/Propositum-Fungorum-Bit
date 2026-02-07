@@ -5,67 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Клинический опросник</title>
 
-    <link rel="stylesheet" href="/static/assets/css/style.css?v=20260207">
-    <link rel="stylesheet" href="/static/assets/css/index.css?v=20260207">
-
+    <link rel="stylesheet" href="/static/assets/css/style.css?v=20260207_5">
+    <link rel="stylesheet" href="/static/assets/css/index.css?v=20260207_5">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
 </head>
 <body>
-    <header class="header">
-        <div class="container header__inner">
-            <a class="brand" href="/">
-                <span class="brand__logo" aria-hidden="true">
-                    <i class="fas fa-bone custom-logo"></i>
-                </span>
-                <span class="brand__title">Клинический опросник</span>
+<header class="header">
+    <div class="container header__inner">
+        <a class="brand" href="/">
+            <span class="brand__logo" aria-hidden="true">
+                <i class="fas fa-bone custom-logo"></i>
+            </span>
+            <span class="brand__title">Клинический опросник</span>
+        </a>
 
-            </a>
+        <nav class="nav" aria-label="Основная навигация">
+            <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
+        </nav>
+    </div>
+</header>
 
-            <nav class="nav" aria-label="Основная навигация">
-                <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
-            </nav>
+<main class="main">
+    <div class="container">
+
+        <section class="hero">
+            <div class="hero__content">
+                <h1 class="hero__title">Опросник по медицинской рекомендации</h1>
+                <p class="hero__subtitle">
+                    Выберите клиническую рекомендацию или загрузите новую.
+                </p>
+
+                <div class="hero__actions">
+                    <button class="btn btn--primary" id="openUploadModal2" type="button">
+                        <i class="fas fa-upload"></i> Загрузить рекомендацию
+                    </button>
+                    <div id="uploadStatus" class="muted"></div>
+                </div>
+            </div>
+
+            <div class="hero__panel" aria-hidden="true">
+                <img src="/static/assets/img/img.jpg" alt="" class="hero__image" loading="lazy" decoding="async" />
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card__header">
+                <h2 class="card__title">Клинические рекомендации</h2>
+            </div>
+
+            <div class="card__body grid" id="loadQuestionaries"></div>
+        </section>
+
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container footer__inner">
+        <small class="footer__text">
+            <p>Разработано на основе Федеральных клинических рекомендаций</p>
+            <p class="version">Версия 1.0.0 | Доказательная медицина</p>
+        </small>
+    </div>
+</footer>
+
+
+<div class="modal" id="uploadModal" aria-hidden="true">
+    <div class="modal__overlay" data-close="true"></div>
+
+    <div class="modal__content" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">
+        <div class="modal__header">
+            <h2 id="uploadModalTitle"><i class="fas fa-file-medical"></i> Добавить клиническую рекомендацию</h2>
+            <button class="modal__close" type="button" data-close="true" aria-label="Закрыть">×</button>
         </div>
-    </header>
 
-    <main class="main">
-        <div class="container">
+        <div class="modal__body">
+            <form id="uploadForm" class="upload-form">
+                <label class="field">
+                    <span class="field__label">Название для пользователя</span>
+                    <input class="field__input" type="text" id="displayName" name="display_name"
+                           placeholder="Например: Перелом проксимального отдела бедра" required />
+                </label>
 
-            <!-- Приветственный блок -->
-            <section class="hero">
-                <div class="hero__content">
-                    <h1 class="hero__title">Опросник по медицинской рекомендации</h1>
+                <label class="field">
+                    <span class="field__label">Системное имя (subtitle_name)</span>
+                    <input class="field__input" type="text" id="subtitleName" name="subtitle_name"
+                           placeholder="Например: hip_fracture_v1 (латиница, цифры, подчёркивания)" required />
+                    <span class="field__hint">Будет использоваться как идентификатор в системе.</span>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">PDF файл рекомендации</span>
+                    <input class="field__input" type="file" id="pdfFile" name="file" accept="application/pdf" required />
+                    <span class="field__hint" id="fileHint">Файл не выбран</span>
+                </label>
+
+                <div class="modal__actions">
+                    <button class="btn btn--secondary" type="button" data-close="true">Отмена</button>
+                    <button class="btn btn--primary" type="submit" id="uploadBtn">
+                        <i class="fas fa-cloud-upload-alt"></i> Загрузить
+                    </button>
                 </div>
 
-                <div class="hero__panel" aria-hidden="true">
-                    <img src="/static/assets/img/img.png" alt="" class="hero__image" />
+                <div class="modal__status">
+                    <span id="modalStatus" class="muted"></span>
                 </div>
-            </section>
-
-            <!-- Выбор клинической рекомендации -->
-            <section class="card">
-                <div class="card__header">
-                    <h2 class="card__title">Клинические рекомендации</h2>
-                </div>
-
-                <div class="card__body grid" id="loadQuestionaries">
-                </div>
-            </section>
-
+            </form>
         </div>
-    </main>
+    </div>
+</div>
 
-    <footer class="footer">
-        <div class="container footer__inner">
-            <small class="footer__text">
-                <p>Разработано на основе Федеральных клинических рекомендаций</p>
-                <p class="version">Версия 1.0.0 | Доказательная медицина</p>
-            </small>
-        </div>
-    </footer>
-
-    <script src="/static/assets/js/index.js"></script>
+<script src="/static/assets/js/index.js?v=20260207_5"></script>
 </body>
 </html>

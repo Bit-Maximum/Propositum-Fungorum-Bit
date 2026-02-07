@@ -1,11 +1,11 @@
-/* Страница */
+
 .metrics-page {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
 }
 
-/* Чтобы общие .card из style.css не делали белое */
+/
 .metrics-page .card.metrics-card,
 .metrics-page .card.metrics-card .card__header,
 .metrics-page .card.metrics-card .card__body {
@@ -14,13 +14,13 @@
   color: var(--text) !important;
 }
 
-/* Текст подсказок */
+
 .metrics-page .muted,
 .metrics-page .card__meta {
   color: var(--muted) !important;
 }
 
-/* Верхние блоки */
+
 .metrics-page .toolbar {
   display: flex;
   gap: 12px;
@@ -37,7 +37,7 @@
   margin-top: 6px;
 }
 
-/* Input file */
+
 .metrics-page input[type="file"] {
   color: var(--text);
 }
@@ -51,7 +51,7 @@
   cursor: pointer;
 }
 
-/* ===== ОКОШКИ МЕТРИК ===== */
+
 .metrics-page .metrics-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -84,7 +84,7 @@
   letter-spacing: 0.2px;
 }
 
-/* ===== СЧЕТЧИКИ ===== */
+
 .metrics-page .counts-wrap {
   margin-top: 14px;
 }
@@ -110,7 +110,7 @@
   font-size: 0.9rem;
 }
 
-/* ===== BASELINE / RESULT ===== */
+
 .metrics-page .docs-block {
   margin-top: 18px;
 }
@@ -146,7 +146,7 @@
   letter-spacing: 0.6px;
 }
 
-/* pre/code без белого фона */
+
 .metrics-page .codebox {
   margin: 0;
   background: rgba(0,0,0,0.20);
@@ -160,7 +160,7 @@
   word-break: break-word;
 }
 
-/* ===== Layout ===== */
+
 .metrics-page .metrics-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -171,7 +171,7 @@
   margin-top: 18px;
 }
 
-/* Верхний широкий блок */
+
 .metrics-page .metrics-panel {
   grid-area: metrics;
   background: var(--panel2);
@@ -180,7 +180,7 @@
   padding: 16px;
 }
 
-/* Нижние два окна */
+
 .metrics-page .baseline-panel {
   grid-area: baseline;
 }
@@ -196,7 +196,7 @@
   padding: 16px;
 }
 
-/* Заголовки панелей */
+
 .metrics-page .panel-title {
   margin: 0 0 12px 0;
   font-size: 1.05rem;
@@ -204,17 +204,17 @@
   color: var(--text);
 }
 
-/* Метрики внутри верхнего блока */
+
 .metrics-page .metrics-panel .metrics-grid {
   margin-top: 0;
 }
 
-/* Codebox чуть выше */
+
 .metrics-page .json-panel .codebox {
   max-height: 520px;
 }
 
-/* Адаптив */
+
 @media (max-width: 900px) {
   .metrics-page .metrics-layout {
     grid-template-columns: 1fr;

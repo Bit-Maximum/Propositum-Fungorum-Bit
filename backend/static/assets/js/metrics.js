@@ -87,7 +87,7 @@ async function runMetrics() {
 
     const data = await res.json();
 
-    // ожидаем { metrics, base?, result? } как раньше
+
     if (!data.metrics) {
       console.error("Ответ без metrics:", data);
       throw new Error("Сервер не вернул поле metrics");
