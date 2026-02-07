@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Метрики качества</title>
 
-  <link rel="stylesheet" href="/static/assets/css/style.css">
-  <link rel="stylesheet" href="/static/assets/css/section.css">
-  <link rel="stylesheet" href="/static/assets/css/metrics.css">
+  <link rel="stylesheet" href="/static/assets/css/style.css?v=20260207_3">
+  <link rel="stylesheet" href="/static/assets/css/section.css?v=20260207_3">
+  <link rel="stylesheet" href="/static/assets/css/metrics.css?v=20260207_3">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -33,27 +34,20 @@
       <div class="card__header">
         <h2 class="card__title"><i class="fas fa-chart-line"></i> Метрики качества (NER)</h2>
         <div class="card__meta">
-          Загрузите PDF и нажмите «Запустить метрики». Сервер выполнит 1 шаг LLM и сравнит с baseline.json.
+          Нажмите «Получить метрики». Сервер выполнит оценку и вернёт результат для текущей сессии.
         </div>
       </div>
 
       <div class="card__body">
 
-        <div class="file-row">
-          <input type="file" id="pdfFile" accept="application/pdf" />
-          <span class="muted" id="fileHint">Файл не выбран</span>
-        </div>
-
         <div class="toolbar">
           <button class="btn btn--primary" id="runMetricsBtn">
-            <i class="fas fa-play"></i> Запустить метрики
+            <i class="fas fa-play"></i> Получить метрики
           </button>
-          <span id="statusText" class="muted"></span>
+          <span id="statusText" class="muted status--info"></span>
         </div>
 
-
         <div class="metrics-layout">
-
 
           <section class="metrics-panel">
             <h3 class="panel-title">Метрики</h3>
@@ -61,7 +55,6 @@
             <div class="metrics-grid" id="summaryGrid"></div>
             <div class="counts-wrap" id="countsRow"></div>
           </section>
-
 
           <section class="json-panel baseline-panel" id="baselinePanel" style="display:none;">
             <h3 class="panel-title">Baseline</h3>
@@ -90,6 +83,6 @@
   </div>
 </footer>
 
-<script src="/static/assets/js/metrics.js"></script>
+<script src="/static/assets/js/metrics.js?v=20260207_3"></script>
 </body>
 </html>

@@ -1,29 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
   // Назад
-  document.getElementById("backLink").addEventListener("click", (e) => {
-    e.preventDefault();
-    window.history.back();
-  });
+  const back = document.getElementById("backLink");
+  if (back) {
+    back.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.history.back();
+    });
+  }
 
-  // Файл
-  const fileInput = document.getElementById("pdfFile");
-  const hint = document.getElementById("fileHint");
-
-  fileInput.addEventListener("change", () => {
-    const f = fileInput.files?.[0];
-    hint.textContent = f ? `Выбран: ${f.name}` : "Файл не выбран";
-  });
-
-  document.getElementById("runMetricsBtn").addEventListener("click", runMetrics);
+  const runBtn = document.getElementById("runMetricsBtn");
+  if (runBtn) runBtn.addEventListener("click", runMetrics);
 });
+
+function getUuidFromUrlPath() {
+  // ожидаем /metrics/<uuid> (или /metrics/<uuid>/)
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  const last = parts[parts.length - 1];
+
+  // если вдруг попали на /metrics без uuid
+  if (!last || last === "metrics") return null;
+  return decodeURIComponent(last);
+}
 
 function setStatus(text, kind = "info") {
   const el = document.getElementById("statusText");
+  if (!el) return;
+
   el.textContent = text || "";
-  el.style.color =
-    kind === "error" ? "#e74c3c" :
-    kind === "success" ? "#27ae60" :
-    "#334155";
+
+  el.classList.remove("status--info", "status--success", "status--error");
+  el.classList.add(
+    kind === "error" ? "status--error" :
+    kind === "success" ? "status--success" :
+    "status--info"
+  );
 }
 
 function pct(x) {
@@ -41,15 +51,6 @@ function safeJson(obj) {
   catch { return String(obj); }
 }
 
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
 function clearUI() {
   document.getElementById("summaryGrid").innerHTML = "";
   document.getElementById("countsRow").innerHTML = "";
@@ -61,27 +62,22 @@ function clearUI() {
 
 async function runMetrics() {
   const btn = document.getElementById("runMetricsBtn");
-  const fileInput = document.getElementById("pdfFile");
-  const file = fileInput.files?.[0];
-
   clearUI();
 
-  if (!file) {
-    setStatus("Сначала выберите PDF файл", "error");
+  const uuid = getUuidFromUrlPath();
+  if (!uuid) {
+    setStatus("Не удалось определить uuid из URL (ожидается /metrics/<uuid>)", "error");
     return;
   }
 
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Выполняется...';
-  setStatus("Отправка файла на сервер...", "info");
+  setStatus("Запуск оценки на сервере...", "info");
 
   try {
-    const fd = new FormData();
-    fd.append("file", file);
-
-    const res = await fetch("/api/parser/metrics", {
+    const res = await fetch(`/api/parser/metrics/${encodeURIComponent(uuid)}`, {
       method: "POST",
-      body: fd
+      headers: { "Accept": "application/json" }
     });
 
     if (!res.ok) {
@@ -91,6 +87,7 @@ async function runMetrics() {
 
     const data = await res.json();
 
+    // ожидаем { metrics, base?, result? } как раньше
     if (!data.metrics) {
       console.error("Ответ без metrics:", data);
       throw new Error("Сервер не вернул поле metrics");
@@ -99,8 +96,8 @@ async function runMetrics() {
     renderSummary(data.metrics);
     renderCounts(data.metrics);
 
-   const baselinePanel = document.getElementById("baselinePanel");
-   const resultPanel = document.getElementById("resultPanel");
+    const baselinePanel = document.getElementById("baselinePanel");
+    const resultPanel = document.getElementById("resultPanel");
 
     if (data.base) {
       baselinePanel.style.display = "block";
@@ -116,31 +113,30 @@ async function runMetrics() {
       resultPanel.style.display = "none";
     }
 
-
     setStatus("Готово", "success");
 
   } catch (e) {
     console.error(e);
     setStatus(e.message || "Ошибка", "error");
-    alert(e.message || "Ошибка запуска метрик");
+    alert(e.message || "Ошибка получения метрик");
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-play"></i> Запустить метрики';
+    btn.innerHTML = '<i class="fas fa-play"></i> Получить метрики';
   }
 }
 
 function renderSummary(m) {
   document.getElementById("summaryGrid").innerHTML = `
     <div class="metric-card">
-      <div class="metric-title">NER Precision</div>
+      <div class="metric-label">NER Precision</div>
       <div class="metric-value">${pct(m.ner_precision)}</div>
     </div>
     <div class="metric-card">
-      <div class="metric-title">NER Recall</div>
+      <div class="metric-label">NER Recall</div>
       <div class="metric-value">${pct(m.ner_recall)}</div>
     </div>
     <div class="metric-card">
-      <div class="metric-title">NER F1</div>
+      <div class="metric-label">NER F1</div>
       <div class="metric-value">${pct(m.ner_f1)}</div>
     </div>
   `;
@@ -171,4 +167,3 @@ function renderCounts(m) {
     </div>
   `;
 }
-

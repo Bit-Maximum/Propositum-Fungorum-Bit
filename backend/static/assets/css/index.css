@@ -10,7 +10,7 @@
     padding: 14px 14px;
     border-radius: 16px;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--panel);
     color: var(--text);
     cursor: pointer;
     transition: 0.2s ease;
@@ -26,8 +26,8 @@
 
 .btn-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(94, 234, 212, 0.35);
-    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(34, 211, 238, 0.35);
+    background: var(--panel2);
 }
 
 .btn-card:active {
@@ -46,15 +46,19 @@
     }
 }
 
-
-
-.muted {
+/* сообщения */
+.muted{
     font-size: 0.9em;
-    color: #27ae60;
+    color: var(--success);
     margin-top: 5px;
 }
 
-.error {
-    color: #e74c3c;
+.error{
+    color: var(--danger);
     font-weight: bold;
+}
+
+/* если где-то используется history-item и тут тоже нужно */
+.history-item{
+    border-left: 4px solid var(--info);
 }

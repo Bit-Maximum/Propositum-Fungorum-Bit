@@ -1,17 +1,3 @@
-:root {
-  --bg: #0b0f1a;
-  --panel: #121826;
-  --panel-2: #161e2e;
-  --border: #334155;
-
-  --text: #f8fafc;
-  --muted: #94a3b8;
-
-  --accent: #38bdf8;
-  --success: #22c55e;
-  --danger: #ef4444;
-}
-
 /* Страница */
 .metrics-page {
   background: var(--bg);
@@ -55,8 +41,9 @@
 .metrics-page input[type="file"] {
   color: var(--text);
 }
+
 .metrics-page input[type="file"]::file-selector-button {
-  background: var(--panel-2);
+  background: var(--panel2);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -79,7 +66,7 @@
 }
 
 .metrics-page .metric-card {
-  background: var(--panel-2);
+  background: var(--panel2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px;
@@ -103,7 +90,7 @@
 }
 
 .metrics-page .counts-card {
-  background: var(--panel-2);
+  background: var(--panel2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px;
@@ -114,7 +101,7 @@
 }
 
 .metrics-page .pill {
-  background: #0f172a;
+  background: rgba(0,0,0,0.18);
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 999px;
@@ -145,7 +132,7 @@
 }
 
 .metrics-page .data-box {
-  background: var(--panel-2);
+  background: var(--panel2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 14px;
@@ -159,10 +146,10 @@
   letter-spacing: 0.6px;
 }
 
-/* Важно: pre/code без белого фона */
+/* pre/code без белого фона */
 .metrics-page .codebox {
   margin: 0;
-  background: #0f172a;
+  background: rgba(0,0,0,0.20);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px;
@@ -173,7 +160,7 @@
   word-break: break-word;
 }
 
-/* ===== Layout как на рисунке ===== */
+/* ===== Layout ===== */
 .metrics-page .metrics-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -187,7 +174,7 @@
 /* Верхний широкий блок */
 .metrics-page .metrics-panel {
   grid-area: metrics;
-  background: var(--panel-2);
+  background: var(--panel2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
@@ -203,7 +190,7 @@
 }
 
 .metrics-page .json-panel {
-  background: var(--panel-2);
+  background: var(--panel2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 16px;
@@ -219,12 +206,12 @@
 
 /* Метрики внутри верхнего блока */
 .metrics-page .metrics-panel .metrics-grid {
-  margin-top: 0; /* чтобы заголовок был плотнее */
+  margin-top: 0;
 }
 
-/* Codebox чуть выше, чтобы не было пустого места */
+/* Codebox чуть выше */
 .metrics-page .json-panel .codebox {
-  max-height: 520px; /* побольше, как окно */
+  max-height: 520px;
 }
 
 /* Адаптив */
@@ -238,7 +225,7 @@
   }
 }
 
-/* ===== Раздельные окошки для TP/FP/FN/Support ===== */
+/* ===== Раздельные окошки ===== */
 .metrics-page .counts-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -253,7 +240,7 @@
 }
 
 .metrics-page .count-box {
-  background: #0f172a;
+  background: rgba(0,0,0,0.18);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px 14px;
@@ -272,4 +259,3 @@
   font-weight: 800;
   color: var(--text);
 }
-

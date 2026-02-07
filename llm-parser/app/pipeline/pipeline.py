@@ -133,10 +133,6 @@ class Pipeline:
         step_1 = step_1_response.get("data")
         text = text_response.get('content')
 
-
-        logger.error(text_response)
-        logger.error(text)
-
         step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
         step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
 
