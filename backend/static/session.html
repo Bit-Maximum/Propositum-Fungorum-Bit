@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Клинический опросник</title>
+
+    <link rel="stylesheet" href="/static/assets/css/style.css?v=20260207">
+    <link rel="stylesheet" href="/static/assets/css/section.css?v=20260207">
+    <link rel="stylesheet" href="/static/assets/css/graph.css?v=20260207">
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__inner">
+            <a class="brand" href="/">
+                <span class="brand__logo" aria-hidden="true">
+                    <i class="fas fa-bone custom-logo"></i>
+                </span>
+                <span class="brand__title">Клинический опросник</span>
+            </a>
+
+            <nav class="nav" aria-label="Основная навигация">
+                <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
+                <a class="nav__link" href="/metrics/{{id}}"><i class="fas fa-chart-line"></i> Метрики качества</a>
+                <a class="nav__link" href="#" onclick="showGraph(); return false;"><i class="fas fa-project-diagram"></i> Схема алгоритма</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+
+
+            <section class="hero">
+                <div class="hero__content">
+                    <h1 class="hero__title">Опросник по медицинской рекомендации</h1>
+                    <p class="hero__subtitle">
+                        Система поддержки принятия решений при {{subtitle_name}}
+                    </p>
+
+                    <div class="hero__actions">
+                        <div>
+                            Сессия: <span id="sessionId">не начата</span>
+                        </div>
+
+                        <button class="btn btn--primary" onclick="resetSession()">
+                            <i class="fas fa-redo"></i> Начать заново
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hero__panel" aria-hidden="true">
+                    <img src="/static/assets/img/img.jpg" alt="" class="hero__image" />
+                </div>
+            </section>
+
+            <section class="card questionnaire-container">
+                <div class="card__header">
+                    <h2 class="card__title">Клинические рекомендации</h2>
+                    <div class="card__meta">
+                            Ответьте на вопросы для получения персонализированных рекомендаций по лечению.
+                    </div>
+                </div>
+
+                <div class="card__body">
+                    <h2 id="questionTitle">Добро пожаловать в клинический опросник</h2>
+                    <p id="questionDescription">
+                        На основе Федеральных клинических рекомендаций при {{subtitle_name}}.<br>
+                        Ответьте на вопросы для получения персонализированных рекомендаций по лечению.
+                    </p>
+
+
+                    <div class="card__question" id="questionCard">
+
+
+                        <div class="question-body">
+                            <div class="start-screen" id="questionBody">
+                                    <h3>Начните новую сессию</h3>
+                                    <p>
+                                        Опросник поможет определить оптимальную тактику хирургического лечения
+                                        на основе возраста пациента, типа перелома и сопутствующих факторов.
+                                    </p>
+
+                                    <button class="btn btn--primary" onclick="startNewSession()">
+                                        <i class="fas fa-play"></i> Начать опросник
+                                    </button>
+                            </div>
+
+                            <div class="progress-container">
+                                <div class="progress-bar" id="progressBar"></div>
+                            </div>
+                            <div class="progress-meta" id="progressMeta">
+                                <span id="progressText"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="history-container">
+                            <h3><i class="fas fa-history"></i> История ответов</h3>
+                            <div class="history-list" id="historyList">
+                                <div class="empty-history">
+                                    <i class="fas fa-clipboard-list"></i>Здесь будет история ответов
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card__footer">
+                        <button class="btn btn--secondary"  onclick="goBack()"id="backButton" disabled>
+                            <i class="fas fa-arrow-left"></i> Назад
+                        </button>
+                        <button class="btn btn--primary" onclick="submitAnswer()" id="submitButton" disabled>
+                            Далее <i class="fas fa-arrow-right"></i>
+                        </button>
+                </div>
+            </section>
+
+
+
+            <section class="card result-container" style="display: none;">
+                <div class="card__header">
+                    <h2 class="card__title">Клинические рекомендации</h2>
+                    <div class="card__meta">
+                            Персонализированные рекомендации по лечению.
+                    </div>
+                </div>
+
+
+                <div class="card__result" id="resultCard">
+
+                    <div class="result-header">
+                        <h2><i class="fas fa-check-circle"></i> Рекомендация по лечению</h2>
+                        <p class="evidence-level" id="evidenceLevel"></p>
+                    </div>
+
+                    <div class="result-body">
+                        <div class="recommendation-section">
+                            <h3>Основная рекомендация:</h3>
+                            <div class="recommendation-text" id="recommendationText"></div>
+                        </div>
+
+                        <div class="parameters-section">
+                            <h3>Параметры лечения:</h3>
+                            <div class="parameters-grid" id="parametersGrid"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card__footer">
+                    <div class="actions-section">
+                        <button class="btn btn--primary" onclick="startNewSession()">
+                            <i class="fas fa-redo"></i> Новый пациент
+                        </button>
+                        <button class="btn btn--secondary"  onclick="printRecommendation()">
+                            <i class="fas fa-print"></i> Распечатать
+                        </button>
+                        <button class="btn btn--secondary"  onclick="downloadRecommendation()">
+                            <i class="fas fa-download"></i> Сохранить
+                        </button>
+
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <small class="footer__text">
+                <p>Разработано на основе Федеральных клинических рекомендаций "{{display_name}}"</p>
+                <p class="version">Версия 1.0.0 | Доказательная медицина</p>
+            </small>
+        </div>
+    </footer>
+
+    <div class="modal" id="graphModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Алгоритм принятия решений</h2>
+                <span class="close-modal" onclick="closeGraph()">&times;</span>
+            </div>
+
+
+            <div id="graphContainerWrapper" style="position: relative;">
+                <div class="mermaid" id="graphContainer">
+                    Loading...
+                </div>
+                <div class="zoom-controls">
+                    <button onclick="zoomIn()" title="Приблизить"><i class="fas fa-plus"></i></button>
+                    <button onclick="zoomOut()" title="Отдалить"><i class="fas fa-minus"></i></button>
+                    <button onclick="resetZoomGraph()" title="Сброс"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/assets/js/script.js"></script>
+</body>
