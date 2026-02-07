@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Метрики качества</title>
+
+  <link rel="stylesheet" href="/static/assets/css/style.css?v=20260207_3">
+  <link rel="stylesheet" href="/static/assets/css/section.css?v=20260207_3">
+  <link rel="stylesheet" href="/static/assets/css/metrics.css?v=20260207_3">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="metrics-page">
+<header class="header">
+  <div class="container header__inner">
+    <a class="brand" href="/">
+      <span class="brand__logo" aria-hidden="true"><i class="fas fa-bone custom-logo"></i></span>
+      <span class="brand__title">Клинический опросник</span>
+    </a>
+
+    <nav class="nav">
+      <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
+      <a class="nav__link" href="#" id="backLink"><i class="fas fa-arrow-left"></i> Назад</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+  <div class="container">
+
+    <section class="card metrics-card">
+      <div class="card__header">
+        <h2 class="card__title"><i class="fas fa-chart-line"></i> Метрики качества (NER)</h2>
+        <div class="card__meta">
+          Нажмите «Получить метрики». Сервер выполнит оценку и вернёт результат для текущей сессии.
+        </div>
+      </div>
+
+      <div class="card__body">
+
+        <div class="toolbar">
+          <button class="btn btn--primary" id="runMetricsBtn">
+            <i class="fas fa-play"></i> Получить метрики
+          </button>
+          <span id="statusText" class="muted status--info"></span>
+        </div>
+
+        <div class="metrics-layout">
+
+          <section class="metrics-panel">
+            <h3 class="panel-title">Метрики</h3>
+
+            <div class="metrics-grid" id="summaryGrid"></div>
+            <div class="counts-wrap" id="countsRow"></div>
+          </section>
+
+          <section class="json-panel baseline-panel" id="baselinePanel" style="display:none;">
+            <h3 class="panel-title">Baseline</h3>
+            <pre class="codebox" id="baselineBox"></pre>
+          </section>
+
+          <section class="json-panel result-panel" id="resultPanel" style="display:none;">
+            <h3 class="panel-title">Наш JSON</h3>
+            <pre class="codebox" id="resultBox"></pre>
+          </section>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <small class="footer__text">
+      <p>Разработано на основе Федеральных клинических рекомендаций</p>
+      <p class="version">Версия 1.0.0 | Доказательная медицина</p>
+    </small>
+  </div>
+</footer>
+
+<script src="/static/assets/js/metrics.js?v=20260207_3"></script>
+</body>
+</html>

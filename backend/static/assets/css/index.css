@@ -26,7 +26,7 @@
 
 .btn-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(94, 234, 212, 0.35);
+    border-color: rgba(56, 189, 248, 0.35);
     background: rgba(255, 255, 255, 0.09);
 }
 
@@ -35,26 +35,210 @@
 }
 
 @media (max-width: 980px) {
-    .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-
 @media (max-width: 560px) {
-    .grid {
-        grid-template-columns: 1fr;
-    }
+    .grid { grid-template-columns: 1fr; }
 }
-
-
 
 .muted {
-    font-size: 0.9em;
-    color: #27ae60;
-    margin-top: 5px;
+    font-size: 0.95em;
+    color: var(--muted);
 }
 
-.error {
-    color: #e74c3c;
-    font-weight: bold;
+/* ===== MODAL ===== */
+.modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 999;
 }
+
+.modal.is-open {
+    display: block;
+}
+
+.modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+}
+
+.modal__content {
+    position: relative;
+    width: min(640px, calc(100% - 28px));
+    margin: 6vh auto;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    box-shadow: 0 18px 55px rgba(0,0,0,0.55);
+    overflow: hidden;
+}
+
+.modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.03);
+}
+
+.modal__header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal__close {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+}
+
+.modal__close:hover {
+    background: rgba(255,255,255,0.10);
+}
+
+.modal__body {
+    padding: 16px;
+}
+
+.upload-form {
+    display: grid;
+    gap: 14px;
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+}
+
+.field__label {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.field__input {
+    height: 46px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.22);
+    color: var(--text);
+    outline: none;
+    transition: 0.18s ease;
+}
+
+.field__input:focus {
+    border-color: rgba(56, 189, 248, 0.55);
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.16);
+}
+
+.field__hint {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.modal__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 6px;
+}
+
+.modal__status {
+    min-height: 20px;
+}
+
+.status--success { color: var(--success); font-weight: 700; }
+.status--error { color: var(--danger); font-weight: 700; }
+
+#uploadStatus:empty {
+  display: none;
+}
+
+input[type="file"]{
+  color: var(--text);
+}
+
+input[type="file"]::file-selector-button{
+  height: 44px;
+  padding: 0 14px;
+  margin-right: 10px;
+
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 800;
+
+  cursor: pointer;
+  transition: 0.18s ease;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.30);
+}
+
+input[type="file"]::file-selector-button:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+}
+
+
+.field__input[type="file"]{
+  height: auto;
+  padding: 8px 10px;
+  line-height: 1.2;
+  color: transparent;
+}
+
+
+.field__input[type="file"]::file-selector-button{
+  height: 34px;
+  padding: 0 14px;
+  margin-right: 0;
+  border-radius: 12px;
+}
+
+
+.field__input[type="file"]::-webkit-file-upload-button{
+  height: 34px;
+  padding: 0 14px;
+  margin-right: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.18s ease;
+  box-shadow: 0 10px 22px rgba(0,0,0,0.30);
+}
+.field__input[type="file"]::-webkit-file-upload-button:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+}
+
+
+.footer__inner{
+  justify-content: center;
+}
+
+.footer__text{
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+

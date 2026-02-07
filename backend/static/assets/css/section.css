@@ -17,7 +17,7 @@
 .questionnaire-container .card__question .question-body {
     border-radius: 18px;
     border: 1px solid var(--border);
-    background: rgba(255,255,255,0.04);
+    background: var(--panel);
     padding: 16px;
     min-height: 280px;
 
@@ -29,13 +29,12 @@
 .start-screen {
     border-radius: 18px;
     padding: 18px;
-    background: rgba(255,255,255,0.04);
-    border: 1px dashed rgba(255,255,255,0.14);
+    background: var(--panel);
+    border: 1px dashed rgba(255,255,255,0.16);
     display: grid;
     gap: 10px;
     align-content: center;
     min-height: 170px;
-    /*justify-items: start;*/
 }
 
 .start-screen h3 {
@@ -70,7 +69,7 @@
 .history-container {
     border-radius: 18px;
     border: 1px solid var(--border);
-    background: rgba(255,255,255,0.04);
+    background: var(--panel);
     padding: 14px;
     min-height: 280px;
 
@@ -99,8 +98,8 @@
     padding: 10px 10px 8px 12px;
     border-radius: 14px;
     border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.05);
-    border-left: 4px solid #3498db;
+    background: var(--panel2);
+    border-left: 4px solid var(--info);
 }
 
 .empty-history {
@@ -108,7 +107,7 @@
     font-weight: 600;
     padding: 14px;
     border-radius: 16px;
-    border: 1px dashed rgba(255,255,255,0.14);
+    border: 1px dashed rgba(255,255,255,0.16);
     background: rgba(255,255,255,0.03);
     display: flex;
     align-items: center;
@@ -118,12 +117,11 @@
 .btn i {
     margin-right: 8px;
 }
+
 .btn i.fa-arrow-right {
     margin-left: 8px;
     margin-right: 0;
 }
-
-
 
 .result-container {
     display: none;
@@ -166,10 +164,10 @@
     padding: 14px;
     border-radius: 16px;
     border: 1px solid var(--border);
-    background: rgba(255,255,255,0.04);
+    background: var(--panel);
     color: var(--text);
     min-height: 60px;
-  line-height: 1.5;
+    line-height: 1.5;
 }
 
 .parameters-grid {
@@ -182,7 +180,7 @@
     padding: 10px;
     border-radius: 14px;
     border: 1px solid var(--border);
-    background: rgba(255,255,255,0.05);
+    background: var(--panel2);
     text-align: center;
     font-size: 14px;
     color: var(--text);
@@ -207,7 +205,7 @@
     padding: 12px;
     border-radius: 16px;
     border: 1px solid var(--border);
-    background: rgba(255,255,255,0.05);
+    background: var(--panel2);
     color: var(--text);
 }
 
@@ -243,8 +241,6 @@
     margin-bottom: 0;
 }
 
-
-
 .question-form {
     display: flex;
     flex-direction: column;
@@ -267,15 +263,15 @@
     border-radius: 16px;
     cursor: pointer;
     user-select: none;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--panel2);
     border: 1px solid var(--border);
     transition: 0.18s ease;
 }
 
 .option-label:hover {
     transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(94, 234, 212, 0.28);
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(34, 211, 238, 0.32);
 }
 
 .option-label input {
@@ -293,8 +289,8 @@
 }
 
 .option-label:has(input:checked) {
-    background: rgba(94, 234, 212, 0.10);
-    border-color: rgba(94, 234, 212, 0.55);
+    background: rgba(34, 211, 238, 0.12);
+    border-color: rgba(34, 211, 238, 0.55);
 }
 
 .number-input {
@@ -302,8 +298,8 @@
     height: 56px;
     padding: 10px 14px;
     border-radius: 16px;
-    border: 1px solid var(--border);
-    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(0,0,0,0.20);
     color: var(--text);
     font-weight: 900;
     font-size: 26px;
@@ -319,8 +315,8 @@
 }
 
 .number-input:focus {
-    border-color: rgba(94, 234, 212, 0.55);
-    box-shadow: 0 0 0 4px rgba(94, 234, 212, 0.18);
+    border-color: rgba(251, 191, 36, 0.65);
+    box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.18);
     transform: translateY(-1px);
 }
 

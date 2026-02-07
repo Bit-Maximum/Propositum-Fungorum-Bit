@@ -17,6 +17,17 @@ class QuestionnaireApp {
 
     }
 
+    goToMetrics() {
+    const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
+    const params = new URLSearchParams({ clinReqType: type });
+
+    if (this.sessionId) {
+        params.set("session_id", this.sessionId);
+    }
+
+    window.location.href = `/static/metrics.html?${params.toString()}`;
+}
+
     async getGraphNodes() {
         const type = localStorage.getItem("clinReqType") || "QUESTIONNARIE";
 

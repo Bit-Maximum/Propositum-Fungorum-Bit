@@ -1,18 +1,16 @@
 import json
 import logging
-from datetime import datetime
-from io import BytesIO
+import warnings
 from pathlib import Path
+
 from app.llm.yandex.YandexLlmClient import YandexLlmClient
 from app.config import settings
 from app.llm.yandex.AsyncYandexLlmClient import AsyncYandexLlmClient
 from app.utils.guideline_aggregator import GuidelineAggregator
 from app.metrics.load_baseline import load_baseline, save_baseline
 from app.metrics.evaluator import evaluate
-from fastapi import HTTPException
+from app.pipeline.storage.backend_client import BackendClient
 
-from .storage.s3_client import S3MemoryClient
-from .storage.s3_metadata import Metadata
 from .prompt_manager import PromptManager
 
 
@@ -25,10 +23,8 @@ class Pipeline:
         self.is_parallel = settings.LLM_PARALLEL_TASK_MODE
         self.prompt_manager = PromptManager(prompts_dir)
 
-        self.s3_client = S3MemoryClient(settings.MINIO_APP_BUCKET_NAME, aws_access_key_id=settings.MINIO_APP_USER,
-                                        aws_secret_access_key=settings.MINIO_APP_PASSWORD, endpoint_url=settings.MINIO_APP_ENDPOINT)
+        self.backend_client = BackendClient("data/")
 
-        self.metadata = Metadata("data/metadata.json")
 
 
     async def __aggregate_results(self, prompt: str, chunks: list[str]):
@@ -41,61 +37,22 @@ class Pipeline:
         return aggregator.get()
 
 
-    def _upload_step_results_to_s3(self, step_results: dict) -> dict:
-        try:
-            logger.info(f"(S3) Начинаем загружать результаты этапов в S3")
-            run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-            base_path = f"llm-pipeline/runs/"
 
-            uploaded_paths = {}
-
-            while self.s3_client.object_exists(f"{base_path}{run_id}.json"):
-                run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            logger.info(f"(S3) Путь загрузки: {base_path}{run_id}")
-            for step_name, result in step_results.items():
-                s3_key = f"{base_path}{run_id}/{step_name}.json"
-
-                logger.info(f"(S3) Загружаем файл {s3_key}")
-                byte_io = BytesIO(
-                    json.dumps(result, ensure_ascii=False, indent=2).encode("utf-8")
-                )
-
-                self.s3_client.upload_stream(byte_io, f"{base_path}{run_id}/{step_name}.json")
-
-                uploaded_paths[step_name] = s3_key
-
-            logger.info(f"(S3) Загружены файлы: {uploaded_paths}")
-            return uploaded_paths
-
-        except Exception as e:
-            logger.error(f"Ошибка при загрузке файл в S3: {str(e)}")
-            raise HTTPException(
-                status_code=500,
-                detail="Fucked by stupid"
-            )
-
-    async def run(self, text: str = "") -> dict:
+    async def run(self, text: str = "", filename: str = "file", display_name: str = "default", subtitle_name: str = "default") -> dict:
 
         step_results = {}
 
         llm = YandexLlmClient()
+
+        uuid = await self.backend_client.upload_metadata(display_name, subtitle_name)
+        await self.backend_client.upload_text_as_file(text, uuid)
+
         step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
         step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
 
         logger.info(f"(1/4) 'Этап 1'")
         step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
         step_results["step_1"] = step_1
-
-        # baseline = load_baseline()
-        # if baseline is None:
-        #     save_baseline(step_1)
-        #     return {
-        #         "result": step_1,
-        #         "metrics": None,
-        #         "message": "Baseline created"
-        #     }
-        # metrics = evaluate(baseline, step_1)
 
         logger.info(f"(2/4) 'Этап 2'")
         step_2_prompt_path: Path = self.prompt_manager.get_step_prompt(2)
@@ -119,6 +76,84 @@ class Pipeline:
         step_results["step_4"] = step_4
 
         logger.info(f"(!) 'Пайплайн завершён успешно'")
-        self._upload_step_results_to_s3(step_results)
+        await self.backend_client.upload_step_results_to_s3(uuid, step_results)
+
+        await self.backend_client.upload_json_as_file(step_4, uuid, "graph.json")
+
+        await self.backend_client.reload_metadata()
 
         return step_4
+
+    async def run_metrics_evaluation(self, text: str = "",
+                                     filename: str = "file") -> dict:
+        llm = YandexLlmClient()
+
+        step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
+        step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
+
+        logger.info("Запуск 1 этапа для получения метрик")
+        step_1 = llm.extract_guideline(text=text, prompt=step_1_prompt)
+
+        baseline: dict | None = load_baseline()
+        processed_baseline = baseline
+
+        if baseline is None:
+            processed_baseline = {filename: step_1}
+        elif filename not in processed_baseline:
+            processed_baseline[filename] = step_1
+
+        save_baseline(processed_baseline)
+
+        metrics: dict = evaluate(processed_baseline[filename], step_1)
+
+        return {
+            "base": baseline,
+            "result": step_1,
+            "metrics": metrics,
+            "message": "Baseline created"
+        }
+
+    async def run_metrics_evaluation_with_s3(self, uuid: str) -> dict:
+
+        llm = YandexLlmClient()
+
+        # TODO Проверить что набабашил Никита
+        # в .storage.backend_client новая функция, чтобы получать ответ в виде:
+        """
+        {
+            'type': 'text',
+            'content': ...... тут для ввода в step_1
+            'lines_count': ..... много линий
+            'size': ..... жирный файл
+        }
+        """
+        text_response = await self.backend_client.download_file("input.txt", uuid)
+        step_1_response = await self.backend_client.download_file("step_1.json", uuid)
+
+        step_1 = step_1_response.get("data")
+        text = text_response.get('content')
+
+        step_1_prompt_path: Path = self.prompt_manager.get_step_prompt(1)
+        step_1_prompt: str = step_1_prompt_path.read_text("utf-8")
+
+        logger.info("Запуск 1 этапа для получения метрик")
+        step_1_extracted = llm.extract_guideline(text=text, prompt=step_1_prompt)
+
+        # baseline: dict | None = load_baseline()
+        # processed_baseline = baseline
+        #
+        # if baseline is None:
+        #     processed_baseline = {uuid: step_1}
+        # elif uuid not in processed_baseline:
+        #     processed_baseline[uuid] = step_1
+        #
+        # save_baseline(processed_baseline)
+
+        metrics: dict = evaluate(step_1, step_1_extracted)
+
+        return {
+            "base": step_1,
+            "result": step_1_extracted,
+            "metrics": metrics,
+            "message": "Baseline created"
+        }

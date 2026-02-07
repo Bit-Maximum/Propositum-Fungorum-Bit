@@ -1,0 +1,261 @@
+
+.metrics-page {
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/
+.metrics-page .card.metrics-card,
+.metrics-page .card.metrics-card .card__header,
+.metrics-page .card.metrics-card .card__body {
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+
+.metrics-page .muted,
+.metrics-page .card__meta {
+  color: var(--muted) !important;
+}
+
+
+.metrics-page .toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.metrics-page .file-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+
+.metrics-page input[type="file"] {
+  color: var(--text);
+}
+
+.metrics-page input[type="file"]::file-selector-button {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+
+.metrics-page .metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .metrics-page .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metrics-page .metric-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.metrics-page .metric-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.metrics-page .metric-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+
+.metrics-page .counts-wrap {
+  margin-top: 14px;
+}
+
+.metrics-page .counts-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.metrics-page .pill {
+  background: rgba(0,0,0,0.18);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+
+.metrics-page .docs-block {
+  margin-top: 18px;
+}
+
+.metrics-page .docs-title {
+  margin: 0 0 10px 0;
+}
+
+.metrics-page .docs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .metrics-page .docs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metrics-page .data-box {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.metrics-page .data-box h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+}
+
+
+.metrics-page .codebox {
+  margin: 0;
+  background: rgba(0,0,0,0.20);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 420px;
+  overflow: auto;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+
+.metrics-page .metrics-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "metrics metrics"
+    "baseline result";
+  gap: 16px;
+  margin-top: 18px;
+}
+
+
+.metrics-page .metrics-panel {
+  grid-area: metrics;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+
+.metrics-page .baseline-panel {
+  grid-area: baseline;
+}
+
+.metrics-page .result-panel {
+  grid-area: result;
+}
+
+.metrics-page .json-panel {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+
+.metrics-page .panel-title {
+  margin: 0 0 12px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+
+.metrics-page .metrics-panel .metrics-grid {
+  margin-top: 0;
+}
+
+
+.metrics-page .json-panel .codebox {
+  max-height: 520px;
+}
+
+
+@media (max-width: 900px) {
+  .metrics-page .metrics-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "metrics"
+      "baseline"
+      "result";
+  }
+}
+
+/* ===== Раздельные окошки ===== */
+.metrics-page .counts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+@media (max-width: 900px) {
+  .metrics-page .counts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.metrics-page .count-box {
+  background: rgba(0,0,0,0.18);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.metrics-page .count-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.metrics-page .count-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text);
+}

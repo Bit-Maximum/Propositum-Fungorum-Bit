@@ -1,10 +1,12 @@
+import mimetypes
 import uuid
 import logging
 from io import BytesIO
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Body, Form, UploadFile, Depends, status
 from pydantic import BaseModel
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -14,7 +16,9 @@ from .s3_client import S3MemoryClient
 from .models import (AnswerRequest, 
                      SessionResponse, 
                      RecommendationResponse,
-                     FileUploadMetadata)
+                     FileUploadMetadata,
+                     DownloadRequest
+                     )
 from .sessions import SessionManager
 from .questionary_service import QuestionaryMetadata
 from .s3_metadata import Metadata
@@ -48,8 +52,7 @@ class QuestionaryApp:
 
         self.session_manager = SessionManager()
 
-        # Работа с S3 
-        # при тестировании раскомментить!!!!!!!!
+        # Работа с S3
         self.question_metadata = QuestionaryMetadata(self.metadata_path)
         self.s3_client = S3MemoryClient(config.bucket_name, aws_access_key_id= config.minio_user,
                                         aws_secret_access_key= config.minio_password, endpoint_url= config.minio_endpoint)
@@ -83,6 +86,10 @@ class QuestionaryApp:
             self.get_main_page
         )
 
+        app.get("/metrics/{clin_req_type}", response_class=HTMLResponse)(
+            self.get_metrics_page
+        )
+
         app.get("/api/questionaries/")(self.get_questionaries)
         app.post("/api/session/start")(self.start_session)
         app.get("/api/session/{session_id}")(self.get_session_state)
@@ -94,6 +101,7 @@ class QuestionaryApp:
         app.get("/api/questionnaire/nodes")(self.get_all_nodes)
 
         app.post("/api/questionnaire/upload")(self.upload_file_to_s3)
+        app.post("/api/questionnaire/download")(self.download_file_from_s3)
 
         app.post("/api/questionnaire/metadata/upload")(self.add_metadata_entry)
         app.post("/api/questionnaire/metadata/reload")(self.reload_questionnaire_metadata)
@@ -107,29 +115,34 @@ class QuestionaryApp:
         q_type = self.question_metadata.get_question_type(clin_req_type)
         template = self.env.get_template("session.html")
         return template.render(
-            subtitle_name=q_type.subtitle_name, display_name=q_type.display_name
+            subtitle_name=q_type.subtitle_name, display_name=q_type.display_name, id=clin_req_type
+        )
+
+    async def get_metrics_page(self, clin_req_type: str):
+        q_type = self.question_metadata.get_question_type(clin_req_type)
+
+        template = self.env.get_template("metrics.html")
+        return template.render(
+            clin_req_type=clin_req_type,
+            subtitle_name=q_type.subtitle_name,
+            display_name=q_type.display_name
         )
 
     async def upload_file_to_s3(
         self,
         file: UploadFile,
+        path: str = Body(..., description="Путь для сохранения файла в S3")
     ):
         try:
-            file_uuid: str = str(uuid.uuid4())
             file_content: bytes = await file.read()
 
-            file_path = '/data/'
-            while self.s3_client.object_exists(f"{file_path}{file_uuid}.json"):
-                file_uuid = str(uuid.uuid4())
-
             byteIo = BytesIO(file_content)
-            self.s3_client.upload_stream(byteIo, f"{file_path}{file_uuid}.json")
+            self.s3_client.upload_stream(byteIo, path)
 
             return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
                 content= {
                     "success": "ok",
-                    "s3_path": f"{file_path}{file_uuid}.json"
                 }
             )
 
@@ -139,9 +152,33 @@ class QuestionaryApp:
                 status_code=500,
                 detail="Fucked by stupid"
             )
-            
-        
-        
+
+
+    async def download_file_from_s3(
+        self,
+        request: DownloadRequest
+    ):
+        path = request.path
+        if not self.s3_client.object_exists(path):
+            raise HTTPException(
+                status_code=404,
+                detail="Not Found"
+            )
+
+        file_bytes = self.s3_client.download_bytes(path)
+
+        filename = Path(path).name
+
+        content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+        return Response(
+            content=file_bytes,
+            media_type=content_type,
+            headers={
+                'Content-Disposition': f'attachment; filename="{filename}"',
+                'Content-Length': str(len(file_bytes))
+            }
+        )
 
     async def get_questionaries(self):
         request_id = uuid.uuid4()
@@ -282,7 +319,6 @@ class QuestionaryApp:
         try:
             display_name = payload["display_name"]
             subtitle_name = payload["subtitle_name"]
-            questionnaire_path = payload["questionnaire_path"]
         except KeyError as e:
             raise HTTPException(
                 status_code=400,
@@ -290,10 +326,9 @@ class QuestionaryApp:
             )
 
         try:
-            result = self.metadata.change_metadata(
+            result = self.metadata.add_entry_in_metadata(
                 display_name=display_name,
                 subtitle_name=subtitle_name,
-                questionnaire_path=questionnaire_path
             )
         except FileNotFoundError as e:
             raise HTTPException(status_code=404, detail=str(e))
