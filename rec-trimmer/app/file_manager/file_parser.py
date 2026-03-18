@@ -15,10 +15,18 @@ class PyMuPDFParser(FileParser):
     _HEADING_FONT_SIZE_THRESHOLD = 14.0
     _HEADING_IS_BOLD_THRESHOLD = 5.0
 
-    _TOC_SEARCH_LIMIT_PAGES = 3
+    _TOC_SEARCH_LIMIT_PAGES = 5
     _TOC_MIN_SCORE = 3.0
 
-    _RE_DIGIT_START = re.compile(r'^\d')
+    # _RE_HEADING_NUMBER = re.compile(r'^\d+(?:\.\d+)*\.?\s')
+    _RE_HEADING_NUMBER = re.compile(
+        r'^\d+(?:\.\d+)*\.?'  # номер раздела
+        r'(?:\s(?=[А-ЯA-Z])'  # пробел + заглавная буква
+        r'|'
+        r'\.\s(?=[А-ЯA-Z])'   # точка + пробел + заглавная буква
+        r')'
+    )
+
     _RE_CLEAN_SPACES = re.compile(r'\s+')
     _RE_PUNCTUATION_SPACES = re.compile(r'\s+([,.:;!?])')
 
@@ -48,6 +56,20 @@ class PyMuPDFParser(FileParser):
     _TOC_KEYWORDS = [
         "содержание", "оглавление",
     ]
+
+    _UNNUMBERED_HEADINGS = frozenset({
+        "введение",
+        "заключение",
+        "выводы",
+        "список литературы",
+        "список использованных источников",
+        "приложение",
+        "аннотация",
+        "abstract",
+        "содержание",
+        "оглавление",
+        "библиография",
+    })
 
     def __init__(self) -> None:
         super().__init__()
@@ -123,19 +145,17 @@ class PyMuPDFParser(FileParser):
 
     def _find_visual_toc(self, doc: fitz.Document) -> list[tuple[str, int]]:
         limit = min(len(doc), self._TOC_SEARCH_LIMIT_PAGES)
-        best_page_num: int | None = None
-        best_score = 0.0
+        toc_pages = []
 
         for p_num in range(limit):
             score = self._calculate_toc_score(doc[p_num])
-            if score > best_score:
-                best_score = score
-                best_page_num = p_num + 1
+            if score >= self._TOC_MIN_SCORE:
+                toc_pages.append(p_num)
 
-        if best_page_num is None or best_score < self._TOC_MIN_SCORE:
+        if not toc_pages:
             return []
 
-        return self._parse_visual_toc_page(doc, best_page_num)
+        return self._parse_visual_toc_pages(doc, toc_pages)
 
     def _calculate_toc_score(self, page: fitz.Page) -> float:
         score = 0.0
@@ -178,52 +198,48 @@ class PyMuPDFParser(FileParser):
 
         return score
 
-    def _parse_visual_toc_page(
+    def _parse_visual_toc_pages(
         self,
         doc: fitz.Document,
-        page_num: int,
+        page_nums: list[int],
     ) -> list[tuple[str, int]]:
-        if page_num < 1 or page_num > len(doc):
-            return []
-
-        page = doc[page_num - 1]
         entries: list[tuple[str, int]] = []
-        pending_parts: list[str] = []     # накапливаем части многострочного заголовка
+        pending_parts: list[str] = []  # многострочный заголовок переносится между страницами
 
-        text_dict = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
-
-        raw_lines: list[str] = []
-        for block in text_dict["blocks"]:
-            if block["type"] != 0:
+        for page_num in page_nums:
+            if page_num < 1 or page_num > len(doc):
                 continue
-            for line in block["lines"]:
-                line_text = "".join(span["text"] for span in line["spans"]).strip()
-                if line_text:
-                    raw_lines.append(line_text)
 
-        for line_text in raw_lines:
-            # --- Попытка распознать строку с номером страницы ---
-            title, page_target = self._try_parse_toc_line(line_text)
+            page = doc[page_num - 1]
+            text_dict = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
 
-            if title is not None and page_target is not None:
-                # Если были накоплены части предыдущего заголовка — склеиваем
-                if pending_parts:
-                    full_title = " ".join(pending_parts + [title])
-                    pending_parts = []
+            raw_lines: list[str] = []
+            for block in text_dict["blocks"]:
+                if block["type"] != 0:
+                    continue
+                for line in block["lines"]:
+                    line_text = "".join(span["text"] for span in line["spans"]).strip()
+                    if line_text:
+                        raw_lines.append(line_text)
+
+            for line_text in raw_lines:
+                title, page_target = self._try_parse_toc_line(line_text)
+
+                if title is not None and page_target is not None:
+                    if pending_parts:
+                        full_title = " ".join(pending_parts + [title])
+                        pending_parts = []
+                    else:
+                        full_title = title
+
+                    full_title = self._clean_heading_text(full_title)
+
+                    if page_target > page_num and full_title:
+                        entries.append((full_title, page_target))
                 else:
-                    full_title = title
-
-                full_title = self._clean_heading_text(full_title)
-
-                if page_target > page_num and full_title:
-                    entries.append((full_title, page_target))
-            else:
-                # Строка без номера страницы — возможно начало/продолжение заголовка
-                # Берём только строки, которые выглядят содержательно
-                stripped = line_text.strip()
-                if stripped and len(stripped) > 2:
-                    pending_parts.append(stripped)
-
+                    stripped = line_text.strip()
+                    if stripped and len(stripped) > 2:
+                        pending_parts.append(stripped)
         return entries
 
     def _try_parse_toc_line(self, line_text: str) -> tuple[str, int] | tuple[None, None]:
@@ -262,9 +278,8 @@ class PyMuPDFParser(FileParser):
 
                 for line in block.get("lines", []):
                     line_parts = []
+                    
                     has_bold = False
-                    starts_with_digit = False
-                    first_text_checked = False
 
                     for span in line.get("spans", []):
                         span_text = span["text"].strip()
@@ -278,25 +293,33 @@ class PyMuPDFParser(FileParser):
                         if bool(flags & 2**4) or "bold" in font or "black" in font:
                             has_bold = True
 
-                        if not first_text_checked:
-                            if self._RE_DIGIT_START.match(span_text):
-                                starts_with_digit = True
-                            first_text_checked = True
-
                     if not line_parts:
                         continue
 
                     raw_line_text = "".join(line_parts)
+                    raw_line_text = re.sub(r'^(\d+(?:\.\d+)*\.?)([^\s\d])', r'\1 \2', raw_line_text)
 
-                    if starts_with_digit and has_bold:
-                        cleaned_text = self._clean_heading_text(raw_line_text)
-                        if (cleaned_text and cleaned_text not in seen_headings):
-                            headings.append(cleaned_text)
-                            seen_headings.add(cleaned_text)
+                    cleaned_text = self._clean_heading_text(raw_line_text)
 
+                    if not cleaned_text or cleaned_text in seen_headings:
+                        continue
+
+                    starts_with_heading_number = bool(
+                        self._RE_HEADING_NUMBER.match(cleaned_text)
+                    )
+
+                    is_numbered_heading = starts_with_heading_number and has_bold
+                    is_unnumbered_heading = (
+                        has_bold
+                        and not starts_with_heading_number
+                        and cleaned_text.lower() in self._UNNUMBERED_HEADINGS
+                    )
+
+                    if is_numbered_heading or is_unnumbered_heading:
+                        headings.append(cleaned_text)
+                        seen_headings.add(cleaned_text)
         except Exception:
             pass
-
         return headings
 
     def _clean_heading_text(self, text: str) -> str:
