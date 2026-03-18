@@ -98,7 +98,7 @@ class TrimmerPipline:
         logger.warning("Файл успешно сохранен: %s", str(file_metadata.file_name))
 
         return PipelineResult(
-            file_metadata.file_name,
+            file_metadata=file_metadata,
             page_ranges=processed_page_ranges,
             toc_analysis_result=toc_analysis_results,
             pages_analysis_result=pages_analysis_results
