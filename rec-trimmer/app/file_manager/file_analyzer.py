@@ -1,6 +1,7 @@
 from __future__ import annotations
 import re
 from typing import Sequence, TYPE_CHECKING
+import logging
 
 from .interfaces import FileAnalyzer, SimmilarityCalculator
 from .models import AnalysisResult, AnalysisStrategy, PageRange
@@ -14,6 +15,9 @@ if TYPE_CHECKING:
 
 
 __all__ = ['BasicFileAnalyzer',]
+
+
+logger = logging.getLogger(__name__)
 
 
 class BasicFileAnalyzer(FileAnalyzer):
@@ -60,16 +64,25 @@ class BasicFileAnalyzer(FileAnalyzer):
                     pattern_text, toc_entry_title = (pattern.text,
                                                      toc_entry.title)
 
+                logger.info("[] Сравниваем паттерн и заголовок: %s | %s", pattern_text, toc_entry_title)
+
                 if self._simm_calc.is_similar(
                     pattern_text,
                     toc_entry_title,
                     self._simm_threshold
                 ):
+                    logger.info("[X] Паттерн и заголовок совпали: %s | %s", pattern_text, toc_entry_title)
+
+                    logger.info("[] Ищем следующий заголовок в оглавлении для %s", toc_entry.title)
+
                     next_idx: int = self._find_next_toc_entry_idx(
                         filtered_toc_entries,
                         idx,
                         toc_entry.level
                     )
+
+                    logger.info("[X] Следующий заголовок для %s найден: %s",
+                                toc_entry.title, filtered_toc_entries[next_idx].title)
 
                     start_page_num: int = filtered_toc_entries[idx].page
                     end_page_num: int = filtered_toc_entries[next_idx].page
@@ -122,21 +135,28 @@ class BasicFileAnalyzer(FileAnalyzer):
                     else:
                         heading_text, pattern_text = heading, pattern.text
 
+                    logger.info("[] Сравниваем паттерн и заголовок: %s | %s", pattern_text, heading_text)
+
                     if self._simm_calc.is_similar(
                         heading_text,
                         pattern_text,
                         self._simm_threshold
                     ):
+                        logger.info("[X] Паттерн и заголовок совпали: %s | %s", pattern_text, heading_text)
                         matched_heading_level = self._get_heading_level(heading)
                         break
 
                 if matched_heading_level is not None:
+                    logger.info("[] Ищем конец для %s, начало на %i стр.", heading, page.number)
+
                     next_idx = self._find_next_page_idx_with_same_level(
                         filtered_pages,
                         idx,
                         matched_heading_level,
                         heading
                     )
+
+                    logger.info("[X] Найден конец для %s: %i", heading, filtered_pages[next_idx].number)
 
                     start_page_num = filtered_pages[idx].number
                     end_page_num = filtered_pages[next_idx].number
@@ -165,6 +185,7 @@ class BasicFileAnalyzer(FileAnalyzer):
                 if heading != matched_heading
             ):
                 h_level = self._get_heading_level(heading)
+
                 if h_level <= current_level:
                     return i
         return len(pages) - 1
@@ -185,5 +206,5 @@ class BasicFileAnalyzer(FileAnalyzer):
     ) -> int:
         for i in range(current_entry_idx + 1, len(toc_entries)):
             if toc_entries[i].level <= current_level:
-                return i - 1
+                return i
         return len(toc_entries) - 1
