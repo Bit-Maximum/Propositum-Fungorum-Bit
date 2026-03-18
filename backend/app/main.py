@@ -82,6 +82,7 @@ class QuestionaryApp:
         app = self.app
 
         app.get("/", response_class=FileResponse)(self.get_home)
+        app.get("/trimmer-page", response_class=FileResponse)(self.get_trimmer_page)
         app.get("/main-page/{clin_req_type}", response_class=HTMLResponse)(
             self.get_main_page
         )
@@ -110,6 +111,9 @@ class QuestionaryApp:
 
     async def get_home(self):
         return FileResponse("static/index.html")
+
+    async def get_trimmer_page(self):
+        return FileResponse("static/trimmer.html")
 
     async def get_main_page(self, clin_req_type: str):
         q_type = self.question_metadata.get_question_type(clin_req_type)
