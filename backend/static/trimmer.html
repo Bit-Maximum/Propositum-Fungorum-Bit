@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Обрезка документа</title>
+
+    <link rel="stylesheet" href="/static/assets/css/style.css?v=20260318_1">
+    <link rel="stylesheet" href="/static/assets/css/trimmer.css?v=20260318_1">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<header class="header">
+    <div class="container header__inner">
+        <a class="brand" href="/">
+            <span class="brand__logo" aria-hidden="true">
+                <i class="fas fa-bone custom-logo"></i>
+            </span>
+            <span class="brand__title">Клинический опросник</span>
+        </a>
+
+        <nav class="nav" aria-label="Основная навигация">
+            <a class="nav__link" href="/"><i class="fas fa-home"></i> Главная</a>
+            <a class="nav__link nav__link--active" href="/trimmer-page">
+                <i class="fas fa-scissors"></i> Обрезка документа
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <div class="container">
+        <section class="hero">
+            <div class="hero__content">
+                <h1 class="hero__title">Обрезка PDF-документа</h1>
+                <p class="hero__subtitle">
+                    Загрузите PDF-файл, и сервис выделит нужные страницы по заданным шаблонам.
+                </p>
+
+                <div class="hero__actions">
+                    <button class="btn btn--primary" type="button" id="scrollToFormBtn">
+                        <i class="fas fa-file-upload"></i> Выбрать документ
+                    </button>
+                    <div id="pageStatus" class="muted"></div>
+                </div>
+            </div>
+
+            <div class="hero__panel hero__panel--info" aria-hidden="true">
+                <div class="hero__icon-wrap">
+                    <i class="fas fa-file-pdf hero__big-icon"></i>
+                    <i class="fas fa-scissors hero__small-icon"></i>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card__header">
+                <h2 class="card__title">Загрузка документа</h2>
+                <span class="card__meta"></span>
+            </div>
+
+            <div class="card__body">
+                <form id="trimmerForm" class="upload-form">
+                    <label class="field">
+                        <span class="field__label">PDF файл</span>
+                        <input
+                                class="field__input"
+                                type="file"
+                                id="trimFile"
+                                name="file"
+                                accept="application/pdf"
+                                required
+                        />
+                        <span class="field__hint" id="trimFileHint">Файл не выбран</span>
+                    </label>
+
+                    <div class="trimmer-actions">
+                        <button class="btn btn--secondary" type="reset" id="resetBtn">
+                            <i class="fas fa-rotate-left"></i> Сбросить
+                        </button>
+
+                        <button class="btn btn--primary" type="submit" id="trimSubmitBtn">
+                            <i class="fas fa-scissors"></i> Обрезать документ
+                        </button>
+                    </div>
+
+                    <div class="modal__status">
+                        <span id="formStatus" class="muted"></span>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="card" id="resultCard" hidden>
+            <div class="card__header">
+                <h2 class="card__title">Результат обработки</h2>
+                <span class="card__meta" id="resultMeta">Готово</span>
+            </div>
+
+            <div class="card__body">
+                <div id="resultSummary" class="result-summary"></div>
+                <div id="resultActions" class="result-actions"></div>
+                <div id="resultJson" class="result-json"></div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container footer__inner">
+        <small class="footer__text">
+            <p>Разработано на основе Федеральных клинических рекомендаций</p>
+            <p class="version">Версия 1.0.0 | Доказательная медицина</p>
+        </small>
+    </div>
+</footer>
+
+<script src="/static/assets/js/trimmer.js?v=20260318_1"></script>
+</body>
+</html>
