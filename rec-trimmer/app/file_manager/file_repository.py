@@ -44,7 +44,7 @@ class LocalFileRepository(FileRepository):
 
     async def load_file(self, metadata: StorageFile) -> bytes:
         if not await self.file_exists(metadata):
-            raise FileNotFoundError(f"Файл {str(metadata)} уже существует")
+            raise FileNotFoundError(f"Файл {str(metadata)} не существует")
 
         file_path: Path = self._get_file_path(metadata)
 
