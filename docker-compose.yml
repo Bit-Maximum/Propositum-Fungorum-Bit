@@ -65,6 +65,24 @@ services:
     env_file:
       - .env
 
+  rec-trimmer:
+    build:
+      context: .
+      dockerfile: rec-trimmer/Dockerfile
+    container_name: rec-trimmer
+    depends_on:
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/trimmer/healthcheck/" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
   nginx:
     image: nginx:latest
     container_name: nginx
