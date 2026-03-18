@@ -2,7 +2,7 @@ import logging
 
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARNING,
     datefmt="%Y-%m-%d %H:%M:%S",
     format="%(levelname)s:[%(asctime)s]/%(name)s/ %(funcName)s %(module)s:%(lineno)d - %(message)s"
 )
