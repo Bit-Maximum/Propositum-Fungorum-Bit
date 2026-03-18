@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 
 
 router: APIRouter = APIRouter(
-    prefix="/healthcheck",
+    prefix="/trimmer/healthcheck",
     tags=["healthcheck",]
 )
 
