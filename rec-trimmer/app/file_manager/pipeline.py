@@ -45,13 +45,14 @@ class TrimmerPipline:
         self._page_merge_tool = page_merge_tool
 
     async def run(self, file: bytes,
-                  patterns: Sequence[SearchPattern]) -> PipelineResult:
-        analysis_range = PageRange(1, self._parser.get_total_pages(file))
-
+                  patterns: Sequence[SearchPattern],
+                  analysis_range: PageRange | None = None) -> PipelineResult:
+        if analysis_range is None:
+            analysis_range = PageRange(1, self._parser.get_total_pages(file))
 
         logger.warning("1. Извлечение оглавления...")
         toc_entries = self._parser.extract_toc(file)
-        
+
         logger.warning("2. Получение результатов анализа оглавления...")
         toc_analysis_results = await self._analyzer.analyze_toc_by_patterns(
             toc_entries,
@@ -64,7 +65,7 @@ class TrimmerPipline:
             file,
             [analysis_range]
         )
-        
+
         logger.warning("4. Получение результатов анализа страниц...")
         pages_analysis_results = await self._analyzer.analyze_pages_headings_by_patterns(
             pages,
