@@ -4,7 +4,9 @@ from fastapi import (
     APIRouter,
     status,
     UploadFile,
+    HTTPException
 )
+from fastapi.responses import Response
 
 import app.file_manager as FM
 
@@ -16,6 +18,9 @@ router: APIRouter = APIRouter(
     prefix="/trimmer",
     tags=["trimmer",]
 )
+
+
+repository = FM.file_repository.LocalFileRepository()
 
 
 @router.post(
@@ -35,7 +40,7 @@ async def trim(
     analyzer = FM.file_analyzer.BasicFileAnalyzer(
         FM.similarity_calculator.JaccardCalculator()
     )
-    repository = FM.file_repository.LocalFileRepository()
+    # repository = FM.file_repository.LocalFileRepository()
     page_resolver = FM.page_range_resolver.MergeResolver()
     page_merge_tool = FM.merge_tool.PyMuPDFMergeTool()
 
@@ -59,3 +64,38 @@ async def trim(
             FM.models.SearchPattern("Хирургическое лечение детей и взрослых"),
         ]
     )
+
+
+@router.get(
+    path="/{file_id}",
+    status_code=status.HTTP_200_OK,
+)
+async def download_file(file_id: str, extenstion: str = "pdf") -> Response:
+    file_data = FM.models.StorageFile(file_id=file_id, extension=extenstion)
+
+    try:
+        logger.debug(f"Чтение файла из хранилища: {file_data.file_name}")
+        file_bytes = await repository.load_file(file_data)
+
+        return Response(
+            content=file_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f"attachment; filename={file_data.file_name}"},
+        )
+    except HTTPException:
+        logger.warning("HTTP ошибка при скачивании файла: файл не найден или недоступен.")
+        raise
+
+    except FileNotFoundError as e:
+        logger.warning(f"Файл {file_id}.{extenstion} не найден в хранилище: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Файл не найден"
+        ) from e
+
+    except Exception as e:
+        logger.exception(f"Неожиданная ошибка при скачивании файла {file_id}.{extenstion}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка сервера при чтении файла"
+        ) from e
