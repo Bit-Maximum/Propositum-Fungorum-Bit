@@ -108,7 +108,7 @@ class AnalysisResult:
 
 @dataclass(frozen=True, slots=True)
 class PipelineResult:
-    file_name: str
+    file_metadata: StorageFile
     page_ranges: list[PageRange] = field(default_factory=list)
     toc_analysis_result: list[AnalysisResult] = field(default_factory=list)
     pages_analysis_result: list[AnalysisResult] = field(default_factory=list)
