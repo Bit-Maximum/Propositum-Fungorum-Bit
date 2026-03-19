@@ -19,10 +19,9 @@ class PyMuPDFMergeTool(MergeTool):
         if not page_ranges:
             return file_bytes
 
-        doc = fitz.open(stream=file_bytes, filetype="pdf")
-        new_doc = fitz.open()
-
-        try:
+        # Используем контекстные менеджеры для обоих документов
+        with (fitz.open(stream=file_bytes, filetype="pdf") as doc,
+             fitz.open() as new_doc):
             for p_range in page_ranges:
                 start_idx = p_range.begin - 1
                 end_idx = p_range.end - 1
@@ -32,7 +31,7 @@ class PyMuPDFMergeTool(MergeTool):
                 if end_idx > len(doc) - 1:
                     end_idx = len(doc) - 1
 
-                if start_idx >= end_idx:
+                if start_idx > end_idx:
                     continue
 
                 new_doc.insert_pdf(
@@ -44,6 +43,3 @@ class PyMuPDFMergeTool(MergeTool):
             buffer = io.BytesIO()
             new_doc.save(buffer, garbage=3, deflate=True)
             return buffer.getvalue()
-        finally:
-            doc.close()
-            new_doc.close()
